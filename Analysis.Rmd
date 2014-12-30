@@ -20,7 +20,7 @@ The original data were from a search of PsychInfo using Ebsco Host platform (Dec
 The search results were exported in a _generic bibliographic format_, which is an unstructured text (*.txt) file.The text file was processed using the `BibWrangleR` function created by the first author.  
 
 
-# Initialize workspace and functions for data wrangling
+# Initialize OS-X workspace and functions for data wrangling
 
 This section processes raw data.  This section of code is executed only one time to transform raw text data into an analyzable format.  When new data are obtained for this study (i.e., updated search results), this section should be re-run by changing `echo=FALSE` to `echo=TRUE` in the knitr markdown argument.   
 
@@ -31,7 +31,6 @@ rm(list=ls())
 # Read BWR functions for Mac OS
 source("/Users/beperron/Git/BibWrangleR/functions/piWrangleR.R")
 source("/Users/beperron/Git/BibWrangleR/functions/packages.R")
-
 # Set the path where original raw data are stored
 setwd("/Users/beperron/Git/SocialWorkResearch")
 
@@ -43,16 +42,36 @@ my.path <- "/Users/beperron/Git/SocialWorkResearch"
 #save(pi.df, file = "piArticles.R")
 ```
 
+# Initialize Windows workspace and functions for data wrangling
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Initialize workspace and functions for analaysis 
 
 All the analyses performed involve the data that have been processed with the `BibWrangleR` functions.  This section reads the processed data, loads the required packages, and does a quick quality check to ensure that the same number of articles (i.e., records) contained in the original search match the number of articles in the transformed data.  
 
 ```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA}
 rm(list=ls())
+setwd("/Users/beperron/Git/SocialWorkResearch")
+source("/Users/beperron/Git/BibWrangleR/functions/ggsurv.R")
 load("piArticles.R")
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
+library(survival)
+library(grid)
+library(png)
+
 
 # Inspect dimensions of the data file (Rows X Columns)
 dim(pi.df)
@@ -138,13 +157,27 @@ longest.running <- n.so.yr %>%
        mutate(last = as.numeric(last), first = as.numeric(first), 
               year.diff = last - first) %>%
        arrange(desc(year.diff)) %>%
-       select(title, first, last, year.diff)
+       select(title, first, last, year.diff) %>%
+       mutate(stop = year.diff, event = ifelse(as.numeric(last) != 2014, 1, 0)) %>%
+       select(title, stop, event, as.numeric(first))
 
-head(longest.running, 10)
+survival.journals <- survfit(Surv(longest.running$stop+1, longest.running$event) ~ 1)
+median.survival <- data.frame(time = c(12,12), quant = c(.5,0))
 
-#10 shortest running journals
-shortest.running <- longest.running %>% arrange(year.diff, first, last)
-head(shortest.running, 20)
+head(longest.running)
+
+ggsurv(survival.journals) + 
+    geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
+    annotate("segment", x = 18, xend = 12, y = .12, yend = .15, size = .25, arrow =arrow()) +
+    geom_text(x = 29, y =.12, label = "median survival", size = 4) + 
+    geom_text(x = 75, y =.75, label = "+ = Last year in print", size = 4) 
+
+
+
+
+
+
+
 ```
 
 ## What is the number of articles published per year
@@ -203,15 +236,9 @@ subject.terms.total <- length(unlist(lapply(subject.terms,
 
 subject.terms.unique <- length(unique(subject.terms))
 
-subject.terms.l <- list(subject.terms.total = subject.terms.total,
-                      subject.terms.unique = subject.terms.unique)
-
 most.frequent <- as.data.frame(table(subject.terms))
 
 most.frequent <- arrange(most.frequent, desc(Freq))
-
-# Print summary statistics in list form
-subject.terms.l
 
 # Print 25 most commmon terms
 head(most.frequent, 25)
@@ -220,11 +247,11 @@ head(most.frequent, 25)
 
 ## What are the topic areas over time (by Subject terms)?
 
-```{r subject_terms_overtime}
+```{r subject_terms_overtime, warning=FALSE, message=FALSE}
 decade <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
-decade$year <- cut(decade$year, breaks = 20, labels = c(1:20))
+decade$year <- cut(decade$year, breaks = 10, labels = c(1:10))
 
 keywords <- pi.df %>%
         filter(attributes == "SU") %>%
@@ -244,7 +271,6 @@ terms.f <- function(x){
     
 keywords.decade <- lapply(keywords.data.split, terms.f)
 keywords.decade <- lapply(keywords.decade, unlist)
-lapply(keywords.decade, function(x) length(unique(x)))
 
 temp <- lapply(keywords.decade, function(x) data.frame(table(x)))
 temp <- lapply(temp, function(x) arrange(x, desc(Freq)))
@@ -252,9 +278,9 @@ lapply(temp, function(x) head(x,10))
 ```
 
 
-# What are topic areas over time (by author specified keywords)?
+# What are the most frequent topic areas (by author specified keywords)?
   
-```{r comment=NA, warning=FALSE, message=FALSE}
+```{r keywords_overall, comment=NA, warning=FALSE, message=FALSE}
 kp.df <- filter(pi.df, attributes == "KP")
 
 subject.terms <- stringr::str_split(kp.df$record, pattern = ";")
@@ -280,11 +306,11 @@ head(most.frequent, 25)
 
 ## Most Frequent Author Keywords
 
-```{r}
+```{r keywords_over_time, warning=FALSE, message=FALSE}
 decade <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
-decade$year <- cut(decade$year, breaks = 20, labels = c(1:20))
+decade$year <- cut(decade$year, breaks = 10, labels = c(1:10))
 
 keywords <- pi.df %>%
         filter(attributes == "KP") %>%
@@ -304,7 +330,6 @@ terms.f <- function(x){
     
 keywords.decade <- lapply(keywords.data.split, terms.f)
 keywords.decade <- lapply(keywords.decade, unlist)
-lapply(keywords.decade, function(x) length(unique(x)))
 
 temp <- lapply(keywords.decade, function(x) data.frame(table(x)))
 temp <- lapply(temp, function(x) arrange(x, desc(Freq)))
@@ -313,11 +338,9 @@ lapply(temp, function(x) head(x,10))
 
 
 
-# Location
+# Location of Studies 
 
-It is easy to explore some of the different fields within the PsychInfo data frame.  For example, each record has one or more subject terms (from the article keywords).  The total number, unique number, and most frequently occuring key words can be easily computed.  
-
-```{r comment=NA, warning=FALSE, message=FALSE}
+```{r location, comment=NA, warning=FALSE, message=FALSE}
 
 LO.df <- filter(pi.df, attributes == "LO")
 
@@ -332,49 +355,54 @@ subject.terms.l <- list(subject.terms.total = subject.terms.total,
 
 most.frequent <- as.data.frame(table(subject.terms))
 
-
-
-most.frequent <- arrange(most.frequent, desc(Freq))
-most.frequent.t <- head(most.frequent, 50)
+location <- arrange(most.frequent, desc(Freq))
 
 print(subject.terms.l)
-print(most.frequent.t)
 
-most.frequent
+print(location)
 
+img2 <- readPNG("/Users/beperron/Git/SocialWorkResearch/Chloro.png")
+grid.raster(img2)
 ```
 
-## Location over time
 
-```{r}
-decade <- filter(pi.df, attributes == "YR") %>%
+## Location of studies over time
+
+```{r location_over_time, warning=FALSE, message=FALSE}
+
+
+
+top.10.countries <- head(location, 10)
+top.10.countries <- top.10.countries$subject.terms
+top.10.countries <- levels(droplevels(top.10.countries))
+
+
+
+year <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
-decade$year <- cut(decade$year, breaks = 20, labels = c(1:20))
 
-keywords <- pi.df %>%
+location <- pi.df %>%
         filter(attributes == "LO") %>%
-        select(articleID = articleID, keywords = record)
+        select(articleID = articleID, keywords = record) %>%
+        filter(keywords %in% top.10.countries)
 
-keywords.decade <- keywords %>% 
-         left_join(decade)
 
-library(plyr)
-keywords.data.split <- dlply(keywords.decade, .(year))
-detach(package:plyr)
+location.year <- location %>% 
+         left_join(year)
 
-terms.f <- function(x){
-    split.terms <- stringr::str_split(x[,"keywords"], pattern =";")
-    clean.terms <- lapply(split.terms, function(x) gsub(" ", "", x))
-    }
-    
-keywords.decade <- lapply(keywords.data.split, terms.f)
-keywords.decade <- lapply(keywords.decade, unlist)
-lapply(keywords.decade, function(x) length(unique(x)))
 
-temp <- lapply(keywords.decade, function(x) data.frame(table(x)))
-temp <- lapply(temp, function(x) arrange(x, desc(Freq)))
-lapply(temp, function(x) head(x,10))    
+
+plot.article.cumulative <- ggplot(df, aes(x = years, y = cumsum(year.count))) + 
+    geom_line() + 
+    theme(axis.text.x = element_text(angle=45, hjust=1)) +
+    scale_x_continuous(breaks=pretty(df$years)) +
+    xlab("year") +  
+    ylab("count") +
+    scale_x_continuous(breaks = c(seq(1914,2014,10))) +
+    scale_y_continuous(breaks = c(seq(0, 25000, 2500))) + 
+    ggtitle("Cumulative Frequency")
+
 ```
 
 
@@ -389,7 +417,6 @@ It is easy to explore some of the different fields within the PsychInfo data fra
 
 MD.df <- filter(pi.df, attributes == "MD")
 
-
 subject.terms <- stringr::str_split(MD.df$record, pattern = ";")
 subject.terms <- unlist(lapply(subject.terms, function(x) gsub(" ", "", x)))
 subject.terms.total <- length(unlist(lapply(subject.terms, function(x) gsub(" ", "", x))))
@@ -399,8 +426,6 @@ subject.terms.l <- list(subject.terms.total = subject.terms.total,
                       subject.terms.unique = subject.terms.unique)
 
 most.frequent <- as.data.frame(table(subject.terms))
-
-
 
 most.frequent <- arrange(most.frequent, desc(Freq))
 most.frequent.t <- head(most.frequent, 50)
