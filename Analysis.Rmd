@@ -17,19 +17,18 @@ The original data were from a search of PsychInfo using Ebsco Host platform (Dec
 
 + Database - PsycINFO
 
-The search results were exported in the _Generic bibliographic format_.  This format is a text (*.txt) file that is processed with the `BibWrangleR` functions.  
-
+The search results were exported in a _generic bibliographic format_, which is an unstructured text (*.txt) file.The text file was processed using the `BibWrangleR` function created by the first author.  
 
 
 # Initialize workspace and functions for data wrangling
 
-This section processes raw data.  This section of code is executed only one time to transform the raw data into an analyzable format.  When new data are obtained for this study (i.e., updated search results), this section should be re-run by changing `echo=FALSE` to `echo=TRUE` in the knitr markdown argument.   
+This section processes raw data.  This section of code is executed only one time to transform raw text data into an analyzable format.  When new data are obtained for this study (i.e., updated search results), this section should be re-run by changing `echo=FALSE` to `echo=TRUE` in the knitr markdown argument.   
 
-```{r initialization, warning=FALSE, message=FALSE, eval=FALSE}
+```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=FALSE}
 # Clear workspace
 rm(list=ls())
 
-# Read BWR functions
+# Read BWR functions for Mac OS
 source("/Users/beperron/Git/BibWrangleR/functions/piWrangleR.R")
 source("/Users/beperron/Git/BibWrangleR/functions/packages.R")
 
@@ -48,17 +47,17 @@ my.path <- "/Users/beperron/Git/SocialWorkResearch"
 
 All the analyses performed involve the data that have been processed with the `BibWrangleR` functions.  This section reads the processed data, loads the required packages, and does a quick quality check to ensure that the same number of articles (i.e., records) contained in the original search match the number of articles in the transformed data.  
 
-```{r message=FALSE, warning=FALSE, comment=NA}
+```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA}
 rm(list=ls())
 load("piArticles.R")
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
 
-# Dimensions of the data file (Rows X Columns)
+# Inspect dimensions of the data file (Rows X Columns)
 dim(pi.df)
 
-#Variables of the data file
+# Inspect variable names of the data file
 names(pi.df)
 
 # How many unique article titles?  Ebsco Results of most current search is $n=24,314$. Do not proceed with analysis if the output does not match this result.  
@@ -66,22 +65,23 @@ length(which(pi.df$attributes == "TI"))
 ```
 
 
-# Overall number and name of unique journal titles? 
+## What is the overall number and names of journal titles? 
 
-```{r}
+```{r unique_titles}
 unique.titles <- filter(pi.df, attributes == "SO")
 
-#Number of unique titles
+# Number of unique titles
 length(unique(unique.titles$record))
 
-#Unique titles
+# Unique titles
 unique(unique.titles$record)
 ```
 
-# Number of unique journal titles by year
+## Number of unique journal titles by year
 
-```{r message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4}
+```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4}
 journals.year <- tbl_df(pi.df)
+
 year <- journals.year %>%
         filter(attributes == "YR") %>%
         select(id = articleID, year = record)
@@ -96,7 +96,6 @@ n.journals.year <- journals %>%
         distinct(journal.title) %>%
         summarise(n = n())
 
-
 journal.count <- ggplot(n.journals.year, aes(as.numeric(year), y=n, group=1)) + 
     geom_line(colour="black") +
     #geom_point(colour="red") + 
@@ -110,43 +109,47 @@ journal.count
 ```
 
 
-# What journals published the most number of articles
+## What journals published the most number of articles
 
-```{r}
+```{r journal_output}
 
 n.so.yr <- filter(pi.df, attributes == "SO" | attributes == "YR")
-n.so <- filter(pi.df, attributes == "SO") %>% mutate(title = record) %>% select(-attributes, -record)
-n.yr <- filter(pi.df, attributes == "YR") %>% mutate(year = record ) %>% select(-attributes, -record)
+
+n.so <- filter(pi.df, attributes == "SO") %>% mutate(title = record) %>% 
+        select(-attributes, -record)
+
+n.yr <- filter(pi.df, attributes == "YR") %>% mutate(year = record ) %>% 
+        select(-attributes, -record)
+
 n.so.yr <- left_join(n.so, n.yr) %>%
     group_by(title) %>%
-    summarise(
-        first = min(year),
-        last = max(year),
-        n.to.date = n()
-        ) %>%
+    summarise(first = min(year), last = max(year), n.to.date = n()) %>%
     arrange(desc(n.to.date))
 
-#10 highest number of publications
+# 10 highest number of publications
 head(n.so.yr, 10)
 ```
 
-# What is the lifespan of journals?  
-```{r}
+## What is the lifespan of journals?  
+
+```{r journal_lifespan}
 #10 longest running journals 
 longest.running <- n.so.yr %>%
-       mutate(last = as.numeric(last), first = as.numeric(first),year.diff = last - first) %>%
+       mutate(last = as.numeric(last), first = as.numeric(first), 
+              year.diff = last - first) %>%
        arrange(desc(year.diff)) %>%
        select(title, first, last, year.diff)
-head(longest.running, 10)
 
+head(longest.running, 10)
 
 #10 shortest running journals
 shortest.running <- longest.running %>% arrange(year.diff, first, last)
 head(shortest.running, 20)
 ```
-#Number of articles per year
 
-```{r}
+## What is the number of articles published per year
+
+```{r articles_per_year}
 n.articles.year <- filter(pi.df, attributes == "YR") 
 year.split <- split(n.articles.year, n.articles.year$record)
 year.count <- unlist(lapply(year.split, nrow))
@@ -156,10 +159,8 @@ years <- names(year.count)
 df <- data.frame(years, year.count)
 rownames(df) <- NULL
 
-head(df, 10)
-tail(df,10)
-
-plot.article.count <- ggplot(df, aes(as.factor(years), y= year.count, group=1)) + 
+plot.article.count <- ggplot(df, aes(as.factor(years), 
+                    y = year.count, group=1)) + 
     geom_line(colour="black") +
     #geom_point(colour="red") + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
@@ -170,6 +171,7 @@ plot.article.count <- ggplot(df, aes(as.factor(years), y= year.count, group=1)) 
     scale_y_continuous(breaks = c(seq(0, 2000, 250))) 
 
 df$years <- as.numeric(as.character(df$years))
+
 plot.article.cumulative <- ggplot(df, aes(x = years, y = cumsum(year.count))) + 
     geom_line() + 
     theme(axis.text.x = element_text(angle=45, hjust=1)) +
@@ -181,21 +183,24 @@ plot.article.cumulative <- ggplot(df, aes(x = years, y = cumsum(year.count))) +
     ggtitle("Cumulative Frequency")
 
 grid.arrange(plot.article.count, plot.article.cumulative, ncol=2)
+
+# Print most recent ten years
+head(df, 10)
 ```
 
 
-# Topic areas (by Subject Terms)
+# What are the topic areas (by Subject Terms)?
 
-It is easy to explore some of the different fields within the PsychInfo data frame.  For example, each record has one or more subject terms (from the article keywords).  The total number, unique number, and most frequently occuring key words can be easily computed.  
+```{r subject_terms_overall, comment=NA, warning=FALSE, message=FALSE}
 
-```{r comment=NA, warning=FALSE, message=FALSE}
+su.df <- filter(pi.df, attributes == "SU")
 
-df.2 <- filter(pi.df, attributes == "SU")
-
-
-subject.terms <- stringr::str_split(df.2$record, pattern = ";")
+subject.terms <- stringr::str_split(su.df$record, pattern = ";")
 subject.terms <- unlist(lapply(subject.terms, function(x) gsub(" ", "", x)))
-subject.terms.total <- length(unlist(lapply(subject.terms, function(x) gsub(" ", "", x))))
+
+subject.terms.total <- length(unlist(lapply(subject.terms, 
+                        function(x) gsub(" ", "", x))))
+
 subject.terms.unique <- length(unique(subject.terms))
 
 subject.terms.l <- list(subject.terms.total = subject.terms.total,
@@ -203,19 +208,19 @@ subject.terms.l <- list(subject.terms.total = subject.terms.total,
 
 most.frequent <- as.data.frame(table(subject.terms))
 
-
-
 most.frequent <- arrange(most.frequent, desc(Freq))
-most.frequent.t <- head(most.frequent, 50)
 
-print(subject.terms.l)
-print(most.frequent.t)
+# Print summary statistics in list form
+subject.terms.l
+
+# Print 25 most commmon terms
+head(most.frequent, 25)
 
 ```
 
-## Most Frequent Subject Terms Over Time (by 5 years)
+## What are the topic areas over time (by Subject terms)?
 
-```{r}
+```{r subject_terms_overtime}
 decade <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
@@ -247,18 +252,16 @@ lapply(temp, function(x) head(x,10))
 ```
 
 
-# Author defined keywords
-
-It is easy to explore some of the different fields within the PsychInfo data frame.  For example, each record has one or more subject terms (from the article keywords).  The total number, unique number, and most frequently occuring key words can be easily computed.  
-
+# What are topic areas over time (by author specified keywords)?
+  
 ```{r comment=NA, warning=FALSE, message=FALSE}
-
 kp.df <- filter(pi.df, attributes == "KP")
-
 
 subject.terms <- stringr::str_split(kp.df$record, pattern = ";")
 subject.terms <- unlist(lapply(subject.terms, function(x) gsub(" ", "", x)))
-subject.terms.total <- length(unlist(lapply(subject.terms, function(x) gsub(" ", "", x))))
+subject.terms.total <- length(unlist(lapply(subject.terms, 
+                        function(x) gsub(" ", "", x))))
+
 subject.terms.unique <- length(unique(subject.terms))
 
 subject.terms.l <- list(subject.terms.total = subject.terms.total,
@@ -266,14 +269,13 @@ subject.terms.l <- list(subject.terms.total = subject.terms.total,
 
 most.frequent <- as.data.frame(table(subject.terms))
 
-
-
 most.frequent <- arrange(most.frequent, desc(Freq))
-most.frequent.t <- head(most.frequent, 50)
 
+# Print summary statistics
 print(subject.terms.l)
-print(most.frequent.t)
 
+# Print 25 most frequent
+head(most.frequent, 25)
 ```
 
 ## Most Frequent Author Keywords
