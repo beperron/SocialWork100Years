@@ -1,6 +1,6 @@
 ---
 title: '100 Years of Social Work Research: A Data Science Perspective'
-output: pdf_document
+output: html_document
 ---
 
 # Overview of data
@@ -370,102 +370,88 @@ grid.raster(img2)
 
 ```{r location_over_time, warning=FALSE, message=FALSE}
 
+year <- filter(pi.df, attributes == "YR") %>%
+    mutate(year = as.numeric(record)) %>% select(-record, -attributes)
+
+location.temp <- pi.df %>%
+        filter(attributes == "LO") %>%
+        select(articleID = articleID, country = record) %>%
+        mutate(country = gsub(" ", "", country))
+
+location.year <- location.temp %>% 
+         left_join(year) %>%
+         group_by(country, year) %>%
+         summarise(n = n()) %>%
+         arrange(country, year, n)
+
+top.locations <- location %>% 
+                 select(subject.terms) %>%
+                 rename(country = subject.terms) %>%
+                 slice(1:5)
+
+location.year.top <- location.year %>% filter(country %in% top.locations$country)
+ggplot(location.year.top, aes(x = year, y = n, colour = country )) + geom_line()
 
 
-top.10.countries <- head(location, 10)
-top.10.countries <- top.10.countries$subject.terms
-top.10.countries <- levels(droplevels(top.10.countries))
+top.locations.no.us <- location %>% 
+                select(subject.terms) %>%
+                rename(country = subject.terms) %>%
+                slice(2:7)
 
+location.year.top.no.us <- location.year %>% filter(country %in% top.locations.no.us$country)
 
+ggplot(location.year.top.no.us, aes(x = year, y = n, colour = country )) + geom_line()
 
+```
+
+## Countries not represented in social work research 
+
+This section is currently not functional
+```{r countries_not_represented}
+#Tableau.countries <- read.csv("/Users/beperron/Git/SocialWorkResearch/SupportingDocs/Tableau\ Countries.csv")
+```
+
+# Methodology
+
+```{r methodology, comment=NA, warning=FALSE, message=FALSE}
+
+MD.df <- filter(pi.df, attributes == "MD")
+
+methodology <- stringr::str_split(MD.df$record, pattern = ";")
+methodology.terms <- unlist(lapply(methodology, function(x) gsub(" ", "", x)))
+               
+methodology.table <- as.data.frame(table(methodology.terms))
+methodology.table <- arrange(methodology.table, desc(Freq))
+
+```
+
+## Methodology over time
+
+```{r}
 year <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
 
-location <- pi.df %>%
-        filter(attributes == "LO") %>%
-        select(articleID = articleID, keywords = record) %>%
-        filter(keywords %in% top.10.countries)
-
-
-location.year <- location %>% 
-         left_join(year)
-
-
-
-plot.article.cumulative <- ggplot(df, aes(x = years, y = cumsum(year.count))) + 
-    geom_line() + 
-    theme(axis.text.x = element_text(angle=45, hjust=1)) +
-    scale_x_continuous(breaks=pretty(df$years)) +
-    xlab("year") +  
-    ylab("count") +
-    scale_x_continuous(breaks = c(seq(1914,2014,10))) +
-    scale_y_continuous(breaks = c(seq(0, 25000, 2500))) + 
-    ggtitle("Cumulative Frequency")
-
-```
-
-
-
-
-
-# Methodology
-
-It is easy to explore some of the different fields within the PsychInfo data frame.  For example, each record has one or more subject terms (from the article keywords).  The total number, unique number, and most frequently occuring key words can be easily computed.  
-
-```{r comment=NA, warning=FALSE, message=FALSE}
-
-MD.df <- filter(pi.df, attributes == "MD")
-
-subject.terms <- stringr::str_split(MD.df$record, pattern = ";")
-subject.terms <- unlist(lapply(subject.terms, function(x) gsub(" ", "", x)))
-subject.terms.total <- length(unlist(lapply(subject.terms, function(x) gsub(" ", "", x))))
-subject.terms.unique <- length(unique(subject.terms))
-
-subject.terms.l <- list(subject.terms.total = subject.terms.total,
-                      subject.terms.unique = subject.terms.unique)
-
-most.frequent <- as.data.frame(table(subject.terms))
-
-most.frequent <- arrange(most.frequent, desc(Freq))
-most.frequent.t <- head(most.frequent, 50)
-
-print(subject.terms.l)
-print(most.frequent.t)
-
-```
-
-## Methodology
-
-```{r}
-decade <- filter(pi.df, attributes == "YR") %>%
-    mutate(year = as.numeric(record)) %>% select(-record, -attributes)
-
-decade$year <- cut(decade$year, breaks = 20, labels = c(1:20))
-
-keywords <- pi.df %>%
+methodology <- pi.df %>%
         filter(attributes == "MD") %>%
-        select(articleID = articleID, keywords = record)
+        select(articleID = articleID, method = record) %>%
+        mutate(method = gsub(" ", "", method))
 
-keywords.decade <- keywords %>% 
-         left_join(decade)
+methodology.year <- methodology %>% 
+         left_join(year) %>%
+         group_by(method, year) %>%
+         summarise(n = n()) %>%
+         arrange(method, year, n)
 
-library(plyr)
-keywords.data.split <- dlply(keywords.decade, .(year))
-detach(package:plyr)
+methodology.year.top <- slice(methodology.table, 1:5) %>%
+         rename(method = methodology.terms) %>%
+         mutate(method = gsub(" ", "", method))
 
-terms.f <- function(x){
-    split.terms <- stringr::str_split(x[,"keywords"], pattern =";")
-    clean.terms <- lapply(split.terms, function(x) gsub(" ", "", x))
-    }
-    
-keywords.decade <- lapply(keywords.data.split, terms.f)
-keywords.decade <- lapply(keywords.decade, unlist)
-lapply(keywords.decade, function(x) length(unique(x)))
+methodology.year.reduced <- methodology.year %>%
+        filter(method %in% methodology.year.top$method)
 
-temp <- lapply(keywords.decade, function(x) data.frame(table(x)))
-temp <- lapply(temp, function(x) arrange(x, desc(Freq)))
-lapply(temp, function(x) head(x,10))    
+ggplot(methodology.year.reduced, aes(x = year, y = n, colour = method)) + 
+        geom_line()
 ```
 
 
@@ -532,22 +518,4 @@ tail(n_authors, 20)
 plot.author.count2
 ```
 
-# How Many International Contributors?
 
-This section shows a proof of concept -- that is, we can potentially extract all the countries from the author affiliation `AF` tag in the data set.  This involves using a set of regular expressions for the extraction.  Here I have hard-coded a few countries, but I can obtain a file of all countries and use that to automate the process.  We will need to look at the raw data to ensure that the author affiliations have remained in a consistent format throughtout the entirety of the study.  
-
-
-```{r}
-df.affiliations <- pi.df %>%
-                filter(attributes == "AF")
-
-us.aff <- ifelse(grepl("US", df.affiliations$record, perl=TRUE) == TRUE, "US", 
-          ifelse(grepl("Canada", df.affiliations$record, perl=TRUE ) == TRUE, "Canada", 
-          ifelse(grepl("Kong", df.affiliations$record, perl=TRUE ) == TRUE, "Hong Kong", 
-          ifelse(grepl("China", df.affiliations$record, perl=TRUE) == TRUE, "China", 
-          ifelse(grepl("Israel", df.affiliations$record, perl=TRUE) == TRUE, "Israel", "Other" )))))
-
-affiliations <- data.frame(cbind(df.affiliations,us.aff))
-
-ggplot(data=df.affiliations, aes(x = factor(us.aff))) + geom_bar()
-```
