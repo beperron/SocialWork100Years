@@ -3,26 +3,19 @@ title: '100 Years of Social Work Research: A Data Science Perspective'
 output: html_document
 ---
 
-# Overview of data
+# Overview of Search Strategy
 
-The original data were from a search of PsychInfo using Ebsco Host platform (December 23, 2014). The following search operators and limiters were used:   
+Date conducted:   January 8, 2014
 
-+ SO "social work" OR SO "social welfare" OR SO "social casework" OR SO "social services"    
+Database: PsychInfo (via EbscoHost Platform) 
 
-+ Limiters - Document Type: Journal Article 
+Search terms:  SO "social work" or SO "social welfare" or SO "social casework" or "social case work" or SO "social service" or "social services" or SO "human service" or SO "human services" or SO "social development" or SO "social environment" 
 
-+ Search modes - Boolean/Phrase	Interface - EBSCOhost Research Databases 
+Search limiters:  Publication Type: Peer Reviewed Journal; Document Type: Journal Article
 
-+ Search Screen - Advanced Search 
+Search modes: Boolean/Phrase
 
-+ Database - PsycINFO
-
-The search results were exported in a _generic bibliographic format_, which is an unstructured text (*.txt) file.The text file was processed using the `BibWrangleR` function created by the first author.  
-
-
-# Initialize OS-X workspace and functions for data wrangling
-
-This section processes raw data.  This section of code is executed only one time to transform raw text data into an analyzable format.  When new data are obtained for this study (i.e., updated search results), this section should be re-run by changing `echo=FALSE` to `echo=TRUE` in the knitr markdown argument.   
+Search results were exported from EbscoHost Platformon in a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  
 
 ```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=FALSE}
 # Clear workspace
@@ -32,37 +25,20 @@ rm(list=ls())
 source("/Users/beperron/Git/BibWrangleR/functions/piWrangleR.R")
 source("/Users/beperron/Git/BibWrangleR/functions/packages.R")
 # Set the path where original raw data are stored
-setwd("/Users/beperron/Git/SocialWorkResearch")
+setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 
 # Set the working directory to store files created by BWR functions
-my.path <- "/Users/beperron/Git/SocialWorkResearch"
+path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 
 # Wrangle the data with the BWR function suite
-#piBWR.f(csv=FALSE, path=my.path)
+#piBWR.f(csv=FALSE, path=path)
 #save(pi.df, file = "piArticles.R")
 ```
 
-# Initialize Windows workspace and functions for data wrangling
 
-
-
-
-
-
-
-
-
-
-
-
-
-# Initialize workspace and functions for analaysis 
-
-All the analyses performed involve the data that have been processed with the `BibWrangleR` functions.  This section reads the processed data, loads the required packages, and does a quick quality check to ensure that the same number of articles (i.e., records) contained in the original search match the number of articles in the transformed data.  
-
-```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA}
+```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA, echo=FALSE}
 rm(list=ls())
-setwd("/Users/beperron/Git/SocialWorkResearch")
+setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 source("/Users/beperron/Git/BibWrangleR/functions/ggsurv.R")
 load("piArticles.R")
 library(dplyr)
@@ -79,26 +55,52 @@ dim(pi.df)
 # Inspect variable names of the data file
 names(pi.df)
 
-# How many unique article titles?  Ebsco Results of most current search is $n=24,314$. Do not proceed with analysis if the output does not match this result.  
+# How many unique article titles?  Ebsco Results of most current search is $n=XXXX$. Do not proceed with analysis if the output does not match this result.  
 length(which(pi.df$attributes == "TI"))
 ```
 
+```{r echo=FALSE}
+pi.df <- pi.df %>% filter(
+        record != "Journal of Applied Social Sciences" &
+        record != "Early Child Development and Care" &
+        record != "The Clinical Supervisor" &
+        record != "Children and Youth Services Review" &
+        record != "General Hospital Psychiatry" &
+        record != "Canadian Journal on Aging" &
+        record != "Canadian Journal of Community Mental Health" &
+        record != "Behavior Modification" &
+        record != "Employee Assistance Quarterly" &
+        record != "Journal of Applied Behavioral Science" & 
+        record != "The Scientific Review of Mental Health Practice: Objective Investigations of Controversial and Unorthodox Claims in Clinical Psychology, Psychiatry, and Social Work" &
+        record != "Systems Research and Behavioral Science" & 
+        record != "Journal of Applied Rehabilitation Counseling" & 
+        record != "Journal of Educational & Psychological Consultation" &
+        record != "Journal of Community & Applied Social Psychology" &                                          
+        record != "Evaluation and Program Planning" &                                                                  
+        record != "Journal of Nonverbal Behavior" &
+        record != "Brain and Cognition" &
+        record != "Early Education and Development")
+```
 
-## What is the overall number and names of journal titles? 
+# What is the overall number and names of journal titles? 
 
-```{r unique_titles}
+```{r unique_titles, echo=FALSE}
 unique.titles <- filter(pi.df, attributes == "SO")
 
 # Number of unique titles
-length(unique(unique.titles$record))
+number.journals <- length(unique(unique.titles$record))
 
 # Unique titles
-unique(unique.titles$record)
+journals.unique <- unique(unique.titles$record)
+#write.csv(journals.unique, "journals.csv")
+
+number.journals
+journals.unique
 ```
 
 ## Number of unique journal titles by year
 
-```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4}
+```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4, echo=FALSE}
 journals.year <- tbl_df(pi.df)
 
 year <- journals.year %>%
@@ -130,7 +132,7 @@ journal.count
 
 ## What journals published the most number of articles
 
-```{r journal_output}
+```{r journal_output, echo=FALSE}
 
 n.so.yr <- filter(pi.df, attributes == "SO" | attributes == "YR")
 
@@ -151,7 +153,7 @@ head(n.so.yr, 10)
 
 ## What is the lifespan of journals?  
 
-```{r journal_lifespan}
+```{r journal_lifespan, echo=FALSE}
 #10 longest running journals 
 longest.running <- n.so.yr %>%
        mutate(last = as.numeric(last), first = as.numeric(first), 
@@ -167,22 +169,17 @@ median.survival <- data.frame(time = c(12,12), quant = c(.5,0))
 head(longest.running)
 
 ggsurv(survival.journals) + 
-    geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
-    annotate("segment", x = 18, xend = 12, y = .12, yend = .15, size = .25, arrow =arrow()) +
-    geom_text(x = 29, y =.12, label = "median survival", size = 4) + 
-    geom_text(x = 75, y =.75, label = "+ = Last year in print", size = 4) 
-
-
-
-
-
-
+    #geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
+    #annotate("segment", x = 18, xend = 12, y = .12, yend = .15, size = .25, arrow =arrow()) +
+    #geom_text(x = 29, y =.12, label = "median survival", size = 4) + 
+    geom_text(x = 75, y =.75, label = "+ = Last year in print", size = 4) +
+    ylim(0,1)
 
 ```
 
 ## What is the number of articles published per year
 
-```{r articles_per_year}
+```{r articles_per_year, echo=FALSE}
 n.articles.year <- filter(pi.df, attributes == "YR") 
 year.split <- split(n.articles.year, n.articles.year$record)
 year.count <- unlist(lapply(year.split, nrow))
@@ -218,69 +215,16 @@ plot.article.cumulative <- ggplot(df, aes(x = years, y = cumsum(year.count))) +
 grid.arrange(plot.article.count, plot.article.cumulative, ncol=2)
 
 # Print most recent ten years
-head(df, 10)
+tail(df, 10)
 ```
 
 
-# What are the topic areas (by Subject Terms)?
 
-```{r subject_terms_overall, comment=NA, warning=FALSE, message=FALSE}
-
-su.df <- filter(pi.df, attributes == "SU")
-
-subject.terms <- stringr::str_split(su.df$record, pattern = ";")
-subject.terms <- unlist(lapply(subject.terms, function(x) gsub(" ", "", x)))
-
-subject.terms.total <- length(unlist(lapply(subject.terms, 
-                        function(x) gsub(" ", "", x))))
-
-subject.terms.unique <- length(unique(subject.terms))
-
-most.frequent <- as.data.frame(table(subject.terms))
-
-most.frequent <- arrange(most.frequent, desc(Freq))
-
-# Print 25 most commmon terms
-head(most.frequent, 25)
-
-```
-
-## What are the topic areas over time (by Subject terms)?
-
-```{r subject_terms_overtime, warning=FALSE, message=FALSE}
-decade <- filter(pi.df, attributes == "YR") %>%
-    mutate(year = as.numeric(record)) %>% select(-record, -attributes)
-
-decade$year <- cut(decade$year, breaks = 10, labels = c(1:10))
-
-keywords <- pi.df %>%
-        filter(attributes == "SU") %>%
-        select(articleID = articleID, keywords = record)
-
-keywords.decade <- keywords %>% 
-         left_join(decade)
-
-library(plyr)
-keywords.data.split <- dlply(keywords.decade, .(year))
-detach(package:plyr)
-
-terms.f <- function(x){
-    split.terms <- stringr::str_split(x[,"keywords"], pattern =";")
-    clean.terms <- lapply(split.terms, function(x) gsub(" ", "", x))
-    }
-    
-keywords.decade <- lapply(keywords.data.split, terms.f)
-keywords.decade <- lapply(keywords.decade, unlist)
-
-temp <- lapply(keywords.decade, function(x) data.frame(table(x)))
-temp <- lapply(temp, function(x) arrange(x, desc(Freq)))
-lapply(temp, function(x) head(x,10))    
-```
 
 
 # What are the most frequent topic areas (by author specified keywords)?
   
-```{r keywords_overall, comment=NA, warning=FALSE, message=FALSE}
+```{r keywords_overall, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
 kp.df <- filter(pi.df, attributes == "KP")
 
 subject.terms <- stringr::str_split(kp.df$record, pattern = ";")
@@ -306,41 +250,22 @@ head(most.frequent, 25)
 
 ## Most Frequent Author Keywords
 
-```{r keywords_over_time, warning=FALSE, message=FALSE}
-decade <- filter(pi.df, attributes == "YR") %>%
-    mutate(year = as.numeric(record)) %>% select(-record, -attributes)
+For this analysis (to-do), select a few keywords that may tell an interesting story of how they change over time -- something that might be revealing of 'trends.' 
 
-decade$year <- cut(decade$year, breaks = 10, labels = c(1:10))
+"social justice"
+"evidence-based practice" | "evidence based practice" | "EBP"
+"bullying"
+"child welfare"
 
-keywords <- pi.df %>%
-        filter(attributes == "KP") %>%
-        select(articleID = articleID, keywords = record)
-
-keywords.decade <- keywords %>% 
-         left_join(decade)
-
-library(plyr)
-keywords.data.split <- dlply(keywords.decade, .(year))
-detach(package:plyr)
-
-terms.f <- function(x){
-    split.terms <- stringr::str_split(x[,"keywords"], pattern =";")
-    clean.terms <- lapply(split.terms, function(x) gsub(" ", "", x))
-    }
-    
-keywords.decade <- lapply(keywords.data.split, terms.f)
-keywords.decade <- lapply(keywords.decade, unlist)
-
-temp <- lapply(keywords.decade, function(x) data.frame(table(x)))
-temp <- lapply(temp, function(x) arrange(x, desc(Freq)))
-lapply(temp, function(x) head(x,10))    
+```{r keywords_over_time, warning=FALSE, message=FALSE, echo=FALSE}
+   
 ```
 
 
 
 # Location of Studies 
 
-```{r location, comment=NA, warning=FALSE, message=FALSE}
+```{r location, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
 
 LO.df <- filter(pi.df, attributes == "LO")
 
@@ -360,15 +285,16 @@ location <- arrange(most.frequent, desc(Freq))
 print(subject.terms.l)
 
 print(location)
+write.csv(location, "location.csv")
 
-img2 <- readPNG("/Users/beperron/Git/SocialWorkResearch/Chloro.png")
-grid.raster(img2)
+#img2 <- readPNG("/Users/beperron/Git/SocialWorkResearch/Chloro.png")
+#grid.raster(img2)
 ```
 
 
 ## Location of studies over time
 
-```{r location_over_time, warning=FALSE, message=FALSE}
+```{r location_over_time, warning=FALSE, message=FALSE, echo=FALSE}
 
 year <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
@@ -407,13 +333,13 @@ ggplot(location.year.top.no.us, aes(x = year, y = n, colour = country )) + geom_
 ## Countries not represented in social work research 
 
 This section is currently not functional
-```{r countries_not_represented}
+```{r countries_not_represented, echo=FALSE}
 #Tableau.countries <- read.csv("/Users/beperron/Git/SocialWorkResearch/SupportingDocs/Tableau\ Countries.csv")
 ```
 
 # Methodology
 
-```{r methodology, comment=NA, warning=FALSE, message=FALSE}
+```{r methodology, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
 
 MD.df <- filter(pi.df, attributes == "MD")
 
@@ -427,7 +353,7 @@ methodology.table <- arrange(methodology.table, desc(Freq))
 
 ## Methodology over time
 
-```{r}
+```{r echo=FALSE}
 year <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
