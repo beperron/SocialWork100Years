@@ -186,7 +186,7 @@ ggsurv(survival.journals) +
     geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
     annotate("segment", x = 32, xend = 27, y = .12, yend = .12, size = .25, arrow =arrow()) +
     geom_text(x = 45, y =.12, label = "median survival", size = 4) + 
-    geom_text(x = 75, y =.75, label = "+ = Last year in print", size = 4) +
+    geom_text(x = 75, y =.75, label = "+ = Last year of indexing", size = 4) +
     ylim(0,1) +
     xlim(0,100) + 
     xlab("Survival Time (in years)") +
@@ -294,8 +294,8 @@ kp.year <- kp %>%
          arrange(keyword, year, n)
 
 
-select.keywords <- c("power", "oppression", "discrimination", "socialjustice", "qualitativeresearch")
-select.keywords.df <- kp.year %>% filter(keyword %in% select.keywords)
+select.keywords <- c("depression", "hiv")
+select.keywords.df <- kp.year %>% filter(tolower(keyword) %in% select.keywords)
 
 library(plyr) # Fix code so ply loads before dplyr
 key.plot.df <- ddply(select.keywords.df, .(keyword), transform, cumulative = cumsum(n))
@@ -327,7 +327,7 @@ locations <- as.data.frame(table(LO.df))
 locations <- arrange(locations, desc(Freq))
 locations.unique <- length(unique(locations))
 
-#write.csv(location, "location.csv")
+#write.csv(locations, "location.csv")
 
 #img2 <- readPNG("/Users/beperron/Git/SocialWorkResearch/Chloro.png")
 #grid.raster(img2)
@@ -337,7 +337,7 @@ locations.unique <- length(unique(locations))
 ## Location of studies over time
 
 ```{r location_over_time, warning=FALSE, message=FALSE, echo=FALSE}
-
+library(RColorBrewer)
 year <- filter(pi.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
@@ -350,26 +350,42 @@ location.year <- location.temp %>%
          left_join(year) %>%
          group_by(country, year) %>%
          summarise(n = n()) %>%
-         arrange(country, year, n)
+         arrange(country, year, n) %>%
+         mutate(cumsum_n = cumsum(n), log_n = log(n+1))
+
 
 top.locations <- LO.df %>% 
                  select(Country) %>%
-                 slice(1:5)
+                 slice(1:5) 
 
+top.locations$Country <- gsub(" ", "", top.locations$Country)
+
+
+    
 location.year.top <- location.year %>% filter(country %in% top.locations$Country)
 
-ggplot(location.year.top, aes(x = year, y = n, colour = country )) + geom_line() +
-    ggtitle("Number of articles by Top 5 Countries")    
+
+
+
+ggplot(location.year.top, aes(x = year, y = log_n, colour = country )) + 
+    geom_line(size = 1.25) +
+    ggtitle("Log Number of Articles by Countries With Highest Scholarly Ouput") +
+    xlab("Publication Year") + 
+    ylab("log N+1") +
+    theme(legend.position=c(.210, .7))
 
 
 top.locations.no.us <- LO.df %>% 
                 select(Country) %>%
-                slice(2:6)
+                slice(2:10)
+
+top.locations.no.us$Country <- gsub(" ", "", top.locations.no.us$Country)
 
 location.year.top.no.us <- location.year %>% filter(country %in% top.locations.no.us$Country) 
 
-ggplot(location.year.top.no.us, aes(x = year, y = n, colour = country )) + geom_line() +
-    ggtitle("Number of article by Top 5 Countries (excluding United States)")
+ggplot(location.year.top.no.us, aes(x = year, y = cumsum_n, colour = country )) + geom_line(size=1.00) +
+    ggtitle("Cumulative Number of Article by Countries with Highest Scholarly Output \n(Excluding the United States)") +
+    theme(legend.position=c(.210, .6))
 ```
 
 ## Countries not represented in social work research 
@@ -391,20 +407,17 @@ n_authors.1 <- n.authors.article %>%
         group_by(id) %>%
         summarise(n = n())
 
-n_authors.1t <- n_authors.1 %>% mutate(n = ifelse(n >=13, 13, n))
+n_authors.1t <- n_authors.1 %>% mutate(n = ifelse(n >=6, 6, n)) %>% 
+    group_by(n) %>%
+    summarise(Articles = n())
 
-
-
-
-ggplot(n_authors.1t, aes(x=as.factor(n))) + 
-    geom_bar(fill="white", colour="black") + 
-    #stat_bin(binwidth=.5) +
-    ggtitle("Number of Authors Listed Per Article") + 
-    xlab("Author") +
-    ylab("Number of Articles") +
-    scale_y_continuous(limits = c(0, 15000), breaks = seq(0, 14000, 2000)) + 
-    scale_x_discrete(limits = c(as.character(1:12), "13+"))
-
+ggplot(n_authors.1t, aes(x = n, y = Articles)) +
+    geom_bar(stat="identity", colour="black", fill = "white") +
+    geom_text(aes(label = Articles), vjust=-.3, size = 4) +
+    scale_x_discrete(limits = c(as.character(1:5), "6+")) + 
+    ggtitle("Number of Articles by Author Count") + 
+    xlab("Author Count") + 
+    ylab("Articles")
 ```
 
 ## Number of authors over time
@@ -442,18 +455,11 @@ plot.author.count2 <- ggplot(n_authors, aes(as.numeric(year), y=average.n, group
     geom_segment(aes(x= 1940, y = 5.5, xend = 1935, yend = 5.5), 
                  arrow=arrow(length=unit(0.25, "cm"))) +
     annotate("text", x = 1951, y = 5.5, label = "1 outlier case of \n24 listed authors", size=3.5) +
-    ylab("Average number of authors (black) \nStandard deviation (light blue") +
+    ylab("Average number of authors (black) \nStandard deviation (light blue)") +
     xlab("Publication year") +
     ggtitle("Average Number of Authors per Article Over Time")
 
 plot.author.count2
-
-#n_authors_unique <- n_authors %>% 
-#        left_join(year) %>%
-#        group_by(author) %>%
-#        summarise(Distinct = n())
-
-
 
 
 ```

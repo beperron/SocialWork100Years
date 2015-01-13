@@ -1,0 +1,61 @@
+---
+title: "EbscoHistory"
+author: "Brian Perron"
+date: "January 13, 2015"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r eval=FALSE}
+library(dplyr)
+library(stringr)
+library(xlsx)
+library(gdata)
+
+#ebscoFullListing.df <- read.xls("/Users/beperron/Git/SocialWorkResearch/Data/completeListing.xls", sheet=1, header=TRUE)
+#save(ebscoFullListing.df, file="ebscoFullListing.R")
+```
+
+```{r}
+load("ebscoFullListing.R")
+ebscoFullListing.df <- ebscoFullListing.df[ebscoFullListing.df$SourceType == "Academic Journal",]
+ebscoFullListing.df$IndexingStart <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
+ebscoFullListing.df$IndexingEnd <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
+barplot(table(as.factor(ebscoFullListing.df$IndexingStart)))
+```
+
+
+
+
+
+#Clean up dates
+ebsco.df$IndexingStart <- as.character(ebsco.df$IndexingStart)
+
+
+ebsco.df$IndexingStart <- as.Date(ebsco.df$IndexingStart, format="%m/%d/%Y")
+
+
+
+ebsco.df$IndexingStop <- as.character(ebsco.df$IndexingStop)
+
+#Drop journals with a date from the 1800's
+ebsco.df$IndexingStop <- ifelse(nchar(ebsco.df$IndexingStop) ==10, NA, ebsco.df$IndexingStop)
+#ebsco.df$IndexingStop <- ifelse(nchar(ebsco.df$IndexingStop) == 0, NA, ebsco.df$IndexingStop)
+
+
+x.start <- as.Date(ebsco.df$IndexingStart)
+x.stop <- ebsco.df$IndexingStop
+
+
+
+x.stop <- ebsco.df[complete.cases(ebsco.df$IndexingStop),]
+                   
+as.Date(x.stop$IndexingStop)
+
+
+x.startformat(ebsco.df$IndexingStart, format = "%Y/%m/%d")
+
+
