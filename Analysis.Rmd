@@ -3,18 +3,23 @@ title: '100 Years of Social Work Research: A Data Science Perspective'
 output: html_document
 ---
 
-Data collection date:  January 8, 2014
+# Data collection
 
-Database: PsychInfo (via EbscoHost Platform) 
 
-Search terms:  SO "social work" or SO "social welfare" or SO "social casework" or "social case work" or SO "social service" or "social services" or SO "human service" or SO "human services" or SO "social development" or SO "social environment" 
++ Article record retrieval date:  January 8, 2015
+Database: PsychInfo and Social Science Index (via EbscoHost Platform) 
 
-Search limiters:  Publication Type: Peer Reviewed Journal; Document Type: Journal Article
++ Search terms:  SO "social work" or SO "social welfare" or SO "social casework" or "social case work" or SO "social service" or "social services" or SO "human service" or SO "human services" or SO "social development" or SO "social environment" 
 
-Search modes: Boolean/Phrase
++ Search limiters:  Publication Type: Peer Reviewed Journal; Document Type: Journal Article
 
-Search results were exported from EbscoHost Platformon in a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  
++ Search modes: Boolean/Phrase
 
++ Search results were exported from EbscoHost Platformon in a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  
+
++ EbscoHost full journal listing retrieval date:  January 11, 2015 (http://www.ebscohost.com/title-lists)
+
+# Data Pre-Processing
 ```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=FALSE}
 # Clear workspace
 rm(list=ls())
@@ -38,13 +43,16 @@ path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 rm(list=ls())
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 source("/Users/beperron/Git/BibWrangleR/functions/ggsurv.R")
+load("ebscoFullListing.R")
 load("piArticles.R")
+load("socialWorkJournals.R")
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
 library(survival)
 library(grid)
 library(png)
+library(reshape2)
 
 
 # Inspect dimensions of the data file (Rows X Columns)
@@ -58,9 +66,9 @@ length(which(pi.df$attributes == "TI"))
 ```
 
 
-Note the exclusion of social work today.
+Journals excluded from search results.  _Social Work_ today excluded because it is of a magazine format. 
 
-```{r echo=FALSE}
+```{r}
 pi.df <- pi.df %>% filter(
         record != "Journal of Applied Social Sciences" &
         record != "Early Child Development and Care" &
@@ -86,18 +94,28 @@ pi.df <- pi.df %>% filter(
 ```
 
 
-This section provides further cleaning of retained journals, namely merging two journals with abbreviated titles:
+Two journal titles were merged because one set of records was a logical abbreviation of another set of records.
 
 ```{r}
 
-pi.df$record <- ifelse(pi.df$record == "Practice", "Practice: Social Work in Action", pi.df$record)
+pi.df$record <- ifelse(pi.df$record == "Practice", "Practice: Social Work in Action"
+                , pi.df$record)
 pi.df$articleID <- ifelse(pi.df$articleID == 74, 42, pi.df$articleID)
 
 pi.df$record <- ifelse(pi.df$record == "Eugenics & Social Welfare Bull.", "Eugenics and Social Welfare Bulletin", pi.df$record)
 pi.df$articleID <- ifelse(pi.df$articleID == 28, 32, pi.df$articleID)
-
 ```
 
+# Preliminary Analyses
+
+All analyses provided here are not in publishable format, but presented to determine the basis of a storyline.  All tables and figures will be styled according to a target journal.  
+
+## Summary of all journal titles included in the analysis
+
+To do:
+
++ In the table, include the first and last years of indexing, and the numbers of articles.  
++ Write the script to output a *.csv file so that it can be included as an Appendix without any formatting.
 
 ```{r unique_titles, echo=FALSE}
 unique.titles <- filter(pi.df, attributes == "SO")
@@ -111,10 +129,18 @@ journals.unique <- unique(unique.titles$record)
 
 number.journals
 journals.unique
+socialWorkJournals <- journals.unique
+#save(journals.unique, file="socialWorkJournals.R")
 ```
 
+## Count of unique journal titles over time
 
-```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4, echo=FALSE}
+To do:
++ Integrate the full journal listing of EbscoHost 
++ Plot overall number of journals over time 
++ Plot overall number of journals by major discipline category as defined by EbscoHost classification -- use sociology, anthropology, economics, psychology, and political science
+
+```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, echo=FALSE}
 journals.year <- tbl_df(pi.df)
 
 year <- journals.year %>%
@@ -132,7 +158,7 @@ n.journals.year <- journals %>%
         summarise(n = n())
 
 journal.count <- ggplot(n.journals.year, aes(as.numeric(year), y=n, group=1)) + 
-    geom_line(colour="black") +
+    geom_line(colour="darkblue") +
     #geom_point(colour="red") + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
     xlab("Publication year") + 
@@ -142,6 +168,73 @@ journal.count <- ggplot(n.journals.year, aes(as.numeric(year), y=n, group=1)) +
         
 journal.count
 ```
+
+## Growth of Social Work compared to growth of the social sciences
+
+```{r}
+ebscoFullListing.df <- ebscoFullListing.df[ebscoFullListing.df$SourceType == "Academic Journal",]
+ebscoFullListing.df$IndexingStart <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
+ebscoFullListing.df$IndexingStop <- format(as.Date(ebscoFullListing.df$IndexingStop, "%m/%d/%Y"), "%Y")
+ebJournals.df <- ebscoFullListing.df %>% filter(SourceType == "Academic Journal") %>%
+    select(Discipline, IndexingStart, IndexingStop, PublicationName, ISSN) %>%
+    mutate(IndexingStart = as.numeric(IndexingStart), IndexingStop = as.numeric(IndexingStop)) %>%
+    filter(Discipline == "Sociology" | Discipline == "Political Science & Studies"| 
+           Discipline == "Psychology"| Discipline == "Economics" | Discipline == "Anthropology") 
+
+ebJournals.df.unique <- ebJournals.df %>% select(ISSN)
+ebJournals.df.unique <- !duplicated(ebJournals.df.unique)
+ebJournals.df <- ebJournals.df[ebJournals.df.unique, ]
+
+
+
+ebJournals.df <- ebJournals.df[!(ebJournals.df$PublicationName %in% journals.unique),]    
+
+ebJournals.df <- select(ebJournals.df, -PublicationName, -ISSN) %>%
+    mutate(journalID = c(1:nrow(ebJournals.df))) %>%
+    mutate(journalID = as.factor(journalID)) %>% 
+    select(-Discipline)
+
+#ebJournals.melted <- melt(ebJournals.df)
+
+#ebJournals.overtime.start <- ebJournals.melted %>% 
+#    filter(value = !is.na(value)) %>%
+#    group_by(Discipline, value) %>%
+#    summarise(N.start = n()) 
+    
+#ebJournals.overtime.end <- ebJournals.melted %>% 
+#    filter(variable == "IndexingStop"  & !is.na(value)) %>%
+#    group_by(Discipline, value) %>%
+#    summarise(N.end = n())
+
+#ebjournals.joined <- left_join(ebJournals.overtime.start, ebJournals.overtime.end) %>%
+#    mutate(N.end = ifelse(is.na(N.end), 0, N.end), Cumulative = cumsum(N.start)) %>%
+#    mutate(N.adjusted = Cumulative - N.end)
+
+
+ebJournals.melted.d <- melt(ebJournals.df)
+
+ebJournals.overtime.start.d <- ebJournals.melted.d %>% 
+    filter(value = !is.na(value)) %>%
+    group_by(value) %>%
+    summarise(N.start = n()) 
+    
+ebJournals.overtime.end.d <- ebJournals.melted.d %>% 
+    filter(variable == "IndexingStop"  & !is.na(value)) %>%
+    group_by(value) %>%
+    summarise(N.end = n())
+
+ebjournals.joined.d <- left_join(ebJournals.overtime.start.d, ebJournals.overtime.end.d) %>%
+    mutate(N.end = ifelse(is.na(N.end), 0, N.end), Cumulative = cumsum(N.start)) %>%
+    mutate(N.adjusted = Cumulative - N.end)
+
+journal.time.reduced <- n.journals.year %>% filter(year >= 1950)
+ggplot() + 
+    geom_line(data = ebjournals.joined.d, aes(x=value, y=N.adjusted), group=1, colour="purple") + 
+    geom_line(data = journal.time.reduced, aes(as.numeric(year), y=n), group=1, colour="darkblue")
+```
+
+
+
 
 
 ## What journals published the most number of articles
@@ -165,7 +258,10 @@ n.so.yr <- left_join(n.so, n.yr) %>%
 head(n.so.yr, 10)
 ```
 
-## What is the lifespan of journals?  
+## What is the lifespan of journals? 
+
+To do:
++ Incorporate all EbscoHost journals and the separate disciplinary journals
 
 ```{r journal_lifespan, echo=FALSE}
 #10 longest running journals 
@@ -196,6 +292,9 @@ ggsurv(survival.journals) +
 ```
 
 ## What is the number of articles published per year
+
+To do:
++ Plot against major disciplinary categories
 
 ```{r articles_per_year, echo=FALSE}
 n.articles.year <- filter(pi.df, attributes == "YR") 
@@ -238,12 +337,11 @@ grid.arrange(plot.article.count, plot.article.cumulative, ncol=2)
 tail(df, 10)
 ```
 
-
-
-
-
 # What are the most frequent topic areas (by author specified keywords)?
-  
+
+To do:  
++ Fix script that performs matching -- convert all keywords to lower before matching
+
 ```{r keywords_overall, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
 kp.df <- filter(pi.df, attributes == "KP")
 
@@ -271,12 +369,11 @@ head(most.frequent, 25)
 
 ## Most Frequent Author Keywords
 
+_DO NOT INTERPRET RESULTS HERE THIS SECTION IS NOT WORKING PROPERLY_
+
 For this analysis (to-do), select a few keywords that may tell an interesting story of how they change over time -- something that might be revealing of 'trends.' 
 
-+ social justice
-+ evidence-based practice" | "evidence based practice" | "EBP"
-+ bullying
-+ child welfare
+
 
 ```{r keywords_over_time, warning=FALSE, message=FALSE, echo=FALSE}
 kp.yr <- filter(pi.df, attributes == "YR") %>%
@@ -294,7 +391,7 @@ kp.year <- kp %>%
          arrange(keyword, year, n)
 
 
-select.keywords <- c("depression", "hiv")
+select.keywords <- c("women", "leadership")
 select.keywords.df <- kp.year %>% filter(tolower(keyword) %in% select.keywords)
 
 library(plyr) # Fix code so ply loads before dplyr
@@ -313,7 +410,10 @@ ggplot(key.plot.df, aes(x = year, y = cumulative, colour = keyword, group = keyw
 
 
 
-# Location of Studies 
+## Location of Studies 
+
+To do:
++ Determine best format / presentation of map
 
 ```{r location, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
 LO.df <- filter(pi.df, attributes == "LO") %>%
@@ -329,12 +429,12 @@ locations.unique <- length(unique(locations))
 
 #write.csv(locations, "location.csv")
 
-#img2 <- readPNG("/Users/beperron/Git/SocialWorkResearch/Chloro.png")
-#grid.raster(img2)
 ```
 
-
 ## Location of studies over time
+
+To do:
++ Determine best format / presentation of map
 
 ```{r location_over_time, warning=FALSE, message=FALSE, echo=FALSE}
 library(RColorBrewer)
@@ -364,11 +464,8 @@ top.locations$Country <- gsub(" ", "", top.locations$Country)
     
 location.year.top <- location.year %>% filter(country %in% top.locations$Country)
 
-
-
-
 ggplot(location.year.top, aes(x = year, y = log_n, colour = country )) + 
-    geom_line(size = 1.25) +
+    geom_line() +
     ggtitle("Log Number of Articles by Countries With Highest Scholarly Ouput") +
     xlab("Publication Year") + 
     ylab("log N+1") +
@@ -383,16 +480,33 @@ top.locations.no.us$Country <- gsub(" ", "", top.locations.no.us$Country)
 
 location.year.top.no.us <- location.year %>% filter(country %in% top.locations.no.us$Country) 
 
-ggplot(location.year.top.no.us, aes(x = year, y = cumsum_n, colour = country )) + geom_line(size=1.00) +
+ggplot(location.year.top.no.us, aes(x = year, y = cumsum_n, colour = country )) + geom_line() +
     ggtitle("Cumulative Number of Article by Countries with Highest Scholarly Output \n(Excluding the United States)") +
     theme(legend.position=c(.210, .6))
+```
+## Countries represents in the social work research
+
+To do:
++ Obtain definition of `LO` tag.  
++ Determine how many articles had LO tag (note the issue if not included from Social Science Index)
+
+```{r fig.width=8, echo=FALSE}
+Map100YearWithUS <- readPNG("/Users/beperron/Git/SocialWorkResearch/images/Map100Years.png")
+grid.raster(Map100YearWithUS)
+
+Map100YearWithoutUS <- readPNG("/Users/beperron/Git/SocialWorkResearch/images/Map100YearsWithoutUS.png")
+grid.raster(Map100YearWithUS)
 ```
 
 ## Countries not represented in social work research 
 
-This section is currently not functional
-```{r countries_not_represented, echo=FALSE}
-#Tableau.countries <- read.csv("/Users/beperron/Git/SocialWorkResearch/SupportingDocs/Tableau\ Countries.csv")
+
+```{r fig.width=8, echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("/Users/beperron/Git/SocialWorkResearch/images/NotRepresented100Years.png")
+grid.raster(img)
+
 ```
 
 
@@ -466,3 +580,7 @@ plot.author.count2
 
 
 
+
+
+
+```

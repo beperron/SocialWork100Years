@@ -20,42 +20,91 @@ library(gdata)
 ```
 
 ```{r}
-load("ebscoFullListing.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFullListing.R")
 ebscoFullListing.df <- ebscoFullListing.df[ebscoFullListing.df$SourceType == "Academic Journal",]
 ebscoFullListing.df$IndexingStart <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
-ebscoFullListing.df$IndexingEnd <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
+ebscoFullListing.df$IndexingStop <- format(as.Date(ebscoFullListing.df$IndexingStop, "%m/%d/%Y"), "%Y")
+ebscoFullListing.df$journalID <- c(1:nrow(ebscoFullListing.df))
 barplot(table(as.factor(ebscoFullListing.df$IndexingStart)))
 ```
 
 
+```{r}
+library(reshape2)
+library(dplyr)
+ebJournals.df <- ebscoFullListing.df %>% filter(SourceType == "Academic Journal") %>%
+    select(journalID, Discipline, IndexingStart, IndexingStop, PublicationName, ISSN) %>%
+    mutate(journalID = as.factor(journalID), IndexingStart = as.numeric(IndexingStart), IndexingStop = as.numeric(IndexingStop)) %>%
+    filter(Discipline == "Sociology" | Discipline == "Political Science & Studies"| 
+           Discipline == "Psychology"| Discipline == "Economics" | Discipline == "Anthropology") 
+
+unique.journal.titles <- unique(ebJournals.df$ISSN)
+ebJournals.df <-ebJournals.df[unique.journal.titles,]
+
+load("socialWorkJournals.R")
+cross.check.journals <- ebJournals.df[ebJournals.df$PublicationName %in% socialWorkJournals,]
+cross.check.journals
+    
+ebJournals.df <- select(ebJournals.df, -PublicationName, -ISSN)
 
 
 
-#Clean up dates
-ebsco.df$IndexingStart <- as.character(ebsco.df$IndexingStart)
+ebJournals.melted <- melt(ebJournals.df)
+
+ebJournals.overtime.start <- ebJournals.melted %>% 
+    filter(value = !is.na(value)) %>%
+    group_by(Discipline, value) %>%
+    summarise(N.start = n()) 
+    
+ebJournals.overtime.end <- ebJournals.melted %>% 
+    filter(variable == "IndexingStop"  & !is.na(value)) %>%
+    group_by(Discipline, value) %>%
+    summarise(N.end = n())
+
+ebjournals.joined <- left_join(ebJournals.overtime.start, ebJournals.overtime.end) %>%
+    mutate(N.end = ifelse(is.na(N.end), 0, N.end), Cumulative = cumsum(N.start)) %>%
+    mutate(N.adjusted = Cumulative - N.end)
 
 
-ebsco.df$IndexingStart <- as.Date(ebsco.df$IndexingStart, format="%m/%d/%Y")
+ebJournals.melted.d <- melt(ebJournals.df)
+
+ebJournals.overtime.start.d <- ebJournals.melted.d %>% 
+    filter(value = !is.na(value)) %>%
+    group_by(value) %>%
+    summarise(N.start = n()) 
+    
+ebJournals.overtime.end.d <- ebJournals.melted.d %>% 
+    filter(variable == "IndexingStop"  & !is.na(value)) %>%
+    group_by(value) %>%
+    summarise(N.end = n())
+
+ebjournals.joined.d <- left_join(ebJournals.overtime.start.d, ebJournals.overtime.end.d) %>%
+    mutate(N.end = ifelse(is.na(N.end), 0, N.end), Cumulative = cumsum(N.start)) %>%
+    mutate(N.adjusted = Cumulative - N.end)
+
+
+journal.time.reduced <- n.journals.year %>% filter(year >= 1950)
+ggplot() + 
+    geom_line(data = ebjournals.joined.d, aes(x=value, y=N.adjusted), group=1, colour="purple") + 
+    geom_line(data = journal.time.reduced, aes(as.numeric(year), y=n), group=1, colour="darkblue")
 
 
 
-ebsco.df$IndexingStop <- as.character(ebsco.df$IndexingStop)
-
-#Drop journals with a date from the 1800's
-ebsco.df$IndexingStop <- ifelse(nchar(ebsco.df$IndexingStop) ==10, NA, ebsco.df$IndexingStop)
-#ebsco.df$IndexingStop <- ifelse(nchar(ebsco.df$IndexingStop) == 0, NA, ebsco.df$IndexingStop)
-
-
-x.start <- as.Date(ebsco.df$IndexingStart)
-x.stop <- ebsco.df$IndexingStop
 
 
 
-x.stop <- ebsco.df[complete.cases(ebsco.df$IndexingStop),]
-                   
-as.Date(x.stop$IndexingStop)
+#From main analyses
+journal.count <- ggplot(n.journals.year, aes(as.numeric(year), y=n, group=1)) + 
+    geom_line(colour="black") +
+    #geom_point(colour="red") + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    xlab("Publication year") + 
+    ylab("Number") + 
+    ggtitle("Number of Journals Over Time") + 
+    scale_x_continuous(breaks=seq(1914, 2014, 5)) 
 
 
-x.startformat(ebsco.df$IndexingStart, format = "%Y/%m/%d")
+
+```
 
 
