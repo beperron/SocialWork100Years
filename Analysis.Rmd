@@ -1,6 +1,6 @@
 ---
 title: '100 Years of Social Work Research: A Data Science Perspective'
-output: html_document
+output: pdf_document
 ---
 
 # Data collection
@@ -171,7 +171,16 @@ journal.count
 
 ## Growth of Social Work compared to growth of the social sciences
 
-```{r}
+This section shows the overall growth of the social sciences.  This includes all _academic journals_ (excluding magazines and trade publications) that have the following discipline tag:
+
++ Sociology
++ Psychology
++ Economics
++ Political Science & Studies
++ Economics
++ Anthropology
+
+```{r echo=FALSE}
 ebscoFullListing.df <- ebscoFullListing.df[ebscoFullListing.df$SourceType == "Academic Journal",]
 ebscoFullListing.df$IndexingStart <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
 ebscoFullListing.df$IndexingStop <- format(as.Date(ebscoFullListing.df$IndexingStop, "%m/%d/%Y"), "%Y")
