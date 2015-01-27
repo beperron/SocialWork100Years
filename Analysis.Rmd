@@ -1,5 +1,5 @@
 ---
-title: '100 Years of Social Work Research: A Data Science Perspective'
+title: 'The History of Social Work Research: A Data Science Perspective'
 output: pdf_document
 ---
 
@@ -25,8 +25,8 @@ Database: PsychInfo and Social Science Index (via EbscoHost Platform)
 rm(list=ls())
 
 # Read BWR functions for Mac OS
-source("/Users/beperron/Git/BibWrangleR/functions/piWrangleR.R")
-source("/Users/beperron/Git/BibWrangleR/functions/packages.R")
+source("/Users/beperron/Git/BibWrangleR/functions/piWrangleR_Modified.R")
+
 # Set the path where original raw data are stored
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 
@@ -34,7 +34,7 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 
 # Wrangle the data with the BWR function suite
-#piBWR.f(csv=FALSE, path=path)
+piBWR.f(csv=FALSE, path=path)
 #save(pi.df, file = "piArticles.R")
 ```
 
@@ -70,27 +70,9 @@ Journals excluded from search results.  _Social Work_ today excluded because it 
 
 ```{r}
 pi.df <- pi.df %>% filter(
-        record != "Journal of Applied Social Sciences" &
-        record != "Early Child Development and Care" &
-        record != "The Clinical Supervisor" &
-        record != "Children and Youth Services Review" &
-        record != "General Hospital Psychiatry" &
-        record != "Canadian Journal on Aging" &
-        record != "Canadian Journal of Community Mental Health" &
-        record != "Behavior Modification" &
-        record != "Employee Assistance Quarterly" &
-        record != "Journal of Applied Behavioral Science" & 
-        record != "The Scientific Review of Mental Health Practice: Objective Investigations of Controversial and Unorthodox Claims in Clinical Psychology, Psychiatry, and Social Work" &
-        record != "Systems Research and Behavioral Science" & 
-        record != "Journal of Applied Rehabilitation Counseling" & 
-        record != "Journal of Educational & Psychological Consultation" &
-        record != "Journal of Community & Applied Social Psychology" &                                          
-        record != "Evaluation and Program Planning" &                                                                  
-        record != "Journal of Nonverbal Behavior" &
-        record != "Brain and Cognition" &
-        record != "Early Education and Development" & 
-        record != "American Journal of Preventive Medicine" &
-        record != "Social Work Today")
+        record != "PUT JOURNALS TO BE EXCLUDED HERE" &
+        record != "PUT JOURNALS TO BE EXCLUDED HERE     " &
+        )
 ```
 
 
@@ -128,7 +110,7 @@ journals.unique <- unique(unique.titles$record)
 #write.csv(journals.unique, "journals.csv")
 
 number.journals
-journals.unique
+sort(journals.unique)
 socialWorkJournals <- journals.unique
 #save(journals.unique, file="socialWorkJournals.R")
 ```
@@ -139,6 +121,7 @@ To do:
 + Integrate the full journal listing of EbscoHost 
 + Plot overall number of journals over time 
 + Plot overall number of journals by major discipline category as defined by EbscoHost classification -- use sociology, anthropology, economics, psychology, and political science
++ The following "overall growth" plot excludes social work journals in this study.  There were a small number of overlap journals between social science and social work journals (N = 4 -- double check for final analysis.  The journals that overlapped were included in the social work group.  
 
 ```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, echo=FALSE}
 journals.year <- tbl_df(pi.df)
@@ -189,45 +172,47 @@ ebJournals.df <- ebscoFullListing.df %>% filter(SourceType == "Academic Journal"
     mutate(IndexingStart = as.numeric(IndexingStart), IndexingStop = as.numeric(IndexingStop)) %>%
     filter(Discipline == "Sociology" | Discipline == "Political Science & Studies"| 
            Discipline == "Psychology"| Discipline == "Economics" | Discipline == "Anthropology") 
+```
 
-ebJournals.df.unique <- ebJournals.df %>% select(ISSN)
-ebJournals.df.unique <- !duplicated(ebJournals.df.unique)
-ebJournals.df <- ebJournals.df[ebJournals.df.unique, ]
+Some of the journals have duplicate entries in the database because they are cross-classified in multiple social science disciplines.  The following code is used to create a data set that excludes duplicate entries in the database and ensures no overlap between the social science list and the social work list of journals. Duplicates are identified based on ISSN, not journal title.  This will ensure all duplicates are identified.  
+
+```{r}
+ebJournals.df.issn <- ebJournals.df %>% select(ISSN)
+ebJournals.df.unique <- !duplicated(ebJournals.df.issn)
+
+#This function here tests whether the duplication identifier correctly gets the first unique record (by assigning TRUE) and then excluding subsequent records (by assigning FALSE) 
+#cbind(ebJournals.df.unique, ebJournals.df.issn$ISSN)
+
+#This subsets out the duplicates
+ebJournals.df.no.duplicates <- ebJournals.df[ebJournals.df.unique, ]
 
 
+#This function does a logical comparison of the social science journals and the social work journals to determine potential overlap.  
+overlap <- ebJournals.df.no.duplicates[(ebJournals.df.no.duplicates$PublicationName %in% journals.unique),]  
+print(overlap)
 
-ebJournals.df <- ebJournals.df[!(ebJournals.df$PublicationName %in% journals.unique),]    
+#This reduces the overlap from the social science journal lists, retaining the overlap in the social work journals
+ebJournals.df.no.overlap <- ebJournals.df.no.duplicates[!(ebJournals.df.no.duplicates$PublicationName %in% journals.unique),]   
+```
 
-ebJournals.df <- select(ebJournals.df, -PublicationName, -ISSN) %>%
-    mutate(journalID = c(1:nrow(ebJournals.df))) %>%
+This section uses the `melt` function to transform the social science data file into a format that can be plotted using ``ggplot2`.  
+```{r echo=FALSE}
+ 
+#Remove variables that will interfere with melting procedure
+socialScienceJournals.df <- ebJournals.df.no.overlap %>% 
+    select(-PublicationName, -ISSN) %>%
+    mutate(journalID = c(1:nrow(ebJournals.df.no.overlap))) %>%
     mutate(journalID = as.factor(journalID)) %>% 
     select(-Discipline)
 
-#ebJournals.melted <- melt(ebJournals.df)
+socialScienceJournals.melted <- melt(socialScienceJournals.df)
 
-#ebJournals.overtime.start <- ebJournals.melted %>% 
-#    filter(value = !is.na(value)) %>%
-#    group_by(Discipline, value) %>%
-#    summarise(N.start = n()) 
-    
-#ebJournals.overtime.end <- ebJournals.melted %>% 
-#    filter(variable == "IndexingStop"  & !is.na(value)) %>%
-#    group_by(Discipline, value) %>%
-#    summarise(N.end = n())
-
-#ebjournals.joined <- left_join(ebJournals.overtime.start, ebJournals.overtime.end) %>%
-#    mutate(N.end = ifelse(is.na(N.end), 0, N.end), Cumulative = cumsum(N.start)) %>%
-#    mutate(N.adjusted = Cumulative - N.end)
-
-
-ebJournals.melted.d <- melt(ebJournals.df)
-
-ebJournals.overtime.start.d <- ebJournals.melted.d %>% 
+ebJournals.overtime.start.d <- socialScienceJournals.melted %>% 
     filter(value = !is.na(value)) %>%
     group_by(value) %>%
     summarise(N.start = n()) 
     
-ebJournals.overtime.end.d <- ebJournals.melted.d %>% 
+ebJournals.overtime.end.d <- socialScienceJournals.melted %>%
     filter(variable == "IndexingStop"  & !is.na(value)) %>%
     group_by(value) %>%
     summarise(N.end = n())
