@@ -38,8 +38,11 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 
 # Wrangle the data with the BWR function suite
+start.time <- Sys.time()
 ebscoBWR.f(csv=FALSE, path=path)
-#save(bwr.df, file = "piArticles.R")
+end.time <- Sys.time()
+end.time-start.time
+#save(bwr.df, file = "HistoricalArticles.R")
 ```
 
 
