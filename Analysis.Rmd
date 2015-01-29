@@ -3,13 +3,15 @@ title: 'The History of Social Work Research: A Data Science Perspective'
 output: pdf_document
 ---
 
-# Data collection
+# Data harvesting
 
 
-+ Article record retrieval date:  January 8, 2015
-Database: PsychInfo and Social Science Index (via EbscoHost Platform) 
++ Article record retrieval date: January 24, 2015
+Database: psycInfo, Social Science Abstracts, Social Work Abstracts (via EbscoHost Platform) 
 
-+ Search terms:  SO "social work" or SO "social welfare" or SO "social casework" or "social case work" or SO "social service" or "social services" or SO "human service" or SO "human services" or SO "social development" or SO "social environment" 
++ Primary search:  Hodge's list
+
++ Supplemental search:  SO "social work" or SO "social welfare" or SO "social casework" or "social case work" or SO "social service" or "social services" or SO "human service" or SO "human services" or SO "social development" or SO "social environment" 
 
 + Search limiters:  Publication Type: Peer Reviewed Journal; Document Type: Journal Article
 
@@ -17,15 +19,17 @@ Database: PsychInfo and Social Science Index (via EbscoHost Platform)
 
 + Search results were exported from EbscoHost Platformon in a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  
 
-+ EbscoHost full journal listing retrieval date:  January 11, 2015 (http://www.ebscohost.com/title-lists)
++ Results filtered to exclude years 2014 and 2015 (due to delays in indexing)
+
 
 # Data Pre-Processing
+
 ```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=FALSE}
-# Clear workspace
+ # Clear workspace
 rm(list=ls())
 
 # Read BWR functions for Mac OS
-source("/Users/beperron/Git/BibWrangleR/functions/piWrangleR_Modified.R")
+source("/Users/beperron/Git/BibWrangleR/functions/ebscoBWR.R")
 
 # Set the path where original raw data are stored
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
@@ -34,18 +38,16 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 
 # Wrangle the data with the BWR function suite
-piBWR.f(csv=FALSE, path=path)
-#save(pi.df, file = "piArticles.R")
+ebscoBWR.f(csv=FALSE, path=path)
+#save(bwr.df, file = "piArticles.R")
 ```
 
 
-```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA, echo=FALSE}
+```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA}
 rm(list=ls())
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 source("/Users/beperron/Git/BibWrangleR/functions/ggsurv.R")
-load("ebscoFullListing.R")
-load("piArticles.R")
-load("socialWorkJournals.R")
+
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
@@ -56,41 +58,105 @@ library(reshape2)
 
 
 # Inspect dimensions of the data file (Rows X Columns)
-dim(pi.df)
+dim(bwr.df)
 
 # Inspect variable names of the data file
-names(pi.df)
+names(bwr.df)
 
 # How many unique article titles?  Ebsco Results of most current search is $n=XXXX$. Do not proceed with analysis if the output does not match this result.  
-length(which(pi.df$attributes == "TI"))
+length(which(bwr.df$attributes == "TI"))
 ```
 
-
-Journals excluded from search results.  _Social Work_ today excluded because it is of a magazine format. 
+# Exclude years 2014 and 2015  
 
 ```{r}
-pi.df <- pi.df %>% filter(
-        record != "PUT JOURNALS TO BE EXCLUDED HERE" &
-        record != "PUT JOURNALS TO BE EXCLUDED HERE     " &
-        )
+years <- c("2014", "2015")
+ebsco.remove <- bwr.df[bwr.df$record %in% years, ]
+ebsco.remove <- ebsco.remove[, "articleID"]
+bwr.df <- bwr.df[!(bwr.df$articleID %in% ebsco.remove),]
 ```
 
 
-Two journal titles were merged because one set of records was a logical abbreviation of another set of records.
+
+# Merge journal titles
 
 ```{r}
+bwr.df$record <- ifelse(bwr.df$record == "Eugenics and Social Welfare Bulletin", 
+                       "Eugenics & Social Welfare Bull.", 
+                        bwr.df$record)
 
-pi.df$record <- ifelse(pi.df$record == "Practice", "Practice: Social Work in Action"
-                , pi.df$record)
-pi.df$articleID <- ifelse(pi.df$articleID == 74, 42, pi.df$articleID)
+bwr.df$record <- ifelse(bwr.df$record == "The British Journal of Social Work", 
+                       "British Journal of Social Work", 
+                        bwr.df$record)
 
-pi.df$record <- ifelse(pi.df$record == "Eugenics & Social Welfare Bull.", "Eugenics and Social Welfare Bulletin", pi.df$record)
-pi.df$articleID <- ifelse(pi.df$articleID == 28, 32, pi.df$articleID)
+
+bwr.df$record <- ifelse(bwr.df$record == "Social Work & Social Sciences Review", 
+                       "Social Work and Social Sciences Review", 
+                        bwr.df$record)
+
+bwr.df$record <- ifelse(bwr.df$record == "Social Work with Groups", 
+                       "Social Work With Groups", 
+                        bwr.df$record)
+
+bwr.df$record <- ifelse(bwr.df$record == "Computers in Human Services", 
+                       "Journal of Technology in the Human Services", 
+                        bwr.df$record)
+
 ```
+
+
+# Journals excluded from search results.  
+
+```{r}
+exclusions <- c(
+    "American Journal of Preventive Medicine", 
+    "Behavior Modification", 
+    "Brain and Cognition",
+    "Canadian Journal of Community Mental Health",
+    "Canadian Journal on Aging",
+    "Early Child Development and Care",
+    "Early Education and Development",
+    "Employee Assistance Quarterly",
+    "Evaluation and Program Planning",
+    "General Hospital Psychiatry",
+    "Hospital Social Service",
+    "Journal of Applied Behavioral Science",
+    "Journal of Applied Rehabilitation Counseling",
+    "Journal of Community & Applied Social Psychology",
+    "Journal of Nonverbal Behavior",
+    "Learning Disabilities Research & Practice",
+    "New York State Department of Social Welfare, Division Publication",
+    "Pennsylvania Social Work",
+    "Proceedings of the National Converence of Social Work",
+    "PROFILE Issues in Teachers' Professional Development",
+    "Psychotherapy",
+    "Social Development",
+    "Social Service Department, Presbyterian Hospital, New York",
+    "Social Work Technique",
+    "Social Work Today", # Magazine
+    "The New Social Worker",
+    "Systems Research and Behavioral Science",
+    "Teaching and Teacher Education",
+    "University of Chicago Social Service Monograph",
+    "The Scientific Review of Mental Health Practice",
+    "The Clinical Supervisor",
+    "University of Chicago Social Service Monograph")
+ebsco.remove <- bwr.df[bwr.df$record %in% exclusions, ]
+ebsco.remove <- ebsco.remove[, "articleID"]
+bwr.df <- bwr.df[!(bwr.df$articleID %in% ebsco.remove),]
+```
+
+
+filter(bwr.df, attributes == "SO") %>% group_by(record) %>% arrange(record) %>% summarise(Article.Count = n())
+
+filter(bwr.df, attributes == "TI") %>% summarize(N = n())
+```
+
+
 
 # Preliminary Analyses
 
-All analyses provided here are not in publishable format, but presented to determine the basis of a storyline.  All tables and figures will be styled according to a target journal.  
+
 
 ## Summary of all journal titles included in the analysis
 
@@ -100,7 +166,7 @@ To do:
 + Write the script to output a *.csv file so that it can be included as an Appendix without any formatting.
 
 ```{r unique_titles, echo=FALSE}
-unique.titles <- filter(pi.df, attributes == "SO")
+unique.titles <- filter(bwr.df, attributes == "SO")
 
 # Number of unique titles
 number.journals <- length(unique(unique.titles$record))
@@ -124,7 +190,7 @@ To do:
 + The following "overall growth" plot excludes social work journals in this study.  There were a small number of overlap journals between social science and social work journals (N = 4 -- double check for final analysis.  The journals that overlapped were included in the social work group.  
 
 ```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, echo=FALSE}
-journals.year <- tbl_df(pi.df)
+journals.year <- tbl_df(bwr.df)
 
 year <- journals.year %>%
         filter(attributes == "YR") %>%
@@ -235,12 +301,12 @@ ggplot() +
 
 ```{r journal_output, echo=FALSE}
 
-n.so.yr <- filter(pi.df, attributes == "SO" | attributes == "YR")
+n.so.yr <- filter(bwr.df, attributes == "SO" | attributes == "YR")
 
-n.so <- filter(pi.df, attributes == "SO") %>% mutate(title = record) %>% 
+n.so <- filter(bwr.df, attributes == "SO") %>% mutate(title = record) %>% 
         select(-attributes, -record)
 
-n.yr <- filter(pi.df, attributes == "YR") %>% mutate(year = record ) %>% 
+n.yr <- filter(bwr.df, attributes == "YR") %>% mutate(year = record ) %>% 
         select(-attributes, -record)
 
 n.so.yr <- left_join(n.so, n.yr) %>%
@@ -249,7 +315,7 @@ n.so.yr <- left_join(n.so, n.yr) %>%
     arrange(desc(n.to.date))
 
 # 10 highest number of publications
-head(n.so.yr, 10)
+head(n.so.yr, 20)
 ```
 
 ## What is the lifespan of journals? 
@@ -273,12 +339,12 @@ median.survival <- data.frame(time = c(24,24), quant = c(.5,0))
 head(longest.running)
 
 ggsurv(survival.journals) + 
-    geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
-    annotate("segment", x = 32, xend = 27, y = .12, yend = .12, size = .25, arrow =arrow()) +
-    geom_text(x = 45, y =.12, label = "median survival", size = 4) + 
+    #geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
+    #annotate("segment", x = 32, xend = 27, y = .12, yend = .12, size = .25, arrow =arrow()) +
+    #geom_text(x = 45, y =.12, label = "median survival", size = 4) + 
     geom_text(x = 75, y =.75, label = "+ = Last year of indexing", size = 4) +
     ylim(0,1) +
-    xlim(0,100) + 
+    xlim(0,50) + 
     xlab("Survival Time (in years)") +
     ylab("Survival Probability") +
     ggtitle("Survival Probability of Social Work Journals")
@@ -291,7 +357,7 @@ To do:
 + Plot against major disciplinary categories
 
 ```{r articles_per_year, echo=FALSE}
-n.articles.year <- filter(pi.df, attributes == "YR") 
+n.articles.year <- filter(bwr.df, attributes == "YR") 
 year.split <- split(n.articles.year, n.articles.year$record)
 year.count <- unlist(lapply(year.split, nrow))
 year.count <- year.count[order(names(year.count))]
@@ -337,7 +403,7 @@ To do:
 + Fix script that performs matching -- convert all keywords to lower before matching
 
 ```{r keywords_overall, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
-kp.df <- filter(pi.df, attributes == "KP")
+kp.df <- filter(bwr.df, attributes == "KP")
 
 subject.terms <- stringr::str_split(kp.df$record, pattern = ";")
 subject.terms <- tolower(subject.terms)
@@ -370,10 +436,10 @@ For this analysis (to-do), select a few keywords that may tell an interesting st
 
 
 ```{r keywords_over_time, warning=FALSE, message=FALSE, echo=FALSE}
-kp.yr <- filter(pi.df, attributes == "YR") %>%
+kp.yr <- filter(bwr.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
-kp <- pi.df %>%
+kp <- bwr.df %>%
         filter(attributes == "KP") %>%
         select(articleID = articleID, keyword = record) %>%
         mutate(keyword = gsub(" ", "", keyword))
@@ -410,7 +476,7 @@ To do:
 + Determine best format / presentation of map
 
 ```{r location, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
-LO.df <- filter(pi.df, attributes == "LO") %>%
+LO.df <- filter(bwr.df, attributes == "LO") %>%
          group_by(record) %>%
          summarise(Country = unique(record),
                    N = n()) %>%
@@ -432,10 +498,10 @@ To do:
 
 ```{r location_over_time, warning=FALSE, message=FALSE, echo=FALSE}
 library(RColorBrewer)
-year <- filter(pi.df, attributes == "YR") %>%
+year <- filter(bwr.df, attributes == "YR") %>%
     mutate(year = as.numeric(record)) %>% select(-record, -attributes)
 
-location.temp <- pi.df %>%
+location.temp <- bwr.df %>%
         filter(attributes == "LO") %>%
         select(articleID = articleID, country = record) %>%
         mutate(country = gsub(" ", "", country))
@@ -506,7 +572,7 @@ grid.raster(img)
 
 ## Number of authors
 ```{r comment=NA, message=FALSE, warning=FALSE, echo=FALSE}
-n.authors.article <- pi.df %>% 
+n.authors.article <- bwr.df %>% 
     filter(attributes == "AU") %>%
     select(id = articleID, author= record) %>%
     mutate(id = as.numeric(id))
@@ -534,7 +600,7 @@ This figure shows the average number of authors, along with the standard deviati
 
 
 ```{r message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4, echo=FALSE}
-df.2 <- tbl_df(pi.df)
+df.2 <- tbl_df(bwr.df)
 year <- df.2 %>%
         filter(attributes == "YR") %>%
         select(id = articleID, year = record)
