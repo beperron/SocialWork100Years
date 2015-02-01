@@ -5,24 +5,40 @@ output: pdf_document
 
 # Data harvesting
 
+Data collection for this study was separated into three phases.  
 
-+ Article record retrieval date: January 24, 2015
-Database: psycInfo, Social Science Abstracts, Social Work Abstracts (via EbscoHost Platform) 
+## Search Query
 
-+ Primary search:  Hodge's list
+The first phases involved querying three different databases serviced by the EbscoHost web platform: psycInfo, Social Science Abstract, and Social Work Abstracts.  These databases were selected because they provide the indexing services for the majority of social work journals.  Additionally, search queries from these databases, served by EbscoHost, allowed search results to be exported raw text (*.txt) documents, referred to as a _generic bibliographic format_.  Other databases and search engines (e.g., Google Scholar) were not queried because the results could not be saved in a common format.  This is a limitation of the study that is covered in the discussion section.  
 
-+ Supplemental search:  SO "social work" or SO "social welfare" or SO "social casework" or "social case work" or SO "social service" or "social services" or SO "human service" or SO "human services" or SO "social development" or SO "social environment" 
+The search began by querying each database for every _journal article_ from every journal that was included in the list by Hodge and ... [Describe this list] ... Each query was performed independently on each database, 
 
-+ Search limiters:  Publication Type: Peer Reviewed Journal; Document Type: Journal Article
 
-+ Search modes: Boolean/Phrase
 
-+ Search results were exported from EbscoHost Platformon in a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  
 
-+ Results filtered to exclude years 2014 and 2015 (due to delays in indexing)
+
+We had a three-level search process designed to be as comprehensive as possible.  First, we began by running a separate search query on each database for every journal contained in the list by Hodge.  We then conducted a subsequent search of all journal titles based on the following key words:
+
++ social work
++ social welfare
++ social casework 
++ social case work
++ social service
++ human service
++ social development 
++ social environment
+
+In each query, results were limited to only journal articles, which excluded other document types including (but not limited to) editorials, book reviews, software reviews, and obituaries.  All searches were conducted between January 24, 2015 and January 30, 2015. Results were subsequently filtered to exlclude years 2014 and 2015 due to delays in indexing.  Search results were exported from EbscoHost platfrom into a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  The multiple searches were then transformed into an analyzable database using a customized script developed by the first two authors of the study (BEP and BGV). 
+
+Study authors reviewed all journal titles and 
+
 
 
 # Data Pre-Processing
+
+# NOTE: CONFIRM THAT SOCIAL CASEWORK IS SAME AS FAMILIES IN SOCIETY.  ENSURE WE 
+# HAVE THE ARTICLES FOR WHEN THE JOURNAL WAS ALSO CALLED THE FAMILY
+
 
 ```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=FALSE}
  # Clear workspace
@@ -38,10 +54,7 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 
 # Wrangle the data with the BWR function suite
-start.time <- Sys.time()
 ebscoBWR.f(csv=FALSE, path=path)
-end.time <- Sys.time()
-end.time-start.time
 #save(bwr.df, file = "HistoricalArticles.R")
 ```
 
@@ -50,6 +63,7 @@ end.time-start.time
 rm(list=ls())
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 source("/Users/beperron/Git/BibWrangleR/functions/ggsurv.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/HistoricalArticles.R")
 
 library(dplyr)
 library(ggplot2)
@@ -102,8 +116,16 @@ bwr.df$record <- ifelse(bwr.df$record == "Social Work with Groups",
                         bwr.df$record)
 
 bwr.df$record <- ifelse(bwr.df$record == "Computers in Human Services", 
-                       "Journal of Technology in the Human Services", 
+                       "Journal of Technology in Human Services", 
                         bwr.df$record)
+
+bwr.df$record <- ifelse(bwr.df$record == "Journal of Sociology & Social Welfare", 
+                       "Journal of Sociology and Social Welfare", 
+                        bwr.df$record)
+
+#Note leave space after the (Electronic only)
+bwr.df$record <- ifelse(bwr.df$record == "Contemporary Rural Social Work (Electronic only) ", 
+                        "Contemporary Rural Social Work (Electronic only) ", bwr.df$record) 
 
 ```
 
@@ -123,9 +145,11 @@ exclusions <- c(
     "Evaluation and Program Planning",
     "General Hospital Psychiatry",
     "Hospital Social Service",
+    "International Review of Social Research",
     "Journal of Applied Behavioral Science",
     "Journal of Applied Rehabilitation Counseling",
     "Journal of Community & Applied Social Psychology",
+    "Journal of Health & Human Services Administration",
     "Journal of Nonverbal Behavior",
     "Learning Disabilities Research & Practice",
     "New York State Department of Social Welfare, Division Publication",
@@ -133,10 +157,10 @@ exclusions <- c(
     "Proceedings of the National Converence of Social Work",
     "PROFILE Issues in Teachers' Professional Development",
     "Psychotherapy",
-    "Social Development",
     "Social Service Department, Presbyterian Hospital, New York",
     "Social Work Technique",
     "Social Work Today", # Magazine
+    "Social Work Yearbook",
     "The New Social Worker",
     "Systems Research and Behavioral Science",
     "Teaching and Teacher Education",
@@ -149,11 +173,15 @@ ebsco.remove <- ebsco.remove[, "articleID"]
 bwr.df <- bwr.df[!(bwr.df$articleID %in% ebsco.remove),]
 ```
 
-
-filter(bwr.df, attributes == "SO") %>% group_by(record) %>% arrange(record) %>% summarise(Article.Count = n())
-
-filter(bwr.df, attributes == "TI") %>% summarize(N = n())
+```{r unique_titles, echo=FALSE}
+unique.titles <- filter(bwr.df, attributes == "SO") %>%
+    group_by(record) %>%
+    summarise(
+        N = n())
 ```
+
+
+
 
 
 
@@ -169,7 +197,22 @@ To do:
 + Write the script to output a *.csv file so that it can be included as an Appendix without any formatting.
 
 ```{r unique_titles, echo=FALSE}
-unique.titles <- filter(bwr.df, attributes == "SO")
+unique.titles <- filter(bwr.df, attributes == "SO") %>%
+    group_by(record) %>%
+    summarise(
+        N = n())
+
+title <- bwr.df %>%
+        filter(attributes == "SO") %>%
+        select(id = articleID, SO = record)
+
+article <- bwr.df %>%
+        filter(attributes == "TI") %>%
+        select(id = articleID, journal.title = record)
+
+title.articles <- title %>% 
+        left_join(article) %>%
+        group_by(title) 
 
 # Number of unique titles
 number.journals <- length(unique(unique.titles$record))
