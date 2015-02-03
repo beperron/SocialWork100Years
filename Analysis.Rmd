@@ -62,6 +62,15 @@ ebscoBWR.f(csv=FALSE, path=path)
 #Anonymous
 x.temp <- filter(bwr.df, attributes == "article")
 x.temp2 <- filter(bwr.df, attributes == "journal")
+x.temp3 <- filter(bwr.df, attributes == "abstract")
+
+dim(x.temp); dim(x.temp2); dim(x.temp3)
+
+dim(x.temp)
+
+lapply(checks, dim)
+
+
 
 
 x.temp3 <- filter(bwr.df, attributes == "author")
