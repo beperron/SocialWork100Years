@@ -1,47 +1,36 @@
 ---
-title: 'The History of Social Work Research: A Data Science Perspective'
+title: 'History of Social Work Research: Data Cleaning'
 output: pdf_document
 ---
 
-# Data harvesting
+# Overview
 
-Data collection for this study was separated into three phases.  
+This document summarizes data cleaning procedures of the data file processed by the `ebscoBWR` fucntion.  It should be noted that that `ebscoBWR` function merged the search results from the first- and second-level searches performed on the three databases (psycInfo, Social Science Abstracts, and Social Work Abstract) hosted by the EbscoPlatform.  This function merged all the search results, transformed the data into a structured data file, and removed all duplicate article records.  No further transformations or cleaning was performed by the `ebscoBWR` function.  Provided below are basic descriptive summaries of the results from the full search before further cleaning.  
 
-## Search Query
+It should be noted that the second-level search was specified to be overly inclusive to help ensure the most comprehensive search possible.  All journal titles from the secondary search are identified in the following summary.  
 
-The first phases involved querying three different databases serviced by the EbscoHost web platform: psycInfo, Social Science Abstract, and Social Work Abstracts.  These databases were selected because they provide the indexing services for the majority of social work journals.  Additionally, search queries from these databases, served by EbscoHost, allowed search results to be exported raw text (*.txt) documents, referred to as a _generic bibliographic format_.  Other databases and search engines (e.g., Google Scholar) were not queried because the results could not be saved in a common format.  This is a limitation of the study that is covered in the discussion section.  
+library(dplyr)
+temp <- bwr.df[bwr.df$articleID == 28300,]
+27743 and 28300.
 
-The search began by querying each database for every _journal article_ from every journal that was included in the list by Hodge and ... [Describe this list] ... Each query was performed independently on each database, 
-
-
-
-
-
-We had a three-level search process designed to be as comprehensive as possible.  First, we began by running a separate search query on each database for every journal contained in the list by Hodge.  We then conducted a subsequent search of all journal titles based on the following key words:
-
-+ social work
-+ social welfare
-+ social casework 
-+ social case work
-+ social service
-+ human service
-+ social development 
-+ social environment
-
-In each query, results were limited to only journal articles, which excluded other document types including (but not limited to) editorials, book reviews, software reviews, and obituaries.  All searches were conducted between January 24, 2015 and January 30, 2015. Results were subsequently filtered to exlclude years 2014 and 2015 due to delays in indexing.  Search results were exported from EbscoHost platfrom into a _generic bibliographic format_.  This is an unstructured text file (*.txt) that was processed using in R.  The multiple searches were then transformed into an analyzable database using a customized script developed by the first two authors of the study (BEP and BGV). 
-
-Study authors reviewed all journal titles and 
+```{r}
+hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+hodge2 <- gsub("(SO)", "", hodge)
+hodge3 <- gsub("(OR)", "", hodge2)
+hodge4 <- gsub("[[:punct:]]", "", hodge3)
+hodge5 <- str_trim(hodge4, side="both")
 
 
 
-# Data Pre-Processing
 
-# NOTE: CONFIRM THAT SOCIAL CASEWORK IS SAME AS FAMILIES IN SOCIETY.  ENSURE WE 
-# HAVE THE ARTICLES FOR WHEN THE JOURNAL WAS ALSO CALLED THE FAMILY
+
+
+
+
 
 
 ```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=FALSE}
-# Clear workspace
+ # Clear workspace
 rm(list=ls())
 
 # Read BWR functions for Mac OS
@@ -52,26 +41,7 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 
 # Set the working directory to store files created by BWR functions
 path <- "/Users/beperron/Git/SocialWorkResearch/Data"
-
-# Wrangle the data with the BWR function suite
-ebscoBWR.f(csv=FALSE, path=path)
-#save(bwr.df, file = "HistoricalArticles.R")
 ```
-
-#add no authorship indicated
-#Anonymous
-x.temp <- filter(bwr.df, attributes == "article")
-x.temp2 <- filter(bwr.df, attributes == "journal")
-
-
-x.temp3 <- filter(bwr.df, attributes == "author")
-b <- grepl("@", x.temp3$record)
-
-test.case <- filter(bwr.df, attributes == "AU")
-auth.name <- filter(test.case, grepl("(Perron,\\sB)", record))
-
-
-x.temp <- filter(bwr.df, attributes == "KW" | attributes == "KP")
 
 
 ```{r initialization_analysis, message=FALSE, warning=FALSE, comment=NA}
@@ -87,19 +57,48 @@ library(survival)
 library(grid)
 library(png)
 library(reshape2)
-
-
-# Inspect dimensions of the data file (Rows X Columns)
-dim(bwr.df)
-
-# Inspect variable names of the data file
-names(bwr.df)
-
-# How many unique article titles?  Ebsco Results of most current search is $n=XXXX$. Do not proceed with analysis if the output does not match this result.  
-length(which(bwr.df$attributes == "TI"))
 ```
 
-# Exclude years 2014 and 2015  
+# Data Pre-Processing
+
+# NOTE: CONFIRM THAT SOCIAL CASEWORK IS SAME AS FAMILIES IN SOCIETY.  ENSURE WE 
+# HAVE THE ARTICLES FOR WHEN THE JOURNAL WAS ALSO CALLED THE FAMILY
+# Re-write this to call the R-object directly
+# Overview of processed datafile
+
+Provided below are some basic descriptive statistics before performing any data cleaning.
+
+```{r echo=FALSE, comment=NA} 
+number.of.articles <- length(which(bwr.df$attributes == "TI"))
+range.of.years <- range(bwr.df$record[bwr.df$attributes == "YR"])
+print(number.of.articles)
+print(range.of.years)
+```
+
+
+```{r echo=FALSE, comment=}
+unique.titles <- filter(bwr.df, attributes == "SO") %>%
+    group_by(record) %>%
+    summarise(
+        N = n())
+print.data.frame(unique.titles, rowNames=FALSE)
+```
+
+
+        
+        
+        
+        
+        
+
+
+
+# Filter by year
+
+
+
+
+Exclude years 2014 and 2015  
 
 ```{r}
 years <- c("2014", "2015")
