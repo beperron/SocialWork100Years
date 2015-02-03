@@ -54,8 +54,8 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 path <- "/Users/beperron/Git/SocialWorkResearch/Data"
 
 # Wrangle the data with the BWR function suite
-ebscoBWR.f(csv=FALSE, path=path)
-#save(bwr.df, file = "HistoricalArticles.R")
+ebscoBWR.f(csv=FALSE, path=path, psycInfoOnly = FALSE)
+save(bwr.df, file = "fullDF.R")
 ```
 
 #add no authorship indicated
