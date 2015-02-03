@@ -138,6 +138,19 @@ bwr.df$record <- ifelse(bwr.df$record == "Journal of Sociology & Social Welfare"
                        "Journal of Sociology and Social Welfare", 
                         bwr.df$record)
 
+bwr.df$record <- ifelse(bwr.df$record == "The Family", 
+                       "Families in Society",
+                       ifelse(bwr.df$record == "Journal of Social Casework",
+                       "Families in Society",
+                       ifelse(bwr.df$record == "Social Casework",
+                       "Families in Society",
+                        bwr.df$record)))
+
+bwr.df$record <- ifelse(bwr.df$record == "Social Work in Education", 
+                       "Children & Schools", 
+                        bwr.df$record)
+
+
 #Note leave space after the (Electronic only)
 bwr.df$record <- ifelse(bwr.df$record == "Contemporary Rural Social Work (Electronic only) ", 
                         "Contemporary Rural Social Work (Electronic only) ", bwr.df$record) 
