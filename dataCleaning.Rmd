@@ -26,6 +26,9 @@ load("/Users/beperron/Git/SocialWorkResearch/Data/fullDF.R")
 
 # Set the working directory
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
+
+# Strip leading and trailing white-space on all records
+full.df$record <- stringr::str_trim(full.df$record, side = "both")
 ```
 
 # Pre-processing summary
@@ -61,8 +64,7 @@ ebsco.remove <- ebsco.remove[, "articleID"]
 full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 ```
 
-
-The articles were reviewed and a first round of exclusions were made.  
+The articles were reviewed and a first round of exclusions were made.  All decisions to exclude were based on group consenus.  
 
 ```{r}
 exclusions <- c(
@@ -90,9 +92,9 @@ exclusions <- c(
     "PROFILE Issues in Teachers' Professional Development",
     "Psychotherapy",
     "Social Service Department, Presbyterian Hospital, New York",
-    "Social Work Technique",
-    "Social Work Today", # Magazine
-    "Social Work Yearbook",
+    "Social Work Technique", 
+    "Social Work Today", 
+    "Social Work Yearbook", 
     "The New Social Worker",
     "Systems Research and Behavioral Science",
     "Teaching and Teacher Education",
@@ -100,6 +102,7 @@ exclusions <- c(
     "The Scientific Review of Mental Health Practice",
     "The Clinical Supervisor",
     "University of Chicago Social Service Monograph")
+
 ebsco.remove <- full.df[full.df$record %in% exclusions, ]
 ebsco.remove <- ebsco.remove[, "articleID"]
 full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
@@ -114,36 +117,67 @@ Journal titles were merged in the following situations:
 3.
 
 ```{r}
-full.df$record <- ifelse(full.df$record == "Eugenics and Social Welfare Bulletin", 
-                       "Eugenics & Social Welfare Bull.", 
-                        full.df$record)
+full.df$record <- ifelse(full.df$record == 
+    "Eugenics and Social Welfare Bulletin",     # Spelling difference
+    "Eugenics & Social Welfare Bull.",          # Spelling difference
+                    full.df$record)
 
-full.df$record <- ifelse(full.df$record == "The British Journal of Social Work", 
-                       "British Journal of Social Work", 
-                        full.df$record)
+full.df$record <- ifelse(full.df$record == 
+    "The British Journal of Social Work",       # Old name
+    "British Journal of Social Work",           # New name
+                    full.df$record)
 
+full.df$record <- ifelse(full.df$record == 
+    "Social Work & Social Sciences Review",     # Spelling difference
+    "Social Work and Social Sciences Review",   # Spelling difference
+                    full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Social Work & Social Sciences Review", 
-                       "Social Work and Social Sciences Review", 
-                        full.df$record)
+full.df$record <- ifelse(full.df$record == 
+    "Social Work with Groups",                  # Spelling difference
+    "Social Work With Groups",                  # Spelling difference
+                    full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Social Work with Groups", 
-                       "Social Work With Groups", 
-                        full.df$record)
+full.df$record <- ifelse(full.df$record == 
+    "Computers in Human Services",              # Old name
+    "Journal of Technology in Human Services",  # New name 
+                    full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Computers in Human Services", 
-                       "Journal of Technology in Human Services", 
-                        full.df$record)
+full.df$record <- ifelse(full.df$record == 
+    "Journal of Sociology & Social Welfare",    # Spelling difference
+    "Journal of Sociology and Social Welfare",  # Spelling difference
+                    full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Journal of Sociology & Social Welfare", 
-                       "Journal of Sociology and Social Welfare", 
-                        full.df$record)
+full.df$record <- ifelse(full.df$record == 
+    "The Family" | full.df$record ==                   # Old name
+    "Journal of Social Casework" | full.df$record ==    # Old name
+    "Social Casework",                                  # Old name
+    "Families in Society",                              # New name
+                    full.df$record)
 
-#Note leave space after the (Electronic only)
+full.df$record <- ifelse(full.df$record == 
+    "Social Work in Education",                 # Old name
+    "Children & Schools",                       # New name
+                    full.df$record)
+
 full.df$record <- ifelse(full.df$record == "Contemporary Rural Social Work (Electronic only) ", 
                         "Contemporary Rural Social Work (Electronic only) ", full.df$record) 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
