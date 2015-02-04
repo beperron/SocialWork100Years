@@ -1,0 +1,4 @@
+load("/Users/beperron/Git/SocialWorkResearch/Data/fullDF.R")
+ls()
+dim()
+dim(full.df)

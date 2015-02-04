@@ -1,6 +1,6 @@
 ---
 title: 'History of Social Work Research: Data Cleaning'
-output: pdf_document
+output: html_document
 ---
 
 # Overview
@@ -14,14 +14,14 @@ The main file for analysis is `fullDF.R`, and a separate file is just for psycIn
 
 ```{r initialization_dataprocessing, warning=FALSE, message=FALSE, eval=TRUE}
 # Clear workspace
-rm(list=ls())
+rm(list=ls())   
 
 # Load required packages
 library(ggplot2)
 library(dplyr)
 
 # Read data files
-load("/Users/beperron/Git/SocialWorkResearch/Data/psycInfoDF.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/psycInfoDF.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/fullDF.R")
 
 # Set the working directory
@@ -32,23 +32,31 @@ setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 
 Provided below are some basic descriptive statistics before any data of the files processed by `ebscoBWR` function. 
 
-```{r echo=FALSE, comment=NA} 
+```{r preprocessing, comment=NA, echo=FALSE} 
 number.of.articles <- length(which(full.df$attributes == "article"))
 range.of.years <- range(full.df$record[full.df$attributes == "pubYear"])
+```
+
+
+```{r}
+# Number of articles
 cat(number.of.articles)
+```
+
+```{r}
+# Range of years
 cat(range.of.years)
 ```
 
 *TO DO* add range of years to the following dplyr summary
 
-```{r echo=FALSE, comment=}
+```{r date, echo=FALSE, comment=NA}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(
         N = n())
 print.data.frame(unique.titles, rowNames=FALSE)
 ```
-
 
 # Data cleaning
 
@@ -59,13 +67,17 @@ years <- c("2014", "2015")
 ebsco.remove <- full.df[full.df$record %in% years, ]
 ebsco.remove <- ebsco.remove[, "articleID"]
 full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
+
+range.of.years <- range(full.df$record[full.df$attributes == "pubYear"])
+
+# New range of years
+cat(range.of.years)
 ```
 
+The articles were reviewed and a first round of exclusions were made based on whether they are journals from within outside of the field of social work.  Disagreements were resolved by reviewing the mission of the journal to see whether it reflected the study definition of a disciplinary social work journal.  
 
-The articles were reviewed and a first round of exclusions were made.  
-
-```{r}
-exclusions <- c(
+```{r exclusion1, eval=TRUE}
+exclusions.1 <- c(
     "American Journal of Preventive Medicine", 
     "Behavior Modification", 
     "Brain and Cognition",
@@ -76,52 +88,82 @@ exclusions <- c(
     "Employee Assistance Quarterly",
     "Evaluation and Program Planning",
     "General Hospital Psychiatry",
-    "Hospital Social Service",
     "International Review of Social Research",
     "Journal of Applied Behavioral Science",
     "Journal of Applied Rehabilitation Counseling",
+    "Journal of Applied Social Sciences",
     "Journal of Community & Applied Social Psychology",
     "Journal of Health & Human Services Administration",
     "Journal of Nonverbal Behavior",
+    "Journal of Psychosomatic Research",
     "Learning Disabilities Research & Practice",
     "New York State Department of Social Welfare, Division Publication",
-    "Pennsylvania Social Work",
     "Proceedings of the National Converence of Social Work",
     "PROFILE Issues in Teachers' Professional Development",
     "Psychotherapy",
-    "Social Service Department, Presbyterian Hospital, New York",
-    "Social Work Technique",
-    "Social Work Today", # Magazine
-    "Social Work Yearbook",
-    "The New Social Worker",
     "Systems Research and Behavioral Science",
     "Teaching and Teacher Education",
     "University of Chicago Social Service Monograph",
     "The Scientific Review of Mental Health Practice",
-    "The Clinical Supervisor",
-    "University of Chicago Social Service Monograph")
-ebsco.remove <- full.df[full.df$record %in% exclusions, ]
+    "The Clinical Supervisor")
+
+ebsco.remove <- full.df[full.df$record %in% exclusions.1, ]
 ebsco.remove <- ebsco.remove[, "articleID"]
 full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 
-rm(ebsco.remove)
+rm(ebsco.remove, exclusions.1)
 ```
+
+A second round of exclusions were made.  
+
+Journals with less than 10 articles that contributed to the overall number.  Ten was selected because it was a natural break consisten with a EFA curve...In this cases the exclusion of the titles had virtually no impact on the overall article count.  However, it did inflate the number of journal titles.   Excluded if we could not identify the journal and associated articles -- that is, it wasn't available and, therefore, not part of the scholarly record.  
+
++ _Social Work Process_ was retained because it was a verified journal from U Penn 
+
+
+
+```{r exclusion2, eval=TRUE}
+exclusions.2 <- c(
+    "Eugenics and Social Welfare Bulletin",
+    "Eugenics & Social Welfare Bull.",
+    "Issues in Social Work Education", 
+    "Hospital Social Service",  #Confirmed nursing journal
+    "International Conference of Social Work",
+    "Journal of Multicultural Social Work",
+    "Journal of Teaching in Social Work", 
+    "Maatskaplike Werk/Social Work",
+    "Medical Social Work",
+    "New York State Department of Social Welfare, Division Publication",
+    "Pediatric Social Work", 
+    "Pennsylvania Social Work",
+    "Social Service",    
+    "Social Service Department, Presbyterian Hospital, New York",
+    "Social Service Monographs",
+    "School Social Work Quarterly", # Published only one edition
+    "Social Work Today",
+    "Social Work Technique",
+    "Social Work Today", # Magazine
+    "Social Work Yearbook",
+    "The New Social Worker",
+    "Pennsylvania Social Work",
+    "University of Chicago Social Service Monograph" # Single record
+    )
+
+ebsco.remove <- full.df[full.df$record %in% exclusions.2, ]
+ebsco.remove <- ebsco.remove[, "articleID"]
+full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
+
+rm(ebsco.remove, exclusions.2)
+```
+
 
 Journal titles were merged in the following situations:
 
-1.
-2.
-3.
 
-```{r}
-full.df$record <- ifelse(full.df$record == "Eugenics and Social Welfare Bulletin", 
-                       "Eugenics & Social Welfare Bull.", 
-                        full.df$record)
-
+```{r titleMerge, eval=TRUE}
 full.df$record <- ifelse(full.df$record == "The British Journal of Social Work", 
                        "British Journal of Social Work", 
                         full.df$record)
-
 
 full.df$record <- ifelse(full.df$record == "Social Work & Social Sciences Review", 
                        "Social Work and Social Sciences Review", 
@@ -139,655 +181,67 @@ full.df$record <- ifelse(full.df$record == "Journal of Sociology & Social Welfar
                        "Journal of Sociology and Social Welfare", 
                         full.df$record)
 
-#Note leave space after the (Electronic only)
-full.df$record <- ifelse(full.df$record == "Contemporary Rural Social Work (Electronic only) ", 
-                        "Contemporary Rural Social Work (Electronic only) ", full.df$record) 
+full.df$record <- ifelse(full.df$record == "The Family", 
+                       "Families in Society",
+                       ifelse(full.df$record == "Journal of Social Casework",
+                       "Families in Society",
+                       ifelse(full.df$record == "Social Casework",
+                       "Families in Society",
+                        full.df$record)))
 
+full.df$record <- ifelse(full.df$record == "Social Work in Education", 
+                       "Children & Schools", 
+                        full.df$record)
 ```
 
-```{r}
+
+# Coverage via Hodge article
+
+```{r hodgeCompare, eval=FALSE}
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 hodge2 <- gsub("(SO)", "", hodge)
 hodge3 <- gsub("(OR)", "", hodge2)
 hodge4 <- gsub("[[:punct:]]", "", hodge3)
 hodge5 <- str_trim(hodge4, side="both")
 
-
-
-
-
-
-
-
-
-
-
 ```
 
+# Post-processing summary 
 
++ to do ... summary with hodge list
 
-
-
-
-
-
-
-        
-        
-        
-        
-        
-
-
-
-# Filter by year
-
-
-
-
-Exclude years 2014 and 2015  
-
-```{r}
-years <- c("2014", "2015")
-ebsco.remove <- full.df[full.df$record %in% years, ]
-ebsco.remove <- ebsco.remove[, "articleID"]
-full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
-```
-
-
-
-# Merge journal titles
-
-```{r}
-full.df$record <- ifelse(full.df$record == "Eugenics and Social Welfare Bulletin", 
-                       "Eugenics & Social Welfare Bull.", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == "The British Journal of Social Work", 
-                       "British Journal of Social Work", 
-                        full.df$record)
-
-
-full.df$record <- ifelse(full.df$record == "Social Work & Social Sciences Review", 
-                       "Social Work and Social Sciences Review", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == "Social Work with Groups", 
-                       "Social Work With Groups", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == "Computers in Human Services", 
-                       "Journal of Technology in Human Services", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == "Journal of Sociology & Social Welfare", 
-                       "Journal of Sociology and Social Welfare", 
-                        full.df$record)
-
-#Note leave space after the (Electronic only)
-full.df$record <- ifelse(full.df$record == "Contemporary Rural Social Work (Electronic only) ", 
-                        "Contemporary Rural Social Work (Electronic only) ", full.df$record) 
-
-```
-
-
-# Journals excluded from search results.  
-
-```{r}
-exclusions <- c(
-    "American Journal of Preventive Medicine", 
-    "Behavior Modification", 
-    "Brain and Cognition",
-    "Canadian Journal of Community Mental Health",
-    "Canadian Journal on Aging",
-    "Early Child Development and Care",
-    "Early Education and Development",
-    "Employee Assistance Quarterly",
-    "Evaluation and Program Planning",
-    "General Hospital Psychiatry",
-    "Hospital Social Service",
-    "International Review of Social Research",
-    "Journal of Applied Behavioral Science",
-    "Journal of Applied Rehabilitation Counseling",
-    "Journal of Community & Applied Social Psychology",
-    "Journal of Health & Human Services Administration",
-    "Journal of Nonverbal Behavior",
-    "Learning Disabilities Research & Practice",
-    "New York State Department of Social Welfare, Division Publication",
-    "Pennsylvania Social Work",
-    "Proceedings of the National Converence of Social Work",
-    "PROFILE Issues in Teachers' Professional Development",
-    "Psychotherapy",
-    "Social Service Department, Presbyterian Hospital, New York",
-    "Social Work Technique",
-    "Social Work Today", # Magazine
-    "Social Work Yearbook",
-    "The New Social Worker",
-    "Systems Research and Behavioral Science",
-    "Teaching and Teacher Education",
-    "University of Chicago Social Service Monograph",
-    "The Scientific Review of Mental Health Practice",
-    "The Clinical Supervisor",
-    "University of Chicago Social Service Monograph")
-ebsco.remove <- full.df[full.df$record %in% exclusions, ]
-ebsco.remove <- ebsco.remove[, "articleID"]
-full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
-```
-
-```{r unique_titles, echo=FALSE}
-unique.titles <- filter(full.df, attributes == "SO") %>%
+```{r echo=FALSE, comment=NA}
+unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(
         N = n())
+print.data.frame(unique.titles, rowNames=FALSE)
+```
+
+```{r comment=NA, echo=FALSE} 
+number.of.articles <- length(which(full.df$attributes == "article"))
+range.of.years <- range(full.df$record[full.df$attributes == "pubYear"])
 ```
 
 
+```{r}
+# Number of articles
+cat(number.of.articles)
+```
 
+```{r}
+# Range of years
+cat(range.of.years)
+```
 
+*TO DO* add range of years to the following dplyr summary
 
-
-# Preliminary Analyses
-
-
-
-## Summary of all journal titles included in the analysis
-
-To do:
-
-+ In the table, include the first and last years of indexing, and the numbers of articles.  
-+ Write the script to output a *.csv file so that it can be included as an Appendix without any formatting.
-
-```{r unique_titles, echo=FALSE}
-unique.titles <- filter(full.df, attributes == "SO") %>%
+```{r echo=FALSE, comment=NA}
+unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(
         N = n())
-
-title <- full.df %>%
-        filter(attributes == "SO") %>%
-        select(id = articleID, SO = record)
-
-article <- full.df %>%
-        filter(attributes == "TI") %>%
-        select(id = articleID, journal.title = record)
-
-title.articles <- title %>% 
-        left_join(article) %>%
-        group_by(title) 
-
-# Number of unique titles
-number.journals <- length(unique(unique.titles$record))
-
-# Unique titles
-journals.unique <- unique(unique.titles$record)
-#write.csv(journals.unique, "journals.csv")
-
-number.journals
-sort(journals.unique)
-socialWorkJournals <- journals.unique
-#save(journals.unique, file="socialWorkJournals.R")
+print.data.frame(unique.titles, rowNames=FALSE)
 ```
 
-## Count of unique journal titles over time
-
-To do:
-+ Integrate the full journal listing of EbscoHost 
-+ Plot overall number of journals over time 
-+ Plot overall number of journals by major discipline category as defined by EbscoHost classification -- use sociology, anthropology, economics, psychology, and political science
-+ The following "overall growth" plot excludes social work journals in this study.  There were a small number of overlap journals between social science and social work journals (N = 4 -- double check for final analysis.  The journals that overlapped were included in the social work group.  
-
-```{r unique_titles_year, message=FALSE, comment=NA, warning=FALSE, echo=FALSE}
-journals.year <- tbl_df(full.df)
-
-year <- journals.year %>%
-        filter(attributes == "YR") %>%
-        select(id = articleID, year = record)
-
-journals <- journals.year %>%
-        filter(attributes == "SO") %>%
-        select(id = articleID, journal.title = record)
-
-n.journals.year <- journals %>% 
-        left_join(year) %>%
-        group_by(year) %>%
-        distinct(journal.title) %>%
-        summarise(n = n())
-
-journal.count <- ggplot(n.journals.year, aes(as.numeric(year), y=n, group=1)) + 
-    geom_line(colour="darkblue") +
-    #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    xlab("Publication year") + 
-    ylab("Number") + 
-    ggtitle("Number of Journals Over Time") + 
-    scale_x_continuous(breaks=seq(1914, 2014, 5))
-        
-journal.count
-```
-
-## Growth of Social Work compared to growth of the social sciences
-
-This section shows the overall growth of the social sciences.  This includes all _academic journals_ (excluding magazines and trade publications) that have the following discipline tag:
-
-+ Sociology
-+ Psychology
-+ Economics
-+ Political Science & Studies
-+ Economics
-+ Anthropology
-
-```{r echo=FALSE}
-ebscoFullListing.df <- ebscoFullListing.df[ebscoFullListing.df$SourceType == "Academic Journal",]
-ebscoFullListing.df$IndexingStart <- format(as.Date(ebscoFullListing.df$IndexingStart, "%m/%d/%Y"), "%Y")
-ebscoFullListing.df$IndexingStop <- format(as.Date(ebscoFullListing.df$IndexingStop, "%m/%d/%Y"), "%Y")
-ebJournals.df <- ebscoFullListing.df %>% filter(SourceType == "Academic Journal") %>%
-    select(Discipline, IndexingStart, IndexingStop, PublicationName, ISSN) %>%
-    mutate(IndexingStart = as.numeric(IndexingStart), IndexingStop = as.numeric(IndexingStop)) %>%
-    filter(Discipline == "Sociology" | Discipline == "Political Science & Studies"| 
-           Discipline == "Psychology"| Discipline == "Economics" | Discipline == "Anthropology") 
-```
-
-Some of the journals have duplicate entries in the database because they are cross-classified in multiple social science disciplines.  The following code is used to create a data set that excludes duplicate entries in the database and ensures no overlap between the social science list and the social work list of journals. Duplicates are identified based on ISSN, not journal title.  This will ensure all duplicates are identified.  
-
-```{r}
-ebJournals.df.issn <- ebJournals.df %>% select(ISSN)
-ebJournals.df.unique <- !duplicated(ebJournals.df.issn)
-
-#This function here tests whether the duplication identifier correctly gets the first unique record (by assigning TRUE) and then excluding subsequent records (by assigning FALSE) 
-#cbind(ebJournals.df.unique, ebJournals.df.issn$ISSN)
-
-#This subsets out the duplicates
-ebJournals.df.no.duplicates <- ebJournals.df[ebJournals.df.unique, ]
-
-
-#This function does a logical comparison of the social science journals and the social work journals to determine potential overlap.  
-overlap <- ebJournals.df.no.duplicates[(ebJournals.df.no.duplicates$PublicationName %in% journals.unique),]  
-print(overlap)
-
-#This reduces the overlap from the social science journal lists, retaining the overlap in the social work journals
-ebJournals.df.no.overlap <- ebJournals.df.no.duplicates[!(ebJournals.df.no.duplicates$PublicationName %in% journals.unique),]   
-```
-
-This section uses the `melt` function to transform the social science data file into a format that can be plotted using ``ggplot2`.  
-```{r echo=FALSE}
- 
-#Remove variables that will interfere with melting procedure
-socialScienceJournals.df <- ebJournals.df.no.overlap %>% 
-    select(-PublicationName, -ISSN) %>%
-    mutate(journalID = c(1:nrow(ebJournals.df.no.overlap))) %>%
-    mutate(journalID = as.factor(journalID)) %>% 
-    select(-Discipline)
-
-socialScienceJournals.melted <- melt(socialScienceJournals.df)
-
-ebJournals.overtime.start.d <- socialScienceJournals.melted %>% 
-    filter(value = !is.na(value)) %>%
-    group_by(value) %>%
-    summarise(N.start = n()) 
-    
-ebJournals.overtime.end.d <- socialScienceJournals.melted %>%
-    filter(variable == "IndexingStop"  & !is.na(value)) %>%
-    group_by(value) %>%
-    summarise(N.end = n())
-
-ebjournals.joined.d <- left_join(ebJournals.overtime.start.d, ebJournals.overtime.end.d) %>%
-    mutate(N.end = ifelse(is.na(N.end), 0, N.end), Cumulative = cumsum(N.start)) %>%
-    mutate(N.adjusted = Cumulative - N.end)
-
-journal.time.reduced <- n.journals.year %>% filter(year >= 1950)
-ggplot() + 
-    geom_line(data = ebjournals.joined.d, aes(x=value, y=N.adjusted), group=1, colour="purple") + 
-    geom_line(data = journal.time.reduced, aes(as.numeric(year), y=n), group=1, colour="darkblue")
-```
-
-
-
-
-
-## What journals published the most number of articles
-
-```{r journal_output, echo=FALSE}
-
-n.so.yr <- filter(full.df, attributes == "SO" | attributes == "YR")
-
-n.so <- filter(full.df, attributes == "SO") %>% mutate(title = record) %>% 
-        select(-attributes, -record)
-
-n.yr <- filter(full.df, attributes == "YR") %>% mutate(year = record ) %>% 
-        select(-attributes, -record)
-
-n.so.yr <- left_join(n.so, n.yr) %>%
-    group_by(title) %>%
-    summarise(first = min(year), last = max(year), n.to.date = n()) %>%
-    arrange(desc(n.to.date))
-
-# 10 highest number of publications
-head(n.so.yr, 20)
-```
-
-## What is the lifespan of journals? 
-
-To do:
-+ Incorporate all EbscoHost journals and the separate disciplinary journals
-
-```{r journal_lifespan, echo=FALSE}
-#10 longest running journals 
-longest.running <- n.so.yr %>%
-       mutate(last = as.numeric(last), first = as.numeric(first), 
-              year.diff = last - first) %>%
-       arrange(desc(year.diff)) %>%
-       select(title, first, last, year.diff) %>%
-       mutate(stop = year.diff, event = ifelse(as.numeric(last) != 2013, 1, 0)) %>%
-       select(title, stop, event, as.numeric(first))
-
-survival.journals <- survfit(Surv(longest.running$stop+1, longest.running$event) ~ 1)
-median.survival <- data.frame(time = c(24,24), quant = c(.5,0))
-
-head(longest.running)
-
-ggsurv(survival.journals) + 
-    #geom_line(data = median.survival, aes(time, quant), linetype="longdash") +
-    #annotate("segment", x = 32, xend = 27, y = .12, yend = .12, size = .25, arrow =arrow()) +
-    #geom_text(x = 45, y =.12, label = "median survival", size = 4) + 
-    geom_text(x = 75, y =.75, label = "+ = Last year of indexing", size = 4) +
-    ylim(0,1) +
-    xlim(0,50) + 
-    xlab("Survival Time (in years)") +
-    ylab("Survival Probability") +
-    ggtitle("Survival Probability of Social Work Journals")
-
-```
-
-## What is the number of articles published per year
-
-To do:
-+ Plot against major disciplinary categories
-
-```{r articles_per_year, echo=FALSE}
-n.articles.year <- filter(full.df, attributes == "YR") 
-year.split <- split(n.articles.year, n.articles.year$record)
-year.count <- unlist(lapply(year.split, nrow))
-year.count <- year.count[order(names(year.count))]
-years <- names(year.count)
-
-df <- data.frame(years, year.count)
-rownames(df) <- NULL
-
-plot.article.count <- ggplot(df, aes(as.factor(years), 
-                    y = year.count, group=1)) + 
-    geom_line(colour="black") +
-    #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    xlab("year") + 
-    ylab("count") + 
-    ggtitle("Number of Studies by Year") +
-    scale_x_discrete(breaks=c(seq(1914, 2015, 10))) +
-    scale_y_continuous(breaks = c(seq(0, 2000, 250))) 
-   
-
-df$years <- as.numeric(as.character(df$years))
-
-plot.article.cumulative <- ggplot(df, aes(x = years, y = cumsum(year.count))) + 
-    geom_line() + 
-    theme(axis.text.x = element_text(angle=45, hjust=1)) +
-    scale_x_continuous(breaks=pretty(df$years)) +
-    xlab("year") +  
-    ylab("count") +
-    scale_x_continuous(breaks = c(seq(1914,2014,10))) +
-    scale_y_continuous(breaks = c(seq(0, 25000, 2500))) + 
-    ggtitle("Cumulative Frequency") 
-   
-
-grid.arrange(plot.article.count, plot.article.cumulative, ncol=2)
-
-# Print most recent ten years
-tail(df, 10)
-```
-
-# What are the most frequent topic areas (by author specified keywords)?
-
-To do:  
-+ Fix script that performs matching -- convert all keywords to lower before matching
-
-```{r keywords_overall, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
-kp.df <- filter(full.df, attributes == "KP")
-
-subject.terms <- stringr::str_split(kp.df$record, pattern = ";")
-subject.terms <- tolower(subject.terms)
-subject.terms <- unlist(lapply(subject.terms, function(x) gsub(" ", "", x)))
-subject.terms.total <- length(unlist(lapply(subject.terms, 
-                        function(x) gsub(" ", "", x))))
-
-subject.terms.unique <- length(unique(subject.terms))
-
-subject.terms.l <- list(subject.terms.total = subject.terms.total,
-                      subject.terms.unique = subject.terms.unique)
-
-most.frequent <- as.data.frame(table(subject.terms))
-
-most.frequent <- arrange(most.frequent, desc(Freq))
-
-# Print summary statistics
-print(subject.terms.l)
-
-# Print 25 most frequent
-head(most.frequent, 25)
-```
-
-## Most Frequent Author Keywords
-
-_DO NOT INTERPRET RESULTS HERE THIS SECTION IS NOT WORKING PROPERLY_
-
-For this analysis (to-do), select a few keywords that may tell an interesting story of how they change over time -- something that might be revealing of 'trends.' 
-
-
-
-```{r keywords_over_time, warning=FALSE, message=FALSE, echo=FALSE}
-kp.yr <- filter(full.df, attributes == "YR") %>%
-    mutate(year = as.numeric(record)) %>% select(-record, -attributes)
-
-kp <- full.df %>%
-        filter(attributes == "KP") %>%
-        select(articleID = articleID, keyword = record) %>%
-        mutate(keyword = gsub(" ", "", keyword))
-
-kp.year <- kp %>% 
-         left_join(kp.yr) %>%
-         group_by(keyword, year) %>%
-         summarise(n = n()) %>%
-         arrange(keyword, year, n)
-
-
-select.keywords <- c("women", "leadership")
-select.keywords.df <- kp.year %>% filter(tolower(keyword) %in% select.keywords)
-
-library(plyr) # Fix code so ply loads before dplyr
-key.plot.df <- ddply(select.keywords.df, .(keyword), transform, cumulative = cumsum(n))
-detach(package:plyr)
-
-#Fix graph to sort the keywords / colour
-ggplot(key.plot.df, aes(x = year, y = cumulative, colour = keyword, group = keyword)) + 
-    geom_line() +
-    ggtitle("Cumulative Sum of Articles by Keywords") +
-    ylab("Cumulative Sum") + 
-    xlab("Year") + 
-    theme(legend.title=element_blank()) 
-   
-```
-
-
-
-## Location of Studies 
-
-To do:
-+ Determine best format / presentation of map
-
-```{r location, comment=NA, warning=FALSE, message=FALSE, echo=FALSE}
-LO.df <- filter(full.df, attributes == "LO") %>%
-         group_by(record) %>%
-         summarise(Country = unique(record),
-                   N = n()) %>%
-        arrange(desc(N)) %>% 
-        select(-record)
-
-locations <- as.data.frame(table(LO.df))
-locations <- arrange(locations, desc(Freq))
-locations.unique <- length(unique(locations))
-
-#write.csv(locations, "location.csv")
-
-```
-
-## Location of studies over time
-
-To do:
-+ Determine best format / presentation of map
-
-```{r location_over_time, warning=FALSE, message=FALSE, echo=FALSE}
-library(RColorBrewer)
-year <- filter(full.df, attributes == "YR") %>%
-    mutate(year = as.numeric(record)) %>% select(-record, -attributes)
-
-location.temp <- full.df %>%
-        filter(attributes == "LO") %>%
-        select(articleID = articleID, country = record) %>%
-        mutate(country = gsub(" ", "", country))
-
-location.year <- location.temp %>% 
-         left_join(year) %>%
-         group_by(country, year) %>%
-         summarise(n = n()) %>%
-         arrange(country, year, n) %>%
-         mutate(cumsum_n = cumsum(n), log_n = log(n+1))
-
-
-top.locations <- LO.df %>% 
-                 select(Country) %>%
-                 slice(1:5) 
-
-top.locations$Country <- gsub(" ", "", top.locations$Country)
-
-
-    
-location.year.top <- location.year %>% filter(country %in% top.locations$Country)
-
-ggplot(location.year.top, aes(x = year, y = log_n, colour = country )) + 
-    geom_line() +
-    ggtitle("Log Number of Articles by Countries With Highest Scholarly Ouput") +
-    xlab("Publication Year") + 
-    ylab("log N+1") +
-    theme(legend.position=c(.210, .7))
-
-
-top.locations.no.us <- LO.df %>% 
-                select(Country) %>%
-                slice(2:10)
-
-top.locations.no.us$Country <- gsub(" ", "", top.locations.no.us$Country)
-
-location.year.top.no.us <- location.year %>% filter(country %in% top.locations.no.us$Country) 
-
-ggplot(location.year.top.no.us, aes(x = year, y = cumsum_n, colour = country )) + geom_line() +
-    ggtitle("Cumulative Number of Article by Countries with Highest Scholarly Output \n(Excluding the United States)") +
-    theme(legend.position=c(.210, .6))
-```
-## Countries represents in the social work research
-
-To do:
-+ Obtain definition of `LO` tag.  
-+ Determine how many articles had LO tag (note the issue if not included from Social Science Index)
-
-```{r fig.width=8, echo=FALSE}
-Map100YearWithUS <- readPNG("/Users/beperron/Git/SocialWorkResearch/images/Map100Years.png")
-grid.raster(Map100YearWithUS)
-
-Map100YearWithoutUS <- readPNG("/Users/beperron/Git/SocialWorkResearch/images/Map100YearsWithoutUS.png")
-grid.raster(Map100YearWithUS)
-```
-
-## Countries not represented in social work research 
-
-
-```{r fig.width=8, echo=FALSE}
-library(png)
-library(grid)
-img <- readPNG("/Users/beperron/Git/SocialWorkResearch/images/NotRepresented100Years.png")
-grid.raster(img)
-
-```
-
-
-## Number of authors
-```{r comment=NA, message=FALSE, warning=FALSE, echo=FALSE}
-n.authors.article <- full.df %>% 
-    filter(attributes == "AU") %>%
-    select(id = articleID, author= record) %>%
-    mutate(id = as.numeric(id))
-
-n_authors.1 <- n.authors.article %>% 
-        group_by(id) %>%
-        summarise(n = n())
-
-n_authors.1t <- n_authors.1 %>% mutate(n = ifelse(n >=6, 6, n)) %>% 
-    group_by(n) %>%
-    summarise(Articles = n())
-
-ggplot(n_authors.1t, aes(x = n, y = Articles)) +
-    geom_bar(stat="identity", colour="black", fill = "white") +
-    geom_text(aes(label = Articles), vjust=-.3, size = 4) +
-    scale_x_discrete(limits = c(as.character(1:5), "6+")) + 
-    ggtitle("Number of Articles by Author Count") + 
-    xlab("Author Count") + 
-    ylab("Articles")
-```
-
-## Number of authors over time
-
-This figure shows the average number of authors, along with the standard deviation as the ribbon around the average.  Note that there is a possible problem in these data, with a single article listing a huge number.  That can be corrected at a later time. 
-
-
-```{r message=FALSE, comment=NA, warning=FALSE, fig.height=2, fig.height=4, echo=FALSE}
-df.2 <- tbl_df(full.df)
-year <- df.2 %>%
-        filter(attributes == "YR") %>%
-        select(id = articleID, year = record)
-
-authors <- df.2 %>%
-        filter(attributes == "AU") %>%
-        select(id = articleID, author = record)
-
-
-n_authors <- authors %>%
-        group_by(id) %>%
-        summarise(n=n())
-
-n_authors <- n_authors %>% 
-        left_join(year) %>%
-        group_by(year) %>%
-        summarise(median.n = median(n),
-                  average.n = mean(n),
-                  min.n = min(n),
-                  max.n = max(n),
-                  std.dev  = sd(n) )
-
-plot.author.count2 <- ggplot(n_authors, aes(as.numeric(year), y=average.n, group=1)) +  
-    geom_ribbon(aes(ymin = average.n-std.dev, ymax=average.n+std.dev), colour="lightblue", fill="lightblue", alpha=.40) +
-    geom_line(colour="black") + 
-    geom_segment(aes(x= 1940, y = 5.5, xend = 1935, yend = 5.5), 
-                 arrow=arrow(length=unit(0.25, "cm"))) +
-    annotate("text", x = 1951, y = 5.5, label = "1 outlier case of \n24 listed authors", size=3.5) +
-    ylab("Average number of authors (black) \nStandard deviation (light blue)") +
-    xlab("Publication year") +
-    ggtitle("Average Number of Authors per Article Over Time")
-
-plot.author.count2
-
-
-```
-
-
-
-
-
-
-```
+names(full.df)
