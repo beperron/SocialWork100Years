@@ -1,84 +1,84 @@
-SO “British Journal of Social Work” OR
-SO “Social Work” OR
-SO “Child and Family Social Work” OR
-SO “Social Service Review” OR
-SO “Research on Social Work Practice” OR
-SO “Health and Social Work” OR
-SO “International Journal of Social Welfare” OR
-SO “Social Work Research” OR
-SO “Families in Society” OR
-SO “Journal of Social Work Education” OR
-SO “Child and Adolescent Social Work Journal” OR
-SO “Social Work in Health Care” OR
-SO “Social Work Education” OR
-SO “Journal of Gerontological Social Work” OR
-SO “Administration in Social Work” OR
-SO “Qualitative Social Work” OR
-SO “Children and Schools” OR
-SO “Journal of Social Work” OR
-SO “Journal of Gay & Lesbian Social Services” OR
-SO “Journal of Sociology and Social Welfare” OR
-SO “International Social Work” OR
-SO “Affilia” OR
-SO “European Journal of Social Work” OR
-SO “Journal of Social Work Practice” OR
-SO “Australian Social Work” OR
-SO “Social Work with Groups” OR
-SO “Journal of Human Behavior in the Social Environment” OR
-SO “Journal of Social Service Research” OR
-SO “Journal of Technology in the Human Services” OR
-SO “Clinical Social Work Journal” OR
-SO “Social Work in Public Health” OR
-SO “Journal of Ethnic and Cultural Diversity in Social Work” OR
-SO “Journal of Social Work Practice in the Addictions” OR
-SO “Journal of Teaching in Social Work” OR
-SO “Smith College Studies in Social Work” OR
-SO “Practice: Social Work in Action” OR
-SO “Journal of Religion and Spirituality in Social Work” OR
-SO “Social Development Issues” OR
-SO “Journal of Family Social Work” OR
-SO “Social Work in Mental Health” OR
-SO “Canadian Social Work Review” OR
-SO “Journal of Social Work Research and Evaluation” OR
-SO “Social Work and Social Sciences Review” OR
-SO “Critical Social Work” OR
-SO “Journal of Evidence-based Social Work” OR
-SO “Journal of Social Work in Long-Term Care” OR
-SO “Journal of HIV/AIDS & Social Services” OR
-SO “Social Work and Society” OR
-SO “Journal of Social Work in End-of-Life and Palliative Care” OR
-SO “Journal of Progressive Human Services” OR
-SO “Journal of Psychosocial Oncology” OR
-SO “Advances in Social Work” OR
-SO “Journal of Baccalaureate Social Work” OR
-SO “Psychoanalytic Social Work” OR
-SO “Rural Social Work” OR
-SO “Social Work & Christianity” OR
-SO “Indian Journal of Social Work” OR
-SO “Journal of Applied Social Sciences” OR
-SO “Journal of Social Work in Disability and Rehabilitation” OR
-SO “School Social Work Journal” OR
-SO “Arete” OR
-SO “Asia Pacific Journal of Social Work and Development” OR
-SO “Professional Development” OR
-SO “Journal of Comparative Social Welfare” OR
-SO “Canadian Social Work” OR
-SO “Social Work Review” OR
-SO “Caribbean Journal of Social Work” OR
-SO “The New Social Worker” OR
-SO “Journal of Social Work Values and Ethics” OR
-SO “Journal of Changsha Social Work” OR
-SO “Journal of Practice Teaching in Social Work and Health” OR
-SO “The Hong Kong Journal of Social Work” OR
-SO “The Spirituality and Social Work Forum” OR
-SO “Reflections: Narratives of Professional Helping” OR
-SO “Social Work Forum” OR
-SO “Annual of Social Work” OR
-SO “Electronic Journal of Social Work” OR
-SO “IUC Journal of Social Work Theory and Practice” OR
-SO “Japanese Journal of Social Services” OR
-SO “China Journal of Social Work” OR
-SO "Black Caucus" OR
-SO "Journal of Forensic Social Work" OR
-SO "Journal of Rural Social Work & Social Development" OR 
-SO "The Social Worker/Le Travaileur Social"
+British Journal of Social Work
+Social Work
+Child and Family Social Work
+Social Service Review
+Research on Social Work Practice
+Health and Social Work
+International Journal of Social Welfare
+Social Work Research
+Families in Society
+Journal of Social Work Education
+Child and Adolescent Social Work Journal
+Social Work in Health Care
+Social Work Education
+Journal of Gerontological Social Work
+Administration in Social Work
+Qualitative Social Work
+Children and Schools
+Journal of Social Work
+Journal of Gay & Lesbian Social Services
+Journal of Sociology and Social Welfare
+International Social Work
+Affilia
+European Journal of Social Work
+Journal of Social Work Practice
+Australian Social Work
+Social Work with Groups
+Journal of Human Behavior in the Social Environment
+Journal of Social Service Research
+Journal of Technology in the Human Services
+Clinical Social Work Journal
+Social Work in Public Health
+Journal of Ethnic and Cultural Diversity in Social Work
+Journal of Social Work Practice in the Addictions
+Journal of Teaching in Social Work
+Smith College Studies in Social Work
+Practice: Social Work in Action
+Journal of Religion and Spirituality in Social Work
+Social Development Issues
+Journal of Family Social Work
+Social Work in Mental Health
+Canadian Social Work Review
+Journal of Social Work Research and Evaluation
+Social Work and Social Sciences Review
+Critical Social Work
+Journal of Evidence-based Social Work
+Journal of Social Work in Long-Term Care
+Journal of HIV/AIDS & Social Services
+Social Work and Society
+Journal of Social Work in End-of-Life and Palliative Care
+Journal of Progressive Human Services
+Journal of Psychosocial Oncology
+Advances in Social Work
+Journal of Baccalaureate Social Work
+Psychoanalytic Social Work
+Rural Social Work
+Social Work & Christianity
+Indian Journal of Social Work
+Journal of Applied Social Sciences
+Journal of Social Work in Disability and Rehabilitation
+School Social Work Journal
+Arete
+Asia Pacific Journal of Social Work and Development
+Professional Development
+Journal of Comparative Social Welfare
+Canadian Social Work
+Social Work Review
+Caribbean Journal of Social Work
+The New Social Worker
+Journal of Social Work Values and Ethics
+Journal of Changsha Social Work
+Journal of Practice Teaching in Social Work and Health
+The Hong Kong Journal of Social Work
+The Spirituality and Social Work Forum
+Reflections: Narratives of Professional Helping
+Social Work Forum
+Annual of Social Work
+Electronic Journal of Social Work
+IUC Journal of Social Work Theory and Practice
+Japanese Journal of Social Services
+China Journal of Social Work
+Black Caucus
+Journal of Forensic Social Work
+Journal of Rural Social Work & Social Development
+The Social Worker/Le Travaileur Social
