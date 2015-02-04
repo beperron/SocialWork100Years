@@ -70,14 +70,6 @@ years <- c("2014", "2015")
 ebsco.remove <- full.df[full.df$record %in% years, ]
 ebsco.remove <- ebsco.remove[, "articleID"]
 full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
-
-
-The articles were reviewed and a first round of exclusions were made.  All decisions to exclude were based on group consenus.  
-
-range.of.years <- range(full.df$record[full.df$attributes == "pubYear"])
-
-# New range of years
-cat(range.of.years)
 ```
 
 
@@ -105,7 +97,7 @@ exclusions.1 <- c(
     "Journal of Psychosomatic Research",
     "Learning Disabilities Research & Practice",
     "New York State Department of Social Welfare, Division Publication",
-    "Proceedings of the National Converence of Social Work",
+    "Proceedings of the National Conference of Social Work",
     "PROFILE Issues in Teachers' Professional Development",
     "Psychotherapy",
     "Social Service Department, Presbyterian Hospital, New York",
@@ -127,62 +119,6 @@ full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 rm(ebsco.remove)
 ```
 
-Journal titles were merged in the following situations:
-
-1.
-2.
-3.
-
-```{r}
-full.df$record <- ifelse(full.df$record == 
-    "Eugenics and Social Welfare Bulletin",     # Spelling difference
-    "Eugenics & Social Welfare Bull.",          # Spelling difference
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "The British Journal of Social Work",       # Old name
-    "British Journal of Social Work",           # New name
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "Social Work & Social Sciences Review",     # Spelling difference
-    "Social Work and Social Sciences Review",   # Spelling difference
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "Social Work with Groups",                  # Spelling difference
-    "Social Work With Groups",                  # Spelling difference
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "Computers in Human Services",              # Old name
-    "Journal of Technology in Human Services",  # New name 
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "Journal of Sociology & Social Welfare",    # Spelling difference
-    "Journal of Sociology and Social Welfare",  # Spelling difference
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "The Family" | full.df$record ==                   # Old name
-    "Journal of Social Casework" | full.df$record ==    # Old name
-    "Social Casework",                                  # Old name
-    "Families in Society",                              # New name
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "Social Work in Education",                 # Old name
-    "Children & Schools",                       # New name
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == "Contemporary Rural Social Work (Electronic only) ", 
-                        "Contemporary Rural Social Work (Electronic only) ", full.df$record) 
-
-```
-
-
-
 A second round of exclusions were made.  
 
 Journals with less than 10 articles that contributed to the overall number.  Ten was selected because it was a natural break consisten with a EFA curve...In this cases the exclusion of the titles had virtually no impact on the overall article count.  However, it did inflate the number of journal titles.   Excluded if we could not identify the journal and associated articles -- that is, it wasn't available and, therefore, not part of the scholarly record.  
@@ -199,6 +135,7 @@ exclusions.2 <- c(
     "Hospital Social Service",  #Confirmed nursing journal
     "International Conference of Social Work",
     "Journal of Multicultural Social Work",
+    "Journal of Social Work Process",
     "Journal of Teaching in Social Work", 
     "Maatskaplike Werk/Social Work",
     "Medical Social Work",
@@ -230,37 +167,42 @@ Journal titles were merged in the following situations:
 
 
 ```{r titleMerge, eval=TRUE}
-full.df$record <- ifelse(full.df$record == "The British Journal of Social Work", 
-                       "British Journal of Social Work", 
+full.df$record <- ifelse(full.df$record == 
+        "The British Journal of Social Work",       # Old title
+        "British Journal of Social Work",           # New title
                         full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Social Work & Social Sciences Review", 
-                       "Social Work and Social Sciences Review", 
+full.df$record <- ifelse(full.df$record == 
+        "Social Work & Social Sciences Review",     # Spelling difference
+        "Social Work and Social Sciences Review", 
                         full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Social Work with Groups", 
-                       "Social Work With Groups", 
+full.df$record <- ifelse(full.df$record == 
+        "Social Work with Groups",                  # Spelling difference
+        "Social Work With Groups", 
                         full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Computers in Human Services", 
-                       "Journal of Technology in Human Services", 
+full.df$record <- ifelse(full.df$record == 
+        "Computers in Human Services",              # Old title
+        "Journal of Technology in Human Services",  # New title
                         full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Journal of Sociology & Social Welfare", 
-                       "Journal of Sociology and Social Welfare", 
+full.df$record <- ifelse(full.df$record == 
+        "Journal of Sociology & Social Welfare",    # Spelling difference
+        "Journal of Sociology and Social Welfare",  
                         full.df$record)
 
-full.df$record <- ifelse(full.df$record == "The Family", 
-                       "Families in Society",
-                       ifelse(full.df$record == "Journal of Social Casework",
-                       "Families in Society",
-                       ifelse(full.df$record == "Social Casework",
-                       "Families in Society",
-                        full.df$record)))
-
-full.df$record <- ifelse(full.df$record == "Social Work in Education", 
-                       "Children & Schools", 
+full.df$record <- ifelse(full.df$record == 
+        "The Family" | full.df$record ==                    # Old title
+        "Journal of Social Casework" | full.df$record ==    # Old title
+        "Social Casework",                                  # Old title
+        "Families in Society",                              # New title
                         full.df$record)
+
+full.df$record <- ifelse(full.df$record == 
+        "Social Work in Education",                 # Old title
+        "Children & Schools",                       # New title
+                    full.df$record)
 ```
 
 
@@ -303,14 +245,4 @@ cat(number.of.articles)
 cat(range.of.years)
 ```
 
-*TO DO* add range of years to the following dplyr summary
 
-```{r echo=FALSE, comment=NA}
-unique.titles <- filter(full.df, attributes == "journal") %>%
-    group_by(record) %>%
-    summarise(
-        N = n())
-print.data.frame(unique.titles, rowNames=FALSE)
-```
-
-names(full.df)

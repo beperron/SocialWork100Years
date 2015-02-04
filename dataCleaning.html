@@ -74,127 +74,147 @@ library(dplyr)
 load(&quot;/Users/beperron/Git/SocialWorkResearch/Data/fullDF.R&quot;)
 
 # Set the working directory
-setwd(&quot;/Users/beperron/Git/SocialWorkResearch/Data&quot;)</code></pre>
+setwd(&quot;/Users/beperron/Git/SocialWorkResearch/Data&quot;)
+
+# Strip leading and trailing white-space on all records
+full.df$record &lt;- stringr::str_trim(full.df$record, side = &quot;both&quot;)</code></pre>
 </div>
 <div id="pre-processing-summary" class="section level1">
 <h1>Pre-processing summary</h1>
 <p>Provided below are some basic descriptive statistics before any data of the files processed by <code>ebscoBWR</code> function.</p>
 <pre class="r"><code># Number of articles
 cat(number.of.articles)</code></pre>
-<pre><code>## 27980</code></pre>
+<pre><code>## 41165</code></pre>
 <pre class="r"><code># Range of years
 cat(range.of.years)</code></pre>
 <pre><code>## 1914 2015</code></pre>
 <p><em>TO DO</em> add range of years to the following dplyr summary</p>
 <pre><code>                                                               record    N
-1                                       Administration in Social Work  328
+1                                       Administration in Social Work  908
 2                                                             Affilia  214
 3                             American Journal of Preventive Medicine    6
-4                                              Australian Social Work  290
+4                                              Australian Social Work  301
 5                                               Behavior Modification    6
 6                                                 Brain and Cognition   13
 7                          British Journal of Psychiatric Social Work   67
 8                                      British Journal of Social Work 1454
 9                         Canadian Journal of Community Mental Health    9
 10                                          Canadian Journal on Aging    4
-11                             Child &amp; Adolescent Social Work Journal  819
-12                                         Child &amp; Family Social Work  618
-13                                                 Children &amp; Schools  267
-14                                       Clinical Social Work Journal 1065
-15                                        Computers in Human Services  209
-16                                   Early Child Development and Care   12
-17                                    Early Education and Development    7
-18                                      Employee Assistance Quarterly    5
-19                                          Ethics and Social Welfare  133
-20                                    Eugenics &amp; Social Welfare Bull.    2
-21                               Eugenics and Social Welfare Bulletin    1
-22                                    Evaluation and Program Planning   18
-23                                                Families in Society 1210
-24                                        General Hospital Psychiatry    2
-25                                               Health &amp; Social Work  901
-26                                            Hospital Social Service    4
-27                          Indian Journal of Psychiatric Social Work   31
-28                                      Indian Journal of Social Work  366
-29                            International Conference of Social Work    2
-30                            International Journal of Social Welfare  399
-31                                          International Social Work  715
-32                                    Issues in Social Work Education    1
-33                                    Journal of Analytic Social Work   47
-34                              Journal of Applied Behavioral Science    9
-35                       Journal of Applied Rehabilitation Counseling    6
-36                                 Journal of Applied Social Sciences   47
-37                   Journal of Community &amp; Applied Social Psychology    8
-38              Journal of Ethnic &amp; Cultural Diversity in Social Work  240
-39                              Journal of Evidence-Based Social Work   69
-40                              Journal of Gerontological Social Work 1182
-41                Journal of Human Behavior in the Social Environment  837
-42                                 Journal of Independent Social Work  100
-43                               Journal of Multicultural Social Work    2
-44                                      Journal of Nonverbal Behavior    4
-45                              Journal of Progressive Human Services  106
-46                                 Journal of Psychiatric Social Work   69
-47                                   Journal of Psychosocial Oncology  796
-48                                  Journal of Psychosomatic Research    9
-49                  Journal of Religion &amp; Spirituality in Social Work  177
-50                                         Journal of Social Casework  101
-51                                 Journal of Social Service Research  741
-52                                          Journal of Social Welfare   25
-53                                             Journal of Social Work  282
-54                           Journal of Social Work &amp; Human Sexuality  143
-55                                   Journal of Social Work Education  429
-56                                    Journal of Social Work Practice  320
-57                  Journal of Social Work Practice in the Addictions  362
-58                                     Journal of Social Work Process    9
-59                     Journal of Social Work Research and Evaluation   99
-60            Journal of Social Work in End-of-Life &amp; Palliative Care  139
-61                            Journal of Sociology and Social Welfare  728
-62                                 Journal of Teaching in Social Work    1
-63                            Journal of Technology in Human Services  262
-64                Journal of the Society for Social Work and Research   67
-65                          Learning Disabilities Research &amp; Practice    6
-66                                      Maatskaplike Werk/Social Work    1
-67                                                Medical Social Work    3
-68  New York State Department of Social Welfare, Division Publication    1
-69               PROFILE Issues in Teachers' Professional Development   51
-70                                              Pediatric Social Work    5
-71                                           Pennsylvania Social Work    1
-72                                                           Practice  193
-73                                       Prevention in Human Services  187
-74              Proceedings of the National Conference of Social Work   26
-75                                         Psychoanalytic Social Work  164
-76                                                      Psychotherapy   12
-77                                            Qualitative Social Work  321
-78                                   Research on Social Work Practice  998
-79                                                  Rural Social Work   39
-80                                         School Social Work Journal  144
-81                                       School Social Work Quarterly    1
-82                               Smith College Studies in Social Work 1066
-83                                                    Social Casework 1090
-84                                                 Social Development  747
-85                                          Social Development Issues  104
-86                                                     Social Service    1
-87         Social Service Department, Presbyterian Hospital, New York    1
-88                                          Social Service Monographs    1
-89                                              Social Service Review  295
-90                                                        Social Work 1866
-91                                         Social Work &amp; Christianity  206
-92                                              Social Work Education  588
-93                                               Social Work Research  409
-94                                   Social Work Research &amp; Abstracts  152
-95                                              Social Work Technique   27
-96                                                  Social Work Today    1
-97                                               Social Work Yearbook   13
-98                             Social Work and Social Sciences Review  137
-99                                           Social Work in Education   89
-100                                        Social Work in Health Care 1165
-101                                      Social Work in Mental Health  311
-102                                           Social Work with Groups  763
-103                           Systems Research and Behavioral Science    6
-104                                    Teaching and Teacher Education    4
-105                                           The Clinical Supervisor   11
-106                          The Journal of Baccalaureate Social Work  102
-107                   The Scientific Review of Mental Health Practice   77
-108                    University of Chicago Social Service Monograph    1</code></pre>
+11                                               Canadian Social Work   52
+12                                        Canadian Social Work Review  147
+13                             Child &amp; Adolescent Social Work Journal  897
+14                                         Child &amp; Family Social Work  618
+15                                                 Children &amp; Schools  267
+16                                       Clinical Social Work Journal 1230
+17                                        Computers in Human Services  209
+18                   Contemporary Rural Social Work (Electronic only)   33
+19                                   Early Child Development and Care   12
+20                                    Early Education and Development    7
+21                                      Employee Assistance Quarterly    5
+22                                          Ethics and Social Welfare  133
+23                                    Eugenics &amp; Social Welfare Bull.    2
+24                               Eugenics and Social Welfare Bulletin    1
+25                                    European Journal of Social Work  566
+26                                    Evaluation and Program Planning   18
+27                                                Families in Society 1759
+28                                        General Hospital Psychiatry    2
+29                                               Health &amp; Social Work 1467
+30                                            Hospital Social Service    4
+31                                        Human Service Organizations    8
+32                          Indian Journal of Psychiatric Social Work   31
+33                                      Indian Journal of Social Work  366
+34                            International Conference of Social Work    2
+35                            International Journal of Social Welfare  399
+36                                          International Social Work 1333
+37                                    Issues in Social Work Education    1
+38                                    Journal of Analytic Social Work   47
+39                              Journal of Applied Behavioral Science    9
+40                       Journal of Applied Rehabilitation Counseling    6
+41                                 Journal of Applied Social Sciences   47
+42                               Journal of Baccalaureate Social Work   82
+43                   Journal of Community &amp; Applied Social Psychology    8
+44                              Journal of Comparative Social Welfare   66
+45              Journal of Ethnic &amp; Cultural Diversity in Social Work  290
+46                              Journal of Evidence-Based Social Work  174
+47                                      Journal of Family Social Work  312
+48                              Journal of Gerontological Social Work 1572
+49                              Journal of HIV/AIDS &amp; Social Services  241
+50                Journal of Human Behavior in the Social Environment  881
+51                                 Journal of Independent Social Work  100
+52                               Journal of Multicultural Social Work   21
+53                                      Journal of Nonverbal Behavior    4
+54                              Journal of Progressive Human Services  106
+55                                 Journal of Psychiatric Social Work   69
+56                                   Journal of Psychosocial Oncology  473
+57                  Journal of Religion &amp; Spirituality in Social Work  227
+58                                         Journal of Social Casework  101
+59                                 Journal of Social Service Research  883
+60                                          Journal of Social Welfare   25
+61                                             Journal of Social Work  290
+62                           Journal of Social Work &amp; Human Sexuality  143
+63                                   Journal of Social Work Education 1104
+64                                    Journal of Social Work Practice  489
+65                  Journal of Social Work Practice in the Addictions  389
+66                                     Journal of Social Work Process    9
+67                     Journal of Social Work Research and Evaluation   99
+68                           Journal of Social Work Values and Ethics   50
+69              Journal of Social Work in Disability &amp; Rehabilitation  153
+70            Journal of Social Work in End-of-Life &amp; Palliative Care  170
+71                              Journal of Sociology &amp; Social Welfare   98
+72                            Journal of Sociology and Social Welfare 1294
+73                                 Journal of Teaching in Social Work  558
+74                            Journal of Technology in Human Services  317
+75                Journal of the Society for Social Work and Research   67
+76                          Learning Disabilities Research &amp; Practice    6
+77                                      Maatskaplike Werk/Social Work    1
+78                                                Medical Social Work    3
+79  New York State Department of Social Welfare, Division Publication    1
+80               PROFILE Issues in Teachers' Professional Development   51
+81                                              Pediatric Social Work    5
+82                                           Pennsylvania Social Work    1
+83                                                           Practice  193
+84                                       Prevention in Human Services  187
+85              Proceedings of the National Conference of Social Work   26
+86                                         Psychoanalytic Social Work  164
+87                                                      Psychotherapy   12
+88                                            Qualitative Social Work  321
+89                                                        Reflections  847
+90                                   Research on Social Work Practice 1301
+91                  Revista de Asistenta Sociala (Social Work Review)  263
+92                                                  Rural Social Work   39
+93                                         School Social Work Journal  168
+94                                       School Social Work Quarterly    1
+95                               Smith College Studies in Social Work 1194
+96                                                    Social Casework 1180
+97                                                 Social Development  747
+98                                          Social Development Issues  416
+99                                                     Social Service    1
+100        Social Service Department, Presbyterian Hospital, New York    1
+101                                         Social Service Monographs    1
+102                                             Social Service Review 1291
+103                                                       Social Work 3036
+104                                        Social Work &amp; Christianity  206
+105                              Social Work &amp; Social Sciences Review   36
+106                                             Social Work Education  966
+107                                              Social Work Research  629
+108                                  Social Work Research &amp; Abstracts  152
+109                                             Social Work Technique   27
+110                                                 Social Work Today    1
+111                                           Social Work With Groups    8
+112                                              Social Work Yearbook   13
+113                            Social Work and Social Sciences Review  137
+114                                          Social Work in Education   89
+115                                        Social Work in Health Care 1536
+116                                      Social Work in Mental Health  331
+117                                      Social Work in Public Health  209
+118                                           Social Work with Groups 1023
+119                           Systems Research and Behavioral Science    6
+120                                    Teaching and Teacher Education    4
+121                                The British Journal of Social Work  459
+122                                           The Clinical Supervisor   11
+123                          The Journal of Baccalaureate Social Work  262
+124                   The Scientific Review of Mental Health Practice   77
+125                    University of Chicago Social Service Monograph    1</code></pre>
 </div>
 <div id="data-cleaning" class="section level1">
 <h1>Data cleaning</h1>
@@ -202,13 +222,7 @@ cat(range.of.years)</code></pre>
 <pre class="r"><code>years &lt;- c(&quot;2014&quot;, &quot;2015&quot;)
 ebsco.remove &lt;- full.df[full.df$record %in% years, ]
 ebsco.remove &lt;- ebsco.remove[, &quot;articleID&quot;]
-full.df &lt;- full.df[!(full.df$articleID %in% ebsco.remove),]
-
-range.of.years &lt;- range(full.df$record[full.df$attributes == &quot;pubYear&quot;])
-
-# New range of years
-cat(range.of.years)</code></pre>
-<pre><code>## 1914 2013</code></pre>
+full.df &lt;- full.df[!(full.df$articleID %in% ebsco.remove),]</code></pre>
 <p>The articles were reviewed and a first round of exclusions were made based on whether they are journals from within outside of the field of social work. Disagreements were resolved by reviewing the mission of the journal to see whether it reflected the study definition of a disciplinary social work journal.</p>
 <pre class="r"><code>exclusions.1 &lt;- c(
     &quot;American Journal of Preventive Medicine&quot;, 
@@ -231,20 +245,26 @@ cat(range.of.years)</code></pre>
     &quot;Journal of Psychosomatic Research&quot;,
     &quot;Learning Disabilities Research &amp; Practice&quot;,
     &quot;New York State Department of Social Welfare, Division Publication&quot;,
-    &quot;Proceedings of the National Converence of Social Work&quot;,
+    &quot;Proceedings of the National Conference of Social Work&quot;,
     &quot;PROFILE Issues in Teachers' Professional Development&quot;,
     &quot;Psychotherapy&quot;,
+    &quot;Social Service Department, Presbyterian Hospital, New York&quot;,
+    &quot;Social Work Technique&quot;, 
+    &quot;Social Work Today&quot;, 
+    &quot;Social Work Yearbook&quot;, 
+    &quot;The New Social Worker&quot;,
     &quot;Systems Research and Behavioral Science&quot;,
     &quot;Teaching and Teacher Education&quot;,
     &quot;University of Chicago Social Service Monograph&quot;,
     &quot;The Scientific Review of Mental Health Practice&quot;,
-    &quot;The Clinical Supervisor&quot;)
+    &quot;The Clinical Supervisor&quot;,
+    &quot;University of Chicago Social Service Monograph&quot;)
 
 ebsco.remove &lt;- full.df[full.df$record %in% exclusions.1, ]
 ebsco.remove &lt;- ebsco.remove[, &quot;articleID&quot;]
 full.df &lt;- full.df[!(full.df$articleID %in% ebsco.remove),]
 
-rm(ebsco.remove, exclusions.1)</code></pre>
+rm(ebsco.remove)</code></pre>
 <p>A second round of exclusions were made.</p>
 <p>Journals with less than 10 articles that contributed to the overall number. Ten was selected because it was a natural break consisten with a EFA curve…In this cases the exclusion of the titles had virtually no impact on the overall article count. However, it did inflate the number of journal titles. Excluded if we could not identify the journal and associated articles – that is, it wasn’t available and, therefore, not part of the scholarly record.</p>
 <ul>
@@ -257,6 +277,7 @@ rm(ebsco.remove, exclusions.1)</code></pre>
     &quot;Hospital Social Service&quot;,  #Confirmed nursing journal
     &quot;International Conference of Social Work&quot;,
     &quot;Journal of Multicultural Social Work&quot;,
+    &quot;Journal of Social Work Process&quot;,
     &quot;Journal of Teaching in Social Work&quot;, 
     &quot;Maatskaplike Werk/Social Work&quot;,
     &quot;Medical Social Work&quot;,
@@ -282,37 +303,42 @@ full.df &lt;- full.df[!(full.df$articleID %in% ebsco.remove),]
 
 rm(ebsco.remove, exclusions.2)</code></pre>
 <p>Journal titles were merged in the following situations:</p>
-<pre class="r"><code>full.df$record &lt;- ifelse(full.df$record == &quot;The British Journal of Social Work&quot;, 
-                       &quot;British Journal of Social Work&quot;, 
+<pre class="r"><code>full.df$record &lt;- ifelse(full.df$record == 
+        &quot;The British Journal of Social Work&quot;,       # Old title
+        &quot;British Journal of Social Work&quot;,           # New title
                         full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;Social Work &amp; Social Sciences Review&quot;, 
-                       &quot;Social Work and Social Sciences Review&quot;, 
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;Social Work &amp; Social Sciences Review&quot;,     # Spelling difference
+        &quot;Social Work and Social Sciences Review&quot;, 
                         full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;Social Work with Groups&quot;, 
-                       &quot;Social Work With Groups&quot;, 
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;Social Work with Groups&quot;,                  # Spelling difference
+        &quot;Social Work With Groups&quot;, 
                         full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;Computers in Human Services&quot;, 
-                       &quot;Journal of Technology in Human Services&quot;, 
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;Computers in Human Services&quot;,              # Old title
+        &quot;Journal of Technology in Human Services&quot;,  # New title
                         full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;Journal of Sociology &amp; Social Welfare&quot;, 
-                       &quot;Journal of Sociology and Social Welfare&quot;, 
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;Journal of Sociology &amp; Social Welfare&quot;,    # Spelling difference
+        &quot;Journal of Sociology and Social Welfare&quot;,  
                         full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;The Family&quot;, 
-                       &quot;Families in Society&quot;,
-                       ifelse(full.df$record == &quot;Journal of Social Casework&quot;,
-                       &quot;Families in Society&quot;,
-                       ifelse(full.df$record == &quot;Social Casework&quot;,
-                       &quot;Families in Society&quot;,
-                        full.df$record)))
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;The Family&quot; | full.df$record ==                    # Old title
+        &quot;Journal of Social Casework&quot; | full.df$record ==    # Old title
+        &quot;Social Casework&quot;,                                  # Old title
+        &quot;Families in Society&quot;,                              # New title
+                        full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;Social Work in Education&quot;, 
-                       &quot;Children &amp; Schools&quot;, 
-                        full.df$record)</code></pre>
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;Social Work in Education&quot;,                 # Old title
+        &quot;Children &amp; Schools&quot;,                       # New title
+                    full.df$record)</code></pre>
 </div>
 <div id="coverage-via-hodge-article" class="section level1">
 <h1>Coverage via Hodge article</h1>
@@ -328,135 +354,84 @@ hodge5 &lt;- str_trim(hodge4, side=&quot;both&quot;)</code></pre>
 <li>to do … summary with hodge list</li>
 </ul>
 <pre><code>                                                    record    N
-1                            Administration in Social Work  328
+1                            Administration in Social Work  908
 2                                                  Affilia  186
-3                                   Australian Social Work  242
+3                                   Australian Social Work  252
 4               British Journal of Psychiatric Social Work   67
-5                           British Journal of Social Work 1404
-6                   Child &amp; Adolescent Social Work Journal  789
-7                               Child &amp; Family Social Work  571
-8                                       Children &amp; Schools  328
-9                             Clinical Social Work Journal 1023
-10                               Ethics and Social Welfare  115
-11                                     Families in Society 2376
-12                                    Health &amp; Social Work  889
-13               Indian Journal of Psychiatric Social Work   31
-14                           Indian Journal of Social Work  366
-15                 International Journal of Social Welfare  389
-16                               International Social Work  670
-17                         Journal of Analytic Social Work   47
-18                   Journal of Evidence-Based Social Work   46
-19                   Journal of Gerontological Social Work 1133
-20     Journal of Human Behavior in the Social Environment  763
-21                      Journal of Independent Social Work  100
-22                   Journal of Progressive Human Services   97
-23                      Journal of Psychiatric Social Work   69
-24                        Journal of Psychosocial Oncology  761
-25       Journal of Religion &amp; Spirituality in Social Work  152
-26                      Journal of Social Service Research  691
-27                               Journal of Social Welfare   25
-28                                  Journal of Social Work  255
-29                Journal of Social Work &amp; Human Sexuality  143
-30                        Journal of Social Work Education  376
-31                         Journal of Social Work Practice  292
-32       Journal of Social Work Practice in the Addictions  340
-33                          Journal of Social Work Process    9
-34          Journal of Social Work Research and Evaluation   99
-35 Journal of Social Work in End-of-Life &amp; Palliative Care  129
-36                 Journal of Sociology and Social Welfare  697
-37                 Journal of Technology in Human Services  456
-38     Journal of the Society for Social Work and Research   65
-39                                                Practice  176
-40                            Prevention in Human Services  187
-41   Proceedings of the National Conference of Social Work   26
-42                              Psychoanalytic Social Work  154
-43                                 Qualitative Social Work  290
-44                        Research on Social Work Practice  928
-45                                       Rural Social Work   39
-46                              School Social Work Journal  138
-47                    Smith College Studies in Social Work 1045
-48                                      Social Development  691
-49                               Social Development Issues  100
-50                                   Social Service Review  289
-51                                             Social Work 1827
-52                              Social Work &amp; Christianity  193
-53                                   Social Work Education  509
-54                                    Social Work Research  390
-55                        Social Work Research &amp; Abstracts  152
-56                                 Social Work With Groups  741
-57                  Social Work and Social Sciences Review  137
-58                              Social Work in Health Care 1112
-59                            Social Work in Mental Health  283
-60                The Journal of Baccalaureate Social Work  102</code></pre>
+5                           British Journal of Social Work 1830
+6                                     Canadian Social Work   52
+7                              Canadian Social Work Review  140
+8                   Child &amp; Adolescent Social Work Journal  854
+9                               Child &amp; Family Social Work  571
+10                                      Children &amp; Schools  328
+11                            Clinical Social Work Journal 1184
+12        Contemporary Rural Social Work (Electronic only)   27
+13                               Ethics and Social Welfare  115
+14                         European Journal of Social Work  486
+15                                     Families in Society 3004
+16                                    Health &amp; Social Work 1436
+17               Indian Journal of Psychiatric Social Work   31
+18                           Indian Journal of Social Work  366
+19                 International Journal of Social Welfare  389
+20                               International Social Work 1238
+21                         Journal of Analytic Social Work   47
+22                    Journal of Baccalaureate Social Work   78
+23                   Journal of Comparative Social Welfare   66
+24   Journal of Ethnic &amp; Cultural Diversity in Social Work   44
+25                   Journal of Evidence-Based Social Work  150
+26                           Journal of Family Social Work  300
+27                   Journal of Gerontological Social Work 1507
+28                   Journal of HIV/AIDS &amp; Social Services  218
+29     Journal of Human Behavior in the Social Environment  807
+30                      Journal of Independent Social Work  100
+31                   Journal of Progressive Human Services   97
+32                      Journal of Psychiatric Social Work   69
+33                        Journal of Psychosocial Oncology  438
+34       Journal of Religion &amp; Spirituality in Social Work  201
+35                      Journal of Social Service Research  830
+36                               Journal of Social Welfare   25
+37                                  Journal of Social Work  263
+38                Journal of Social Work &amp; Human Sexuality  143
+39                        Journal of Social Work Education 1020
+40                         Journal of Social Work Practice  453
+41       Journal of Social Work Practice in the Addictions  365
+42          Journal of Social Work Research and Evaluation   99
+43                Journal of Social Work Values and Ethics   50
+44   Journal of Social Work in Disability &amp; Rehabilitation  153
+45 Journal of Social Work in End-of-Life &amp; Palliative Care  159
+46                 Journal of Sociology and Social Welfare 1356
+47                 Journal of Technology in Human Services  511
+48     Journal of the Society for Social Work and Research   65
+49                                                Practice  176
+50                            Prevention in Human Services  187
+51                              Psychoanalytic Social Work  154
+52                                 Qualitative Social Work  290
+53                                             Reflections  847
+54                        Research on Social Work Practice 1196
+55       Revista de Asistenta Sociala (Social Work Review)  221
+56                                       Rural Social Work   39
+57                              School Social Work Journal  156
+58                    Smith College Studies in Social Work 1173
+59                                      Social Development  691
+60                               Social Development Issues  402
+61                                   Social Service Review 1268
+62                                             Social Work 2987
+63                              Social Work &amp; Christianity  193
+64                                   Social Work Education  877
+65                                    Social Work Research  606
+66                        Social Work Research &amp; Abstracts  152
+67                                 Social Work With Groups  993
+68                  Social Work and Social Sciences Review  173
+69                              Social Work in Health Care 1480
+70                            Social Work in Mental Health  303
+71                            Social Work in Public Health  192
+72                The Journal of Baccalaureate Social Work  262</code></pre>
 <pre class="r"><code># Number of articles
 cat(number.of.articles)</code></pre>
-<pre><code>## 26028</code></pre>
+<pre><code>## 38096</code></pre>
 <pre class="r"><code># Range of years
 cat(range.of.years)</code></pre>
 <pre><code>## 1927 2013</code></pre>
-<p><em>TO DO</em> add range of years to the following dplyr summary</p>
-<pre><code>                                                    record    N
-1                            Administration in Social Work  328
-2                                                  Affilia  186
-3                                   Australian Social Work  242
-4               British Journal of Psychiatric Social Work   67
-5                           British Journal of Social Work 1404
-6                   Child &amp; Adolescent Social Work Journal  789
-7                               Child &amp; Family Social Work  571
-8                                       Children &amp; Schools  328
-9                             Clinical Social Work Journal 1023
-10                               Ethics and Social Welfare  115
-11                                     Families in Society 2376
-12                                    Health &amp; Social Work  889
-13               Indian Journal of Psychiatric Social Work   31
-14                           Indian Journal of Social Work  366
-15                 International Journal of Social Welfare  389
-16                               International Social Work  670
-17                         Journal of Analytic Social Work   47
-18                   Journal of Evidence-Based Social Work   46
-19                   Journal of Gerontological Social Work 1133
-20     Journal of Human Behavior in the Social Environment  763
-21                      Journal of Independent Social Work  100
-22                   Journal of Progressive Human Services   97
-23                      Journal of Psychiatric Social Work   69
-24                        Journal of Psychosocial Oncology  761
-25       Journal of Religion &amp; Spirituality in Social Work  152
-26                      Journal of Social Service Research  691
-27                               Journal of Social Welfare   25
-28                                  Journal of Social Work  255
-29                Journal of Social Work &amp; Human Sexuality  143
-30                        Journal of Social Work Education  376
-31                         Journal of Social Work Practice  292
-32       Journal of Social Work Practice in the Addictions  340
-33                          Journal of Social Work Process    9
-34          Journal of Social Work Research and Evaluation   99
-35 Journal of Social Work in End-of-Life &amp; Palliative Care  129
-36                 Journal of Sociology and Social Welfare  697
-37                 Journal of Technology in Human Services  456
-38     Journal of the Society for Social Work and Research   65
-39                                                Practice  176
-40                            Prevention in Human Services  187
-41   Proceedings of the National Conference of Social Work   26
-42                              Psychoanalytic Social Work  154
-43                                 Qualitative Social Work  290
-44                        Research on Social Work Practice  928
-45                                       Rural Social Work   39
-46                              School Social Work Journal  138
-47                    Smith College Studies in Social Work 1045
-48                                      Social Development  691
-49                               Social Development Issues  100
-50                                   Social Service Review  289
-51                                             Social Work 1827
-52                              Social Work &amp; Christianity  193
-53                                   Social Work Education  509
-54                                    Social Work Research  390
-55                        Social Work Research &amp; Abstracts  152
-56                                 Social Work With Groups  741
-57                  Social Work and Social Sciences Review  137
-58                              Social Work in Health Care 1112
-59                            Social Work in Mental Health  283
-60                The Journal of Baccalaureate Social Work  102</code></pre>
-<p>names(full.df)</p>
 </div>
 
 
