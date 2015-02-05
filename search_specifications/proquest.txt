@@ -1,0 +1,26 @@
+"Advances in Social Work" OR                               
+Annual of Social Work" OR                                 
+"Arete"                 OR                                 
+"Asia Pacific Journal of Social Work and Development"    OR
+"Black Caucus"                                           OR
+"Caribbean Journal of Social Work"                       OR
+"China Journal of Social Work"                           OR
+"Critical Social Work"                                   OR
+"Electronic Journal of Social Work"                      OR
+"IUC Journal of Social Work Theory and Practice"         OR
+"Japanese Journal of Social Services"                    OR
+"Journal of Changsha Social Work"                        OR
+"Journal of Forensic Social Work"                        OR
+"Journal of Gay & Lesbian Social Services"               OR
+"Journal of Practice Teaching in Social Work and Health" OR
+"Journal of Rural Social Work & Social Development"      OR
+"Journal of Social Work in Disability and Rehabilitation”OR
+"Journal of Social Work in Long-Term Care"               OR
+"Professional Development"                               OR
+"Social Work and Society"                                OR
+"Social Work Forum"                                      OR
+"Social Work Review"                                     OR
+"The Hong Kong Journal of Social Work"                   OR
+"The New Social Worker"                                  OR
+"The Social Worker/Le Travaileur Social"                 OR
+"The Spirituality and Social Work Forum”			OR
