@@ -1,5 +1,5 @@
 ---
-title: "History of Social Work Research"
+title: "25 years of Social Work Research"
 author: "Summary of Data Cleaning Procedures"
 output: pdf_document
 ---
@@ -48,6 +48,11 @@ full.df$record <- ifelse(full.df$record ==
         "Journal of Sociology & Social Welfare",    # Spelling difference
         "Journal of Sociology and Social Welfare",  
                         full.df$record)
+
+full.df$record <- ifelse(full.df$record == 
+    "The British Journal Social Work",          # Spelling difference
+        "British Journal of Social Work",           
+                        full.df$record)
 ```
 
 
@@ -85,8 +90,11 @@ Inspection of the data indicated notable delays in indexing for the years 2014 a
 ## Year specification
 
 ```{r}
+
+year.25 <- as.character(c(1900:1987, 2014, 2015))
 years <- c("2014", "2015")
-ebsco.remove <- full.df[full.df$record %in% years, ]
+#ebsco.remove <- full.df[full.df$record %in% years, ]
+ebsco.remove <- full.df[full.df$record %in% year.25, ]
 ebsco.remove <- ebsco.remove[, "articleID"]
 full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 ```
@@ -144,7 +152,7 @@ Exclusions were then made any of the three criteria
 
 + Journals that did not have clear evidence of a peer review process.  This was based on a review of the journals mission, scope, and whether an editorial board or group could be identified.  
 
-+ Journal titles that did not have any clear publication history (e.g., due to an indexing error).  This exclusion was based on errors in data entry.  
++ Journal titles that did not have any clear publication history based on a broad-based Internet search and other databases (e.g., ProQuest).  These exclusions are assumed to be data entry problems at time of indexing.  
 
 + Journals that did not have at least one full year of indexed records (except journals that subsequently changed titles).  This exclusionary criterion was consistent with the working definition of a social work journal.  
 
@@ -155,9 +163,7 @@ exclusions.2 <- c(
     "Issues in Social Work Education", 
     "Hospital Social Service",  #Confirmed nursing journal
     "International Conference of Social Work",
-    "Journal of Multicultural Social Work",
     "Journal of Social Work Process",
-    "Journal of Teaching in Social Work", 
     "Maatskaplike Werk/Social Work",
     "Medical Social Work",
     "New York State Department of Social Welfare, Division Publication",
@@ -188,7 +194,7 @@ Some social work journals changed titles over their history.  For example, _Fami
 
 ```{r titleMerge, eval=TRUE}
 full.df$record <- ifelse(full.df$record == 
-        "The British Journal of Pyschiatric Social Work",       # Old title
+    "The British Journal of Pyschiatric Social Work", # Old
         "British Journal of Social Work",           # New title
                         full.df$record)
 
@@ -210,10 +216,16 @@ full.df$record <- ifelse(full.df$record ==
         "Children & Schools",                       # New title
                     full.df$record)
 
-full.df$record <- ifelse(full.df$record == "Journal of Independent Social Work" | full.df$record == "Journal of Analytic Social Work", "Psychoanalytic Social Work", 
+full.df$record <- ifelse(full.df$record == 
+        "Journal of Independent Social Work" | full.df$record ==    # New title
+        "Journal of Analytic Social Work",                          # Old title
+        "Psychoanalytic Social Work",                               # Old title
                 full.df$record)
 
-# Journals were originally merged after suffixes were eliminated (after the colon).  Thus, Practice: Social Work in Action  (new title) was shortened to Practice (old title).  This section resolves two of these issues to be consistent in the comparison with Hodge.  
+# Journals were originally merged after suffixes were eliminated (after the
+# colon).  Thus, Practice: Social Work in Action  (new title) was shortened to
+# Practice (old title).  This section resolves two of these issues to be
+# consistent in the comparison with Hodge.
 
 practice.temp <- grep("^Practice$", full.df$record)
 full.df$record[practice.temp] <- "Practice: Social Work in Action"
@@ -223,22 +235,11 @@ full.df$record[practice.temp] <- "Reflections: Narratives of Professional Helpin
 ```
 
 
-# Coverage via Hodge article
-
-```{r hodgeCompare, eval=FALSE}
-hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-
-unique.titles <- filter(full.df, attributes == "journal") %>%
-    group_by(record) %>%
-    summarise(
-        N = n())
-print.data.frame(unique.titles, rowNames=FALSE)
-
-```
-
 # Post-processing summary 
 
-+ to do ... summary with hodge list
+## Revised database
+
+This section provides a summary of the revised database after the initial processing with the `ebscoBWR` function and the subsequent data cleaning.  An additional code is included in this summary to indicate whether the journal title overlaps with the list of Hodge (indicated by *H*).  
 
 ```{r echo=FALSE, comment=NA}
 unique.titles <- filter(full.df, attributes == "journal") %>%
@@ -275,12 +276,13 @@ final.list <- cbind(n.so.yr, H)
 print.data.frame(final.list, row.names=FALSE)
 ```
 
+
+
+
 ## Intersection, Differences and Union
 
-This section examines the overall _coverage_ of the current search by making systematic comparisons with Hodge (2013).  The first analysis shows how the list of SWH overlaps with HL -- that is, the journals that were common to both lists (_intersection_).  The sedond analyses shows the set _differences_.  The third analysis focuses on the union of the sets.  The union shows a meta-list by 
+This section provides further comparison of the journal titles with Hodge by reporting on the _intersection_, _differences_, and _union_ of the lists.
 ```{r}
-
-
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 
 unique.swHistory <- filter(full.df, attributes == "journal") %>%
@@ -293,14 +295,41 @@ swHistory.hodge.diff <- setdiff(unique.swHistory$record, hodge)
 
 
 hodge.swHistory.union <- union(hodge, unique.swHistory$record)
+```
 
+
+This list shows which journal titles are common to both lists.
+
+```{r}
 print(sort(hodge.swHistory.intersect))
+```
+
+
+This list shows the articles on Hodge but not the current study.  
+
+```{r}
+sink(file = "JournalsMissed.txt")
 print(sort(hodge.swHistory.diff))
+sink()
+```
+This list shows the articles on the current study but not on Hodge.
+
+```{r}
 print(sort(swHistory.hodge.diff))
+```
+
+This list shows the union of lists -- that is, a full list of all titles by combining a list.  It would be useful to break out the former titles of journals, as well as the years of existence.  This would establish a complete listing of all social work journals, both current and historical.  
+
+```{r}
 print(sort(hodge.swHistory.union))
+```
 
 
+## Descriptive summary of records
 
+```{r comment=NA, echo=TRUE} 
+number.of.articles <- length(which(full.df$attributes == "article"))
+range.of.years <- range(full.df$record[full.df$attributes == "pubYear"])
 ```
 
 
@@ -314,4 +343,15 @@ cat(number.of.articles)
 cat(range.of.years)
 ```
 
-Reflections: Narratives of Professional Helping
+```{r}
+cor.data <- select(final.list, first, last, n) %>%
+            mutate(no.years = as.numeric(last) - as.numeric(first)) 
+
+ggplot(cor.data, aes(x = no.years, y = n)) + 
+            geom_point(shape = 1) + 
+            geom_smooth() + 
+            xlab("Years") + 
+            ylab("Number of articles")
+
+cor(cor.data$no.years, cor.data$n)
+```

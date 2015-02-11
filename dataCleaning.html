@@ -252,7 +252,6 @@ full.df &lt;- full.df[!(full.df$articleID %in% ebsco.remove),]</code></pre>
     &quot;International Review of Social Research&quot;,
     &quot;Journal of Applied Behavioral Science&quot;,
     &quot;Journal of Applied Rehabilitation Counseling&quot;,
-    &quot;Journal of Applied Social Sciences&quot;,
     &quot;Journal of Community &amp; Applied Social Psychology&quot;,
     &quot;Journal of Health &amp; Human Services Administration&quot;,
     &quot;Journal of Nonverbal Behavior&quot;,
@@ -276,7 +275,7 @@ rm(ebsco.remove)</code></pre>
 <p>Exclusions were then made any of the three criteria</p>
 <ul>
 <li><p>Journals that did not have clear evidence of a peer review process. This was based on a review of the journals mission, scope, and whether an editorial board or group could be identified.</p></li>
-<li><p>Journal titles that did not have any clear publication history (e.g., due to an indexing error). This exclusion was based on errors in data entry.</p></li>
+<li><p>Journal titles that did not have any clear publication history based on a broad-based Internet search and other databases (e.g., ProQuest). These exclusions are assumed to be data entry problems at time of indexing.</p></li>
 <li><p>Journals that did not have at least one full year of indexed records (except journals that subsequently changed titles). This exclusionary criterion was consistent with the working definition of a social work journal.</p></li>
 </ul>
 <pre class="r"><code>exclusions.2 &lt;- c(
@@ -287,7 +286,6 @@ rm(ebsco.remove)</code></pre>
     &quot;International Conference of Social Work&quot;,
     &quot;Journal of Multicultural Social Work&quot;,
     &quot;Journal of Social Work Process&quot;,
-    &quot;Journal of Teaching in Social Work&quot;, 
     &quot;Maatskaplike Werk/Social Work&quot;,
     &quot;Medical Social Work&quot;,
     &quot;New York State Department of Social Welfare, Division Publication&quot;,
@@ -301,7 +299,6 @@ rm(ebsco.remove)</code></pre>
     &quot;Social Work Technique&quot;,
     &quot;Social Work Today&quot;, 
     &quot;Social Work Yearbook&quot;,
-    &quot;The New Social Worker&quot;,
     &quot;Pennsylvania Social Work&quot;,
     &quot;University of Chicago Social Service Monograph&quot; 
     )
@@ -316,7 +313,7 @@ rm(ebsco.remove, exclusions.2)</code></pre>
 <h2>Title merging</h2>
 <p>Some social work journals changed titles over their history. For example, <em>Families in Society</em> had three titles that preceded the current title: <em>Social Casework</em>, <em>Journal of Social Casework</em>, and <em>The Family</em>. The database that contributed the largest number of articles to the study database indexed the majority of journal titles under the journal’s current name, and provided an additional data field for the historical name. However, historical names from Social Science Abstracts and Social Work Abstracts were not merged with the current name. Thus, the last step of the data cleaning procedures was to conduct these merges.</p>
 <pre class="r"><code>full.df$record &lt;- ifelse(full.df$record == 
-        &quot;The British Journal of Social Work&quot;,       # Old title
+    &quot;The British Journal of Pyschiatric Social Work&quot;, # Old
         &quot;British Journal of Social Work&quot;,           # New title
                         full.df$record)
 
@@ -338,51 +335,56 @@ full.df$record &lt;- ifelse(full.df$record ==
         &quot;Children &amp; Schools&quot;,                       # New title
                     full.df$record)
 
-full.df$record &lt;- ifelse(full.df$record == &quot;Journal of Independent Social Work&quot; | full.df$record == &quot;Journal of Analytic Social Work&quot;, &quot;Psychoanalytic Social Work&quot;, 
-                full.df$record)</code></pre>
-</div>
-</div>
-<div id="coverage-via-hodge-article" class="section level1">
-<h1>Coverage via Hodge article</h1>
-<pre class="r"><code>hodge &lt;- readLines(&quot;/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt&quot;, n = -1)
+full.df$record &lt;- ifelse(full.df$record == 
+        &quot;Journal of Independent Social Work&quot; | full.df$record ==    # New title
+        &quot;Journal of Analytic Social Work&quot;,                          # Old title
+        &quot;Psychoanalytic Social Work&quot;,                               # Old title
+                full.df$record)
 
-unique.titles &lt;- filter(full.df, attributes == &quot;journal&quot;) %&gt;%
-    group_by(record) %&gt;%
-    summarise(
-        N = n())
-print.data.frame(unique.titles, rowNames=FALSE)</code></pre>
+# Journals were originally merged after suffixes were eliminated (after the
+# colon).  Thus, Practice: Social Work in Action  (new title) was shortened to
+# Practice (old title).  This section resolves two of these issues to be
+# consistent in the comparison with Hodge.
+
+practice.temp &lt;- grep(&quot;^Practice$&quot;, full.df$record)
+full.df$record[practice.temp] &lt;- &quot;Practice: Social Work in Action&quot;
+
+practice.temp &lt;- grep(&quot;^Reflections$&quot;, full.df$record)
+full.df$record[practice.temp] &lt;- &quot;Reflections: Narratives of Professional Helping&quot;</code></pre>
+</div>
 </div>
 <div id="post-processing-summary" class="section level1">
 <h1>Post-processing summary</h1>
-<ul>
-<li>to do … summary with hodge list</li>
-</ul>
+<div id="revised-database" class="section level2">
+<h2>Revised database</h2>
+<p>This section provides a summary of the revised database after the initial processing with the <code>ebscoBWR</code> function and the subsequent data cleaning. An additional code is included in this summary to indicate whether the journal title overlaps with the list of Hodge (indicated by <em>H</em>).</p>
 <pre><code>Joining by: &quot;articleID&quot;</code></pre>
 <pre><code>                                                   title first last    n H
                            Administration in Social Work  1977 2013  909 Y
                                                  Affilia  2007 2013  188 Y
                                   Australian Social Work  2006 2013  252 Y
               British Journal of Psychiatric Social Work  1953 1970   69 N
-                          British Journal of Social Work  1970 2013 1840 Y
+                          British Journal of Social Work  1970 2013 1412 Y
                                     Canadian Social Work  1999 2012   52 Y
                              Canadian Social Work Review  2005 2013  142 Y
-                  Child &amp; Adolescent Social Work Journal  1984 2013  859 N
-                              Child &amp; Family Social Work  1997 2013  573 N
-                                      Children &amp; Schools  1982 2013  333 N
+                  Child &amp; Adolescent Social Work Journal  1984 2013  859 Y
+                              Child &amp; Family Social Work  1997 2013  573 Y
+                                      Children &amp; Schools  1982 2013  333 Y
                             Clinical Social Work Journal  1973 2013 1193 Y
         Contemporary Rural Social Work (Electronic only)  2010 2013   27 N
                                Ethics and Social Welfare  2009 2013  115 N
                          European Journal of Social Work  2000 2013  489 Y
                                      Families in Society  1946 2013 3023 Y
-                                    Health &amp; Social Work  1976 2013 1444 N
+                                    Health &amp; Social Work  1976 2013 1444 Y
                Indian Journal of Psychiatric Social Work  1972 1977   31 N
                            Indian Journal of Social Work  1941 1986  369 Y
                  International Journal of Social Welfare  2000 2013  393 Y
                                International Social Work  1975 2013 1250 Y
+                      Journal of Applied Social Sciences  1994 1999   47 Y
                     Journal of Baccalaureate Social Work  2005 2013   78 Y
                    Journal of Comparative Social Welfare  2006 2012   66 Y
-   Journal of Ethnic &amp; Cultural Diversity in Social Work  2000 2013   45 N
-                   Journal of Evidence-Based Social Work  2004 2013  154 N
+   Journal of Ethnic &amp; Cultural Diversity in Social Work  2000 2013   45 Y
+                   Journal of Evidence-Based Social Work  2004 2013  156 Y
                            Journal of Family Social Work  1995 2013  305 Y
                    Journal of Gerontological Social Work  1979 2013 1517 Y
                    Journal of HIV/AIDS &amp; Social Services  2005 2013  218 Y
@@ -390,7 +392,7 @@ print.data.frame(unique.titles, rowNames=FALSE)</code></pre>
                    Journal of Progressive Human Services  2000 2013   99 Y
                       Journal of Psychiatric Social Work  1952 1955   70 N
                         Journal of Psychosocial Oncology  1996 2013  438 Y
-       Journal of Religion &amp; Spirituality in Social Work  2004 2013  201 N
+       Journal of Religion &amp; Spirituality in Social Work  2004 2013  201 Y
                       Journal of Social Service Research  1977 2013  836 Y
                                Journal of Social Welfare  1975 1983   26 N
                                   Journal of Social Work  1964 2013  265 Y
@@ -401,15 +403,16 @@ print.data.frame(unique.titles, rowNames=FALSE)</code></pre>
           Journal of Social Work Research and Evaluation  2000 2005   99 Y
                 Journal of Social Work Values and Ethics  2004 2012   50 Y
    Journal of Social Work in Disability &amp; Rehabilitation  2001 2013  155 N
- Journal of Social Work in End-of-Life &amp; Palliative Care  2005 2013  161 N
+ Journal of Social Work in End-of-Life &amp; Palliative Care  2005 2013  161 Y
                  Journal of Sociology and Social Welfare  1974 2013 1363 Y
-                 Journal of Technology in Human Services  1985 2013  513 N
+                      Journal of Teaching in Social Work  1987 2013  560 Y
+                 Journal of Technology in Human Services  1985 2013  513 Y
      Journal of the Society for Social Work and Research  2010 2013   66 N
-                                                Practice  2005 2013  176 N
+                         Practice: Social Work in Action  2005 2013  176 Y
                             Prevention in Human Services  1981 1993  193 N
                               Psychoanalytic Social Work  1986 2013  304 Y
                                  Qualitative Social Work  2002 2013  292 Y
-                                             Reflections  1995 2013  851 N
+         Reflections: Narratives of Professional Helping  1995 2013  851 Y
                         Research on Social Work Practice  1991 2013 1206 Y
        Revista de Asistenta Sociala (Social Work Review)  2010 2013  221 N
                                        Rural Social Work  2000 2004   39 Y
@@ -423,18 +426,247 @@ print.data.frame(unique.titles, rowNames=FALSE)</code></pre>
                                    Social Work Education  1999 2013  879 Y
                                     Social Work Research  1994 2013  607 Y
                         Social Work Research &amp; Abstracts  1982 1993  156 N
-                                 Social Work With Groups  1978 2013 1000 N
+                                 Social Work With Groups  1978 2013 1000 Y
                   Social Work and Social Sciences Review  1989 2013  177 Y
                               Social Work in Health Care  1975 2013 1492 Y
                             Social Work in Mental Health  2002 2013  303 Y
                             Social Work in Public Health  2007 2013  196 Y
+                      The British Journal of Social Work  1975 2013  428 N
                 The Journal of Baccalaureate Social Work  1995 2013  262 N</code></pre>
+</div>
+<div id="intersection-differences-and-union" class="section level2">
+<h2>Intersection, Differences and Union</h2>
+<p>This section provides further comparison of the journal titles with Hodge by reporting on the <em>intersection</em>, <em>differences</em>, and <em>union</em> of the lists.</p>
+<pre class="r"><code>hodge &lt;- readLines(&quot;/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt&quot;, n = -1)
+
+unique.swHistory &lt;- filter(full.df, attributes == &quot;journal&quot;) %&gt;%
+                distinct(record)
+
+hodge.swHistory.intersect &lt;- intersect(hodge, unique.swHistory$record)
+
+hodge.swHistory.diff &lt;- setdiff(hodge, unique.swHistory$record)
+swHistory.hodge.diff &lt;- setdiff(unique.swHistory$record, hodge)
+
+
+hodge.swHistory.union &lt;- union(hodge, unique.swHistory$record)</code></pre>
+<p>This list shows which journal titles are common to both lists.</p>
+<pre class="r"><code>print(sort(hodge.swHistory.intersect))</code></pre>
+<pre><code>##  [1] &quot;Administration in Social Work&quot;                          
+##  [2] &quot;Affilia&quot;                                                
+##  [3] &quot;Australian Social Work&quot;                                 
+##  [4] &quot;British Journal of Social Work&quot;                         
+##  [5] &quot;Canadian Social Work&quot;                                   
+##  [6] &quot;Canadian Social Work Review&quot;                            
+##  [7] &quot;Child &amp; Adolescent Social Work Journal&quot;                 
+##  [8] &quot;Child &amp; Family Social Work&quot;                             
+##  [9] &quot;Children &amp; Schools&quot;                                     
+## [10] &quot;Clinical Social Work Journal&quot;                           
+## [11] &quot;European Journal of Social Work&quot;                        
+## [12] &quot;Families in Society&quot;                                    
+## [13] &quot;Health &amp; Social Work&quot;                                   
+## [14] &quot;Indian Journal of Social Work&quot;                          
+## [15] &quot;International Journal of Social Welfare&quot;                
+## [16] &quot;International Social Work&quot;                              
+## [17] &quot;Journal of Applied Social Sciences&quot;                     
+## [18] &quot;Journal of Baccalaureate Social Work&quot;                   
+## [19] &quot;Journal of Comparative Social Welfare&quot;                  
+## [20] &quot;Journal of Ethnic &amp; Cultural Diversity in Social Work&quot;  
+## [21] &quot;Journal of Evidence-Based Social Work&quot;                  
+## [22] &quot;Journal of Family Social Work&quot;                          
+## [23] &quot;Journal of Gerontological Social Work&quot;                  
+## [24] &quot;Journal of HIV/AIDS &amp; Social Services&quot;                  
+## [25] &quot;Journal of Human Behavior in the Social Environment&quot;    
+## [26] &quot;Journal of Progressive Human Services&quot;                  
+## [27] &quot;Journal of Psychosocial Oncology&quot;                       
+## [28] &quot;Journal of Religion &amp; Spirituality in Social Work&quot;      
+## [29] &quot;Journal of Social Service Research&quot;                     
+## [30] &quot;Journal of Social Work&quot;                                 
+## [31] &quot;Journal of Social Work Education&quot;                       
+## [32] &quot;Journal of Social Work in End-of-Life &amp; Palliative Care&quot;
+## [33] &quot;Journal of Social Work Practice&quot;                        
+## [34] &quot;Journal of Social Work Practice in the Addictions&quot;      
+## [35] &quot;Journal of Social Work Research and Evaluation&quot;         
+## [36] &quot;Journal of Social Work Values and Ethics&quot;               
+## [37] &quot;Journal of Sociology and Social Welfare&quot;                
+## [38] &quot;Journal of Teaching in Social Work&quot;                     
+## [39] &quot;Journal of Technology in Human Services&quot;                
+## [40] &quot;Practice: Social Work in Action&quot;                        
+## [41] &quot;Psychoanalytic Social Work&quot;                             
+## [42] &quot;Qualitative Social Work&quot;                                
+## [43] &quot;Reflections: Narratives of Professional Helping&quot;        
+## [44] &quot;Research on Social Work Practice&quot;                       
+## [45] &quot;Rural Social Work&quot;                                      
+## [46] &quot;School Social Work Journal&quot;                             
+## [47] &quot;Smith College Studies in Social Work&quot;                   
+## [48] &quot;Social Development Issues&quot;                              
+## [49] &quot;Social Service Review&quot;                                  
+## [50] &quot;Social Work&quot;                                            
+## [51] &quot;Social Work &amp; Christianity&quot;                             
+## [52] &quot;Social Work and Social Sciences Review&quot;                 
+## [53] &quot;Social Work Education&quot;                                  
+## [54] &quot;Social Work in Health Care&quot;                             
+## [55] &quot;Social Work in Mental Health&quot;                           
+## [56] &quot;Social Work in Public Health&quot;                           
+## [57] &quot;Social Work Research&quot;                                   
+## [58] &quot;Social Work With Groups&quot;</code></pre>
+<p>This list shows the articles on Hodge but not the current study.</p>
+<pre class="r"><code>print(sort(hodge.swHistory.diff))</code></pre>
+<pre><code>##  [1] &quot;Advances in Social Work&quot;                                
+##  [2] &quot;Annual of Social Work&quot;                                  
+##  [3] &quot;Arete&quot;                                                  
+##  [4] &quot;Asia Pacific Journal of Social Work and Development&quot;    
+##  [5] &quot;Black Caucus&quot;                                           
+##  [6] &quot;Caribbean Journal of Social Work&quot;                       
+##  [7] &quot;China Journal of Social Work&quot;                           
+##  [8] &quot;Critical Social Work&quot;                                   
+##  [9] &quot;Electronic Journal of Social Work&quot;                      
+## [10] &quot;IUC Journal of Social Work Theory and Practice&quot;         
+## [11] &quot;Japanese Journal of Social Services&quot;                    
+## [12] &quot;Journal of Changsha Social Work&quot;                        
+## [13] &quot;Journal of Forensic Social Work&quot;                        
+## [14] &quot;Journal of Gay &amp; Lesbian Social Services&quot;               
+## [15] &quot;Journal of Practice Teaching in Social Work and Health&quot; 
+## [16] &quot;Journal of Rural Social Work &amp; Social Development&quot;      
+## [17] &quot;Journal of Social Work in Disability and Rehabilitation&quot;
+## [18] &quot;Journal of Social Work in Long-Term Care&quot;               
+## [19] &quot;Professional Development&quot;                               
+## [20] &quot;Social Work and Society&quot;                                
+## [21] &quot;Social Work Forum&quot;                                      
+## [22] &quot;Social Work Review&quot;                                     
+## [23] &quot;The Hong Kong Journal of Social Work&quot;                   
+## [24] &quot;The New Social Worker&quot;                                  
+## [25] &quot;The Social Worker/Le Travaileur Social&quot;                 
+## [26] &quot;The Spirituality and Social Work Forum&quot;</code></pre>
+<p>This list shows the articles on the current study but not on Hodge.</p>
+<pre class="r"><code>print(sort(swHistory.hodge.diff))</code></pre>
+<pre><code>##  [1] &quot;British Journal of Psychiatric Social Work&quot;           
+##  [2] &quot;Contemporary Rural Social Work (Electronic only)&quot;     
+##  [3] &quot;Ethics and Social Welfare&quot;                            
+##  [4] &quot;Indian Journal of Psychiatric Social Work&quot;            
+##  [5] &quot;Journal of Psychiatric Social Work&quot;                   
+##  [6] &quot;Journal of Social Welfare&quot;                            
+##  [7] &quot;Journal of Social Work &amp; Human Sexuality&quot;             
+##  [8] &quot;Journal of Social Work in Disability &amp; Rehabilitation&quot;
+##  [9] &quot;Journal of the Society for Social Work and Research&quot;  
+## [10] &quot;Prevention in Human Services&quot;                         
+## [11] &quot;Revista de Asistenta Sociala (Social Work Review)&quot;    
+## [12] &quot;Social Development&quot;                                   
+## [13] &quot;Social Work Research &amp; Abstracts&quot;                     
+## [14] &quot;The British Journal of Social Work&quot;                   
+## [15] &quot;The Journal of Baccalaureate Social Work&quot;</code></pre>
+<p>This list shows the union of lists – that is, a full list of all titles by combining a list. It would be useful to break out the former titles of journals, as well as the years of existence. This would establish a complete listing of all social work journals, both current and historical.</p>
+<pre class="r"><code>print(sort(hodge.swHistory.union))</code></pre>
+<pre><code>##  [1] &quot;Administration in Social Work&quot;                          
+##  [2] &quot;Advances in Social Work&quot;                                
+##  [3] &quot;Affilia&quot;                                                
+##  [4] &quot;Annual of Social Work&quot;                                  
+##  [5] &quot;Arete&quot;                                                  
+##  [6] &quot;Asia Pacific Journal of Social Work and Development&quot;    
+##  [7] &quot;Australian Social Work&quot;                                 
+##  [8] &quot;Black Caucus&quot;                                           
+##  [9] &quot;British Journal of Psychiatric Social Work&quot;             
+## [10] &quot;British Journal of Social Work&quot;                         
+## [11] &quot;Canadian Social Work&quot;                                   
+## [12] &quot;Canadian Social Work Review&quot;                            
+## [13] &quot;Caribbean Journal of Social Work&quot;                       
+## [14] &quot;Child &amp; Adolescent Social Work Journal&quot;                 
+## [15] &quot;Child &amp; Family Social Work&quot;                             
+## [16] &quot;Children &amp; Schools&quot;                                     
+## [17] &quot;China Journal of Social Work&quot;                           
+## [18] &quot;Clinical Social Work Journal&quot;                           
+## [19] &quot;Contemporary Rural Social Work (Electronic only)&quot;       
+## [20] &quot;Critical Social Work&quot;                                   
+## [21] &quot;Electronic Journal of Social Work&quot;                      
+## [22] &quot;Ethics and Social Welfare&quot;                              
+## [23] &quot;European Journal of Social Work&quot;                        
+## [24] &quot;Families in Society&quot;                                    
+## [25] &quot;Health &amp; Social Work&quot;                                   
+## [26] &quot;Indian Journal of Psychiatric Social Work&quot;              
+## [27] &quot;Indian Journal of Social Work&quot;                          
+## [28] &quot;International Journal of Social Welfare&quot;                
+## [29] &quot;International Social Work&quot;                              
+## [30] &quot;IUC Journal of Social Work Theory and Practice&quot;         
+## [31] &quot;Japanese Journal of Social Services&quot;                    
+## [32] &quot;Journal of Applied Social Sciences&quot;                     
+## [33] &quot;Journal of Baccalaureate Social Work&quot;                   
+## [34] &quot;Journal of Changsha Social Work&quot;                        
+## [35] &quot;Journal of Comparative Social Welfare&quot;                  
+## [36] &quot;Journal of Ethnic &amp; Cultural Diversity in Social Work&quot;  
+## [37] &quot;Journal of Evidence-Based Social Work&quot;                  
+## [38] &quot;Journal of Family Social Work&quot;                          
+## [39] &quot;Journal of Forensic Social Work&quot;                        
+## [40] &quot;Journal of Gay &amp; Lesbian Social Services&quot;               
+## [41] &quot;Journal of Gerontological Social Work&quot;                  
+## [42] &quot;Journal of HIV/AIDS &amp; Social Services&quot;                  
+## [43] &quot;Journal of Human Behavior in the Social Environment&quot;    
+## [44] &quot;Journal of Practice Teaching in Social Work and Health&quot; 
+## [45] &quot;Journal of Progressive Human Services&quot;                  
+## [46] &quot;Journal of Psychiatric Social Work&quot;                     
+## [47] &quot;Journal of Psychosocial Oncology&quot;                       
+## [48] &quot;Journal of Religion &amp; Spirituality in Social Work&quot;      
+## [49] &quot;Journal of Rural Social Work &amp; Social Development&quot;      
+## [50] &quot;Journal of Social Service Research&quot;                     
+## [51] &quot;Journal of Social Welfare&quot;                              
+## [52] &quot;Journal of Social Work&quot;                                 
+## [53] &quot;Journal of Social Work &amp; Human Sexuality&quot;               
+## [54] &quot;Journal of Social Work Education&quot;                       
+## [55] &quot;Journal of Social Work in Disability &amp; Rehabilitation&quot;  
+## [56] &quot;Journal of Social Work in Disability and Rehabilitation&quot;
+## [57] &quot;Journal of Social Work in End-of-Life &amp; Palliative Care&quot;
+## [58] &quot;Journal of Social Work in Long-Term Care&quot;               
+## [59] &quot;Journal of Social Work Practice&quot;                        
+## [60] &quot;Journal of Social Work Practice in the Addictions&quot;      
+## [61] &quot;Journal of Social Work Research and Evaluation&quot;         
+## [62] &quot;Journal of Social Work Values and Ethics&quot;               
+## [63] &quot;Journal of Sociology and Social Welfare&quot;                
+## [64] &quot;Journal of Teaching in Social Work&quot;                     
+## [65] &quot;Journal of Technology in Human Services&quot;                
+## [66] &quot;Journal of the Society for Social Work and Research&quot;    
+## [67] &quot;Practice: Social Work in Action&quot;                        
+## [68] &quot;Prevention in Human Services&quot;                           
+## [69] &quot;Professional Development&quot;                               
+## [70] &quot;Psychoanalytic Social Work&quot;                             
+## [71] &quot;Qualitative Social Work&quot;                                
+## [72] &quot;Reflections: Narratives of Professional Helping&quot;        
+## [73] &quot;Research on Social Work Practice&quot;                       
+## [74] &quot;Revista de Asistenta Sociala (Social Work Review)&quot;      
+## [75] &quot;Rural Social Work&quot;                                      
+## [76] &quot;School Social Work Journal&quot;                             
+## [77] &quot;Smith College Studies in Social Work&quot;                   
+## [78] &quot;Social Development&quot;                                     
+## [79] &quot;Social Development Issues&quot;                              
+## [80] &quot;Social Service Review&quot;                                  
+## [81] &quot;Social Work&quot;                                            
+## [82] &quot;Social Work &amp; Christianity&quot;                             
+## [83] &quot;Social Work and Social Sciences Review&quot;                 
+## [84] &quot;Social Work and Society&quot;                                
+## [85] &quot;Social Work Education&quot;                                  
+## [86] &quot;Social Work Forum&quot;                                      
+## [87] &quot;Social Work in Health Care&quot;                             
+## [88] &quot;Social Work in Mental Health&quot;                           
+## [89] &quot;Social Work in Public Health&quot;                           
+## [90] &quot;Social Work Research&quot;                                   
+## [91] &quot;Social Work Research &amp; Abstracts&quot;                       
+## [92] &quot;Social Work Review&quot;                                     
+## [93] &quot;Social Work With Groups&quot;                                
+## [94] &quot;The British Journal of Social Work&quot;                     
+## [95] &quot;The Hong Kong Journal of Social Work&quot;                   
+## [96] &quot;The Journal of Baccalaureate Social Work&quot;               
+## [97] &quot;The New Social Worker&quot;                                  
+## [98] &quot;The Social Worker/Le Travaileur Social&quot;                 
+## [99] &quot;The Spirituality and Social Work Forum&quot;</code></pre>
+</div>
+<div id="descriptive-summary-of-records" class="section level2">
+<h2>Descriptive summary of records</h2>
+<pre class="r"><code>number.of.articles &lt;- length(which(full.df$attributes == &quot;article&quot;))
+range.of.years &lt;- range(full.df$record[full.df$attributes == &quot;pubYear&quot;])</code></pre>
 <pre class="r"><code># Number of articles
 cat(number.of.articles)</code></pre>
-<pre><code>## 38096</code></pre>
+<pre><code>## 38695</code></pre>
 <pre class="r"><code># Range of years
 cat(range.of.years)</code></pre>
 <pre><code>## 1927 2013</code></pre>
+</div>
 </div>
 
 
