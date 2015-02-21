@@ -22,14 +22,32 @@ library(ggplot2)
 library(dplyr)
 
 # Read data files
-#load("/Users/beperron/Git/SocialWorkResearch/Data/psycInfoDF.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/fullDF.R")
+
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
+```
+
+Everything written after this point was for the ebsco full data file (psycinof, swa, ssa).  The R objects have been all re-written and renamed.  The first thing to do is to append the ebscoFULL and proQuest objects.  Here is my recommended steps:
+
+1.  Create a variable that takes the maximum values of the articleID from ebscoFULL
+2.  Add the max value to the article ID of proQuest
+3.  Write a function that matches the titles of ebscoFull with proQuest, grabs the ID, and then, eliminates the duplicates.  We have all the matching code in the original functions that you can grab.  
+4.  Consider drawing on the pmatch.R function in the BWR folder.  This function forces all to lower, strips all the white space, and takes a subset of the characters (e.g., ~25 I think).  The advantage of this is to avoid the incorrect matching when colons are used.  Same title, but you get the idea of where things can go awry with title matching.  Test it extensively -- e.g., alphebatizing is also helpful.  
+
+Social work research can be really:  Bad
+Social work research can be really: Bad
+Social Work research can be really: bad
+Social work research can be really: Bad
+Social work research can be really: bad
+
+Social Work research can be really:  bad
+
+
+
 
 # Set the working directory
-setwd("/Users/beperron/Git/SocialWorkResearch/Data")
-
-# Strip leading and trailing white-space on all records
-full.df$record <- stringr::str_trim(full.df$record, side = "both")
+#setwd("/Users/beperron/Git/SocialWorkResearch/Data")
 ```
 
 # Pre-processing summary
