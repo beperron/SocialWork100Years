@@ -26,6 +26,11 @@ library(dplyr)
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
+
+#load("/Users/SSW/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+#load("/Users/SSW/GitHub/SocialWork100Years/Data/proQuest.R")
+#load("/Users/SSW/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
+
 ```
 
 Everything written after this point was for the ebsco full data file (psycinof, swa, ssa).  The R objects have been all re-written and renamed.  The first thing to do is to append the ebscoFULL and proQuest objects.  Here is my recommended steps:
@@ -49,6 +54,7 @@ Social Work research can be really:  bad
 
 # Set the working directory
 #setwd("/Users/beperron/Git/SocialWorkResearch/Data")
+#setwd("/Users/SSW/GitHub/SocialWork100Years/Data")
 ```
 
 # Pre-processing summary
