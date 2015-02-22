@@ -33,102 +33,73 @@ load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
 
 ```
 
-Everything written after this point was for the ebsco full data file (psycinof, swa, ssa).  The R objects have been all re-written and renamed.  The first thing to do is to append the ebscoFULL and proQuest objects.  Here is my recommended steps:
 
-1.  Create a variable that takes the maximum values of the articleID from ebscoFULL
-2.  Add the max value to the article ID of proQuest
-3.  Write a function that matches the titles of ebscoFull with proQuest, grabs the ID, and then, eliminates the duplicates.  We have all the matching code in the original functions that you can grab.  
-4.  Consider drawing on the pmatch.R function in the BWR folder.  This function forces all to lower, strips all the white space, and takes a subset of the characters (e.g., ~25 I think).  The advantage of this is to avoid the incorrect matching when colons are used.  Same title, but you get the idea of where things can go awry with title matching.  Test it extensively -- e.g., alphebatizing is also helpful.  
 
-Social work research can be really:  Bad
-Social work research can be really: Bad
-Social Work research can be really: bad
-Social work research can be really: Bad
-Social work research can be really: bad
-Social Work research can be really:  bad
+# Combines EbscoHost and ProQUest 
 
-5.  Do necessary search and replace of subsequent code to get it working with the fully appended data file.
+This section ... wrangles and eliminates duplicate article titles
 
-#Combines EbscoHost and ProQUest wrangles and eliminates duplicate article titles
+```{r appendData, comment=NA}
+
+#Creates variable with highest article ID from ebscohost database
+ebscoIDmax<-max(ebscoBWR.df$articleID)
+
+#Recodes article ID in ProQuest database in advance of merger with ebscohost
+proQuestBWR.df<-mutate(proQuestBWR.df, articleID=articleID+ebscoIDmax)
+
+#Creates data frames that contain only article ID and titles from respective
+#databases
+ebscoTitles<-filter(ebscoBWR.df, attributes=="article")
+proTitles<-filter(proQuestBWR.df, attributes=="article")
+
+#Combines titles into single data frame
+jointTitles<-rbind(ebscoTitles, proTitles)
+
+#Forces article title text to lower case
+jointTitles$record<-tolower(jointTitles$record)
+  
+#Strips out white space and punctuation to ensure small differences in data 
+#entry are detected during duplicate elimination
+jointTitles$record<-gsub(" ","", jointTitles$record)
+  
+jointTitles$record<-gsub("[[:punct:]]", "", jointTitles$record)
+
+jointTitles<- jointTitles[duplicated(jointTitles$record), ]
+
+#Screen out duplicated records by articleID. The articleID must be used
+#because the duplicate title contains other article attributes
+jointTitles.dup.ID <- jointTitles$articleID
+  
+#Combines EbscoHost and ProQuest Wrangles, and strips out article attributes 
+#from duplicate entries
+combined.DF<-rbind(ebscoBWR.df, proQuestBWR.df)
+full.df<-combined.DF[!(combined.DF$articleID %in% jointTitles.dup.ID), ]  
+
+rm(list=setdiff(ls(), "full.df"))
+
+```
+
+# Data cleaning and pre-processing
+
+## Narrow results to past 25 years
+
+Inspection of the data indicated notable delays in indexing for the years 2014 and 2015.  Therefore, these years were excluded from the current study.  Thus, this study includes journals indexed through the end of 2013.  
 
 ```{r}
 
-library(dplyr)
-
-  #Creates variable with highest article ID from ebscohost database
-  ebscoIDmax<-max(ebscoBWR.df$articleID)
-
-  #Recodes article ID in ProQuest database in advance of merger with ebscohost
-  proQuestBWR.df<-mutate(proQuestBWR.df, articleID=articleID+ebscoIDmax)
-
-  #Creates data frames that contain only article ID and titles from respective
-  #databases
-  ebscoTitles<-filter(ebscoBWR.df, attributes=="article")
-  proTitles<-filter(proQuestBWR.df, attributes=="article")
-
-  #Combines titles into single data frame
-  jointTitles<-rbind(ebscoTitles, proTitles)
-
-  #Forces article title text to lower case
-  jointTitles$record<-tolower(jointTitles$record)
-  
-  #Strips out white space and punctuation to ensure small differences
-  #in data entry are detected during duplicate elimination
-  jointTitles$record<-gsub(" ","", jointTitles$record)
-  
-  #punct <- '[]\\?!\"\'#$%&(){}+*/:;,._`|~\\[<=>@\\^-]'
-  #JointTitles$record<-gsub(punct, "", JointTitles$record)  
-  jointTitles$record<-gsub("[[:punct:]]", "", jointTitles$record)
-
-  jointTitles<- jointTitles[duplicated(jointTitles$record), ]
-
-  #Screen out duplicated records by articleID. The articleID must be used
-  #because the duplicate title contains other article attributes
-  jointTitles.dup.ID <- jointTitles$articleID
-  
-  #Combines EbscoHost and ProQuest Wrangles, and strips out article attributes 
-  #from duplicate entries
-  combined.DF<-rbind(ebscoBWR.df, proQuestBWR.df)
-  combined.DF<-combined.DF[!(combined.DF$articleID %in% jointTitles.dup.ID), ]  
-
-
-
+year.25 <- as.character(c(1900:1987, 2014, 2015))
+years <- c("2014", "2015")
+#ebsco.remove <- full.df[full.df$record %in% years, ]
+ebsco.remove <- full.df[full.df$record %in% year.25, ]
+ebsco.remove <- ebsco.remove[, "articleID"]
+full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 ```
 
 
 
 
+## Initial descriptive summary
 
-# Set the working directory
-#setwd("/Users/beperron/Git/SocialWorkResearch/Data")
-#setwd("/Users/SSW/Documents/GitHub/SocialWork100Years/Data")
-```
-
-# Pre-processing summary
-```{r echo=FALSE}
-full.df$record <- ifelse(full.df$record == 
-        "Social Work & Social Sciences Review",     # Spelling difference
-        "Social Work and Social Sciences Review", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Social Work with Groups",                  # Spelling difference
-        "Social Work With Groups", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Journal of Sociology & Social Welfare",    # Spelling difference
-        "Journal of Sociology and Social Welfare",  
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "The British Journal Social Work",          # Spelling difference
-        "British Journal of Social Work",           
-                        full.df$record)
-```
-
-
-Provided below is a summary of the datafile processed by `ebscoBWR` function before any cleaning procedures specifically for this project were employed, with the exception of resolving spelling errors or differences.  For example, _Social Work With Groups_ was exported as a separate journal than _Social Work with Groups_ (note the capitalization difference in the word _with_.)
 
 ```{r preprocessing, comment=NA, echo=TRUE} 
 number.of.articles <- length(which(full.df$attributes == "article"))
@@ -146,30 +117,6 @@ cat(number.of.articles)
 cat(range.of.years)
 ```
 
-
-```{r date, echo=FALSE, comment=NA}
-unique.titles <- filter(full.df, attributes == "journal") %>%
-    group_by(record) %>%
-    summarise(
-        N = n())
-print.data.frame(unique.titles, rowNames=FALSE)
-```
-
-# Data cleaning
-
-Inspection of the data indicated notable delays in indexing for the years 2014 and 2015.  Therefore, these years were excluded from the current study.  Thus, this study includes journals indexed through the end of 2013.  
-
-## Year specification
-
-```{r}
-
-year.25 <- as.character(c(1900:1987, 2014, 2015))
-years <- c("2014", "2015")
-#ebsco.remove <- full.df[full.df$record %in% years, ]
-ebsco.remove <- full.df[full.df$record %in% year.25, ]
-ebsco.remove <- ebsco.remove[, "articleID"]
-full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
-```
 
 ## Exclusion of journals not meeting supplemental search terms
 
@@ -204,6 +151,7 @@ exclusions.1 <- c(
     "Journal of Nonverbal Behavior",
     "Journal of Psychosomatic Research",
     "Learning Disabilities Research & Practice",
+    "Professional Development in Education",
     "PROFILE Issues in Teachers' Professional Development",
     "Psychotherapy",
     "Systems Research and Behavioral Science",
@@ -218,39 +166,18 @@ full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 rm(ebsco.remove)
 ```
 
+
+
 ## Exclusions of social work publications
-
-Exclusions were then made any of the three criteria   
-
-+ Journals that did not have clear evidence of a peer review process.  This was based on a review of the journals mission, scope, and whether an editorial board or group could be identified.  
-
-+ Journal titles that did not have any clear publication history based on a broad-based Internet search and other databases (e.g., ProQuest).  These exclusions are assumed to be data entry problems at time of indexing.  
-
+ 
 + Journals that did not have at least one full year of indexed records (except journals that subsequently changed titles).  This exclusionary criterion was consistent with the working definition of a social work journal.  
 
 ```{r exclusion2, eval=TRUE}
 exclusions.2 <- c(
-    "Eugenics and Social Welfare Bulletin",
-    "Eugenics & Social Welfare Bull.",
     "Issues in Social Work Education", 
-    "Hospital Social Service",  #Confirmed nursing journal
-    "International Conference of Social Work",
-    "Journal of Social Work Process",
     "Maatskaplike Werk/Social Work",
-    "Medical Social Work",
-    "New York State Department of Social Welfare, Division Publication",
     "Pediatric Social Work", 
-    "Pennsylvania Social Work",
-    "Proceedings of the National Conference of Social Work","Social Service",    
-    "Social Service Department, Presbyterian Hospital, New York",
-    "Social Service Monographs",
-    "School Social Work Quarterly", 
-    "Social Work Today",
-    "Social Work Technique",
-    "Social Work Today", 
-    "Social Work Yearbook",
-    "Pennsylvania Social Work",
-    "University of Chicago Social Service Monograph" 
+    "Critical Social Work"
     )
 
 ebsco.remove <- full.df[full.df$record %in% exclusions.2, ]
@@ -260,13 +187,71 @@ full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
 rm(ebsco.remove, exclusions.2)
 ```
 
+
+## Fix journal titles  
+
+Additional pre-processing was conducted on journal titles to resolve spelling errors or other minor title differences in the database. For example, _Social Work With Groups_ was exported as a separate journal than _Social Work with Groups_ (note the capitalization difference in the word _with_.)  We also applied a global substitution of _and_ with _&_, as this was a common source for differences.  
+
+```{r echo=FALSE}
+full.df$record <- ifelse(full.df$record == 
+        "Social Work & Social Sciences Review",     # Spelling difference
+        "Social Work and Social Sciences Review", 
+                        full.df$record)
+
+full.df$record <- ifelse(full.df$record == 
+        "Social Work with Groups",                  # Spelling difference
+        "Social Work With Groups", 
+                        full.df$record)
+
+full.df$record <- ifelse(full.df$record == 
+        "Journal of Sociology & Social Welfare",    # Spelling difference
+        "Journal of Sociology and Social Welfare",  
+                        full.df$record)
+
+full.df$record <- ifelse(full.df$record == 
+    "The British Journal Social Work",          # Spelling difference
+        "British Journal of Social Work",           
+                        full.df$record)
+
+#shortens Professional Development
+full.df$record <- ifelse(full.df$attributes == "journal",
+        gsub(":.+", "", full.df$record), 
+        full.df$record)
+
+#shortens Canadian Social Work review by eliminating foreign title and is
+#automatically combined with other short spelling
+full.df$record <- ifelse(full.df$attributes == "journal",
+        gsub("(/R){1}.+", "", full.df$record), 
+        full.df$record)
+
+# shortens Contemporary Rural Social Work
+full.df$record <- ifelse(full.df$attributes == "journal",
+        gsub("\\s\\(.+", "", full.df$record), 
+        full.df$record)
+
+full.df$record <- ifelse(full.df$attributes == "journal", 
+      gsub("and", "&", full.df$record), full.df$record)
+
+```
+
+```{r date, echo=FALSE, comment=NA}
+unique.titles <- filter(full.df, attributes == "journal") %>%
+    group_by(record) %>%
+    summarise(
+        N = n())
+print.data.frame(unique.titles, rowNames=FALSE)
+```
+
+
 ## Title merging
 
 Some social work journals changed titles over their history.  For example, _Families in Society_ had three titles that preceded the current title:  _Social Casework_, _Journal of Social Casework_, and _The Family_.  The database that contributed the largest number of articles to the study database indexed the majority of journal titles under the journal's current name, and provided an additional data field for the historical name.  However, historical names from Social Science Abstracts and Social Work Abstracts were not merged with the current name.  Thus, the last step of the data cleaning procedures was to conduct these merges.  
 
 ```{r titleMerge, eval=TRUE}
 full.df$record <- ifelse(full.df$record == 
-    "The British Journal of Pyschiatric Social Work", # Old
+    "The British Journal of Pyschiatric Social Work" | 
+        full.df$record == 
+    "The British Journal of Social Work", # Old
         "British Journal of Social Work",           # New title
                         full.df$record)
 
@@ -351,9 +336,16 @@ print.data.frame(final.list, row.names=FALSE)
 
 
 
-## Intersection, Differences and Union
+# Comparison with Hodge 
 
-This section provides further comparison of the journal titles with Hodge by reporting on the _intersection_, _differences_, and _union_ of the lists.
+This section provides further comparison of the journal titles with Hodge by reporting on the _intersection_, and _differences_.
+
+
+## Intersection
+
+
+This list shows which journal titles are common to both lists.
+
 ```{r}
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 
@@ -365,24 +357,20 @@ hodge.swHistory.intersect <- intersect(hodge, unique.swHistory$record)
 hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
 swHistory.hodge.diff <- setdiff(unique.swHistory$record, hodge)
 
-
-hodge.swHistory.union <- union(hodge, unique.swHistory$record)
+#hodge.swHistory.union <- union(hodge, unique.swHistory$record)
 ```
 
-
-This list shows which journal titles are common to both lists.
 
 ```{r}
 print(sort(hodge.swHistory.intersect))
 ```
 
+## Differences
 
 This list shows the articles on Hodge but not the current study.  
 
 ```{r}
-sink(file = "JournalsMissed.txt")
 print(sort(hodge.swHistory.diff))
-sink()
 ```
 This list shows the articles on the current study but not on Hodge.
 
@@ -390,11 +378,6 @@ This list shows the articles on the current study but not on Hodge.
 print(sort(swHistory.hodge.diff))
 ```
 
-This list shows the union of lists -- that is, a full list of all titles by combining a list.  It would be useful to break out the former titles of journals, as well as the years of existence.  This would establish a complete listing of all social work journals, both current and historical.  
-
-```{r}
-print(sort(hodge.swHistory.union))
-```
 
 
 ## Descriptive summary of records
