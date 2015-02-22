@@ -23,13 +23,13 @@ library(dplyr)
 
 # Read data files
 
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
 
-#load("/Users/SSW/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-#load("/Users/SSW/GitHub/SocialWork100Years/Data/proQuest.R")
-#load("/Users/SSW/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
 
 ```
 
@@ -47,14 +47,59 @@ Social work research can be really: Bad
 Social work research can be really: bad
 Social Work research can be really:  bad
 
-5.  Do necessary search and replace of subsequent code to get it working with the fully appended data file. 
+5.  Do necessary search and replace of subsequent code to get it working with the fully appended data file.
+
+#Combines EbscoHost and ProQUest wrangles and eliminates duplicate article titles
+
+```{r}
+
+library(dplyr)
+
+  #Creates variable with highest article ID from ebscohost database
+  EbscoIDmax<-max(ebscoBWR.df$articleID)
+
+  #Recodes article ID in ProQuest database in advance of merger with ebscohost
+  proQuestBWR.df<-mutate(proQuestBWR.df, articleID=articleID+EbscoIDmax)
+
+  #Creates data frames that contain only article ID and titles from respective
+  #databases
+  EbscoTitles<-filter(ebscoBWR.df, attributes=="article")
+  ProTitles<-filter(proQuestBWR.df, attributes=="article")
+
+  #Combines titles into single data frame
+  JointTitles<-rbind(EbscoTitles, ProTitles)
+
+  #Forces article title text to lower case
+  JointTitles$record<-tolower(JointTitles$record)
+  
+  #Strips out white space and punctuation to ensure small differences
+  #in data entry are detected during duplicate elimination
+  JointTitles$record<-gsub(" ","", JointTitles$record)
+  punct <- '[]\\?!\"\'#$%&(){}+*/:;,._`|~\\[<=>@\\^-]'
+  JointTitles$record<-gsub(punct, "", JointTitles$record)
+
+  JointTitles <- JointTitles[duplicated(JointTitles$record), ]
+
+  #Screen out duplicated records by articleID. The articleID must be used
+  #because the duplicate title contains other article attributes
+  JointTitles.dup.ID <- JointTitles$articleID
+  
+  #Combines EbscoHost and ProQuest Wrangles, and strips out article attributes 
+  #from duplicate entries
+  Combined.DF<-rbind(ebscoBWR.df, proQuestBWR.df)
+  Combined.DF<-Combined.DF[!(Combined.DF$articleID %in% JointTitles.dup.ID), ]  
+
+
+
+```
+
 
 
 
 
 # Set the working directory
 #setwd("/Users/beperron/Git/SocialWorkResearch/Data")
-#setwd("/Users/SSW/GitHub/SocialWork100Years/Data")
+#setwd("/Users/SSW/Documents/GitHub/SocialWork100Years/Data")
 ```
 
 # Pre-processing summary
