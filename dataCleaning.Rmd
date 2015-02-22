@@ -23,13 +23,13 @@ library(dplyr)
 
 # Read data files
 
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
 
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
 
 ```
 
@@ -125,6 +125,11 @@ full.df$record <- ifelse(full.df$record ==
     "The British Journal Social Work",          # Spelling difference
         "British Journal of Social Work",           
                         full.df$record)
+
+full.df$record <- ifelse(full.df$record ==
+    "Aretê",                                   #Spelling difference
+      "Arete",
+              full.df$record)
 ```
 
 
@@ -209,7 +214,8 @@ exclusions.1 <- c(
     "Systems Research and Behavioral Science",
     "Teaching and Teacher Education",
     "The Scientific Review of Mental Health Practice",
-    "The Clinical Supervisor")
+    "The Clinical Supervisor",
+    "Arete: Revista de Filosofia")
 
 ebsco.remove <- full.df[full.df$record %in% exclusions.1, ]
 ebsco.remove <- ebsco.remove[, "articleID"]
