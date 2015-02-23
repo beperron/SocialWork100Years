@@ -127,7 +127,7 @@ full.df$record <- ifelse(full.df$record ==
                         full.df$record)
 
 full.df$record <- ifelse(full.df$record ==
-    "Aretê",                                   #Spelling difference
+    "Aretê^",                                   #Spelling difference
       "Arete",
               full.df$record)
 
@@ -140,6 +140,17 @@ full.df$record <- ifelse(full.df$record ==
     "Canadian Social Work Review/Revue canadienne de service social",
         "Canadian Social Work Review",
                         full.df$record)
+
+full.df$record <- ifelse(full.df$record ==
+    "INDIAN JOURNAL OF SOCIAL WORK",
+        "Indian Journal of Social Work",
+                      full.df$record)
+
+full.df$record <- ifelse(full.df$record ==
+    "The Indian Journal of Social Work",
+        "Indian Journal of Social Work",
+                            full.df$record)
+
 ```
 
 
