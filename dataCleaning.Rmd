@@ -126,11 +126,8 @@ full.df$record <- ifelse(full.df$record ==
         "British Journal of Social Work",           
                         full.df$record)
 
-full.df$record <- ifelse(full.df$record ==
-    "Aretê^",                                   #Spelling difference
-      "Arete",
-              full.df$record)
-
+full.df$record <- gsub("Aret..", "Arete", full.df$record)  #Spelling difference
+      
 full.df$record <- ifelse(full.df$record ==
     "Journal of Gay and Lesbian Social Services",     #Spelling difference
         "Journal of Gay & Lesbian Social Services",
