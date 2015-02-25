@@ -86,7 +86,7 @@ rm(list=setdiff(ls(), "full.df"))
 Inspection of the data indicated notable delays in indexing for the years 2014 and 2015.  Therefore, these years were excluded from the current study.  Thus, this study includes journals indexed through the end of 2013.  
 
 ```{r}
-
+full.df <- ebscoBWR.df
 year.25 <- as.character(c(1900:1987, 2014, 2015))
 years <- c("2014", "2015")
 #ebsco.remove <- full.df[full.df$record %in% years, ]
