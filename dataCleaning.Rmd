@@ -23,13 +23,13 @@ library(dplyr)
 
 # Read data files
 
-#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
-
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
+hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
 
 ```
 
@@ -89,7 +89,7 @@ rm(list=setdiff(ls(), "full.df"))
 Inspection of the data indicated notable delays in indexing for the years 2014 and 2015.  Therefore, these years were excluded from the current study.  Thus, this study includes journals indexed through the end of 2013.  
 
 ```{r}
-full.df <- ebscoBWR.df
+
 year.25 <- as.character(c(1900:1987, 2014, 2015))
 years <- c("2014", "2015")
 #ebsco.remove <- full.df[full.df$record %in% years, ]
@@ -386,8 +386,6 @@ unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
 
-hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     mutate(Hodge.list = ifelse(record %in% hodge == TRUE, 1, 0)) %>%
@@ -430,8 +428,6 @@ This section provides further comparison of the journal titles with Hodge by rep
 This list shows which journal titles are common to both lists.
 
 ```{r}
-hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-
 unique.swHistory <- filter(full.df, attributes == "journal") %>%
                 distinct(record)
 
@@ -493,3 +489,4 @@ ggplot(cor.data, aes(x = no.years, y = n)) +
 
 cor(cor.data$no.years, cor.data$n)
 ```
+
