@@ -62,7 +62,7 @@ jointTitles$record<-tolower(jointTitles$record)
 #entry are detected during duplicate elimination
 jointTitles$record<-gsub(" ","", jointTitles$record)
   
-jointTitles$record<-gsub("[[:punct:]]", "", jointTitles$record)
+jointTitles$record<-gsub("[]\\?!\"\'#$%&(){}+*/:;,._`|~\\[<=>@\\^-]", "", jointTitles$record)
 
 jointTitles<- jointTitles[duplicated(jointTitles$record), ]
 
@@ -492,7 +492,7 @@ cor(cor.data$no.years, cor.data$n)
 
 The following evaluation argument in the chunk is set to FALSE.  Set this function to TRUE to process CSV files of the target journals for inspection. CSV files are named by the journal title.  Be sure to use the exact spelling of the journal as it is contained in the data files.  Set the other arguments to TRUE if you want additional fields to be included.  Please note that it will save the files to your current working directory, which is not specified in this Markdown document.  
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
                            authorAff = FALSE, abstract = FALSE){
     article.search <- which(full.df$record == journalTitle)
