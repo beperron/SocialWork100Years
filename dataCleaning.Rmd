@@ -27,10 +27,11 @@ load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/PsycInfo.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
 
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoPsycInfo.R")
+hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
 ```
 
 
@@ -55,6 +56,18 @@ proTitles<-filter(proQuestBWR.df, attributes=="article")
 #Combines titles into single data frame
 jointTitles<-rbind(ebscoTitles, proTitles)
 
+#Identify records that were incorrectly captured in the wrangle
+#using regular expressions
+insert.1<-"[B|b]ook [R|r]eview.|^[F|f]orum|[F|f]orum$|[C|c]ommentary|Comments on"
+insert.2<-"^[I|i]ndex [T|t]o|[I|i]ntroduction:|[I|i]ntroduction [T|t]o|\\([B|b]ook\\)"
+insert.3<-"[H|h]andbook|Volume|volumes|newsletters|[L|l]etter from"
+insert.4<-"[P|p]reface|\\([0-9]{4}-[0-9]{4}\\):|: [A|a] [R|r]esponse [T|t]o [B-Z]"
+insert.5<-"[S|s]pecial [I|i]ssue|[T|t]able [O|o]f [C|c]ontent|\\([U|u]ndetermined"
+insert<-paste(insert.1,insert.2,insert.3,insert.4,insert.5, sep="|")
+
+badRecords<-subset(jointTitles, grepl(insert, record))
+badRecords.ID<-badRecords$articleID
+
 #Forces article title text to lower case
 jointTitles$record<-tolower(jointTitles$record)
   
@@ -71,9 +84,13 @@ jointTitles<- jointTitles[duplicated(jointTitles$record), ]
 jointTitles.dup.ID <- jointTitles$articleID
   
 
-  #Combines EbscoHost and ProQuest Wrangles, and strips out article attributes 
-  #from duplicate entries
+  #Combines EbscoHost and ProQuest Wrangles, and 
   combined.DF<-rbind(ebscoBWR.df, proQuestBWR.df)
+  
+  #Strips out article attributes from inelligble records
+  combined.DF<-combined.DF[!(combined.DF$articleID %in% badRecords.ID), ]
+  
+  #strips out article attributes from duplicate records
   full.df<-combined.DF[!(combined.DF$articleID %in% jointTitles.dup.ID), ]  
 
 
