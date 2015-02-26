@@ -3,7 +3,6 @@ title: "Object Maker"
 output: pdf_document
 ---
 
-
 # Ebsco Full
 
 ```{r warning=FALSE, message=FALSE, eval=TRUE}
@@ -43,7 +42,8 @@ path <- "/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo"
 # Wrangle the data with the BWR function suite
 
 ebscoBWR.f(csv=FALSE, path=path, psycInfoOnly=TRUE)
-save(ebscoBWR.df, file = "PsychInfo.R")
+ebscoPsycInfoBWR.df <- ebscoBWR.df
+save(ebscoPsycInfoBWR.df, file = "PsycInfo.R")
 ```
 
 # ProQuest

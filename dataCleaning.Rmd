@@ -25,7 +25,7 @@ library(dplyr)
 
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoPsycInfo.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/PsycInfo.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
@@ -78,7 +78,7 @@ jointTitles.dup.ID <- jointTitles$articleID
 
 
 
-rm(list=setdiff(ls(), "full.df"))
+
 
 ```
 
@@ -492,7 +492,7 @@ cor(cor.data$no.years, cor.data$n)
 
 The following evaluation argument in the chunk is set to FALSE.  Set this function to TRUE to process CSV files of the target journals for inspection. CSV files are named by the journal title.  Be sure to use the exact spelling of the journal as it is contained in the data files.  Set the other arguments to TRUE if you want additional fields to be included.  Please note that it will save the files to your current working directory, which is not specified in this Markdown document.  
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
                            authorAff = FALSE, abstract = FALSE){
     article.search <- which(full.df$record == journalTitle)
