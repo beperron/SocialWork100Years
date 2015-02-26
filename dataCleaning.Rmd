@@ -490,3 +490,26 @@ ggplot(cor.data, aes(x = no.years, y = n)) +
 cor(cor.data$no.years, cor.data$n)
 ```
 
+The following evaluation argument in the chunk is set to FALSE.  Set this function to TRUE to process CSV files of the target journals for inspection. CSV files are named by the journal title.  Be sure to use the exact spelling of the journal as it is contained in the data files.  Set the other arguments to TRUE if you want additional fields to be included.  Please note that it will save the files to your current working directory, which is not specified in this Markdown document.  
+
+```{r eval=FALSE}
+journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
+                           authorAff = FALSE, abstract = FALSE){
+    article.search <- which(full.df$record == journalTitle)
+    article.search <- full.df[article.search,]
+    article.search.ID <- select(article.search, articleID)
+    target.ID <- full.df$articleID %in% article.search.ID$articleID
+    journal.article.df <- full.df[target.ID, ]
+    if(keyword == FALSE){journal.article.df <- filter(journal.article.df, attributes != "keyWord")}
+    if(authorAff == FALSE){journal.article.df <- filter(journal.article.df, attributes != "authorAff")}
+    if(abstract == FALSE){journal.article.df <- filter(journal.article.df, attributes != "abstract")}
+    x.shortened <- gsub(" ", "", journalTitle)
+    write.csv(journal.article.df, file = paste0(x.shortened, ".csv"), row.names=F)
+    }
+
+journalArticleFinder.f("Research on Social Work Practice")
+journalArticleFinder.f("Social Work")
+
+
+```
+
