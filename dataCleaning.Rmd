@@ -369,8 +369,6 @@ In the extraction process, limiters were applied to extract only journal article
 
 The final step involved scanning the database to exclude article records without any information in the author, journal title, article title, or publication year fields, as well as eliminating social work journals with total article counts of < 10 for the entire 25 year window.  This produced a database of `r articles.final` unique social work articles, and `r journals.final` journal titles.  
 
-
-
 # Results
 
 This section provides a summary of the revised database after the initial processing with the `ebscoBWR` function and the subsequent data cleaning.  An additional code is included in this summary to indicate whether the journal title overlaps with the list of Hodge (indicated by *H*).  
