@@ -4,10 +4,10 @@ author: "Summary of Data Cleaning Procedures"
 output: pdf_document
 ---
 
-```{r initialization_dataprocessing, warning=FALSE, message=FALSE, echo=FALSE, tidy=TRUE}
-# Clear workspace
-rm(list=ls())   
+`r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
 
+```{r initialization_dataprocessing}
+rm(list=ls())   
 # Load required packages
 library(ggplot2)
 library(dplyr)
@@ -15,370 +15,60 @@ library(dplyr)
 # Read data files
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-#load("/Users/beperron/Git/SocialWorkResearch/Data/PsycInfo.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
 #hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
+
+# Load special functions
+source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+
+pretty <- function(x){
+    x <- prettyNum(x,big.mark=",",scientific=F)
+    x
+    }
 ```
 
 ```{r appendData, comment=NA, echo=FALSE}
-# Combines EbscoHost and ProQUest 
+appendData.f()
 
-#Creates variable with highest article ID from ebscohost database
-ebscoIDmax<-max(ebscoBWR.df$articleID)
-
-#Recodes article ID in ProQuest database in advance of merger with ebscohost
-proQuestBWR.df<-mutate(proQuestBWR.df, articleID=articleID+ebscoIDmax)
-
-full.df <- rbind(ebscoBWR.df, proQuestBWR.df)
-
-
-year.25 <- as.character(c(1900:1987, 2014, 2015))
-
-temp.df <- filter(full.df, attributes == "pubYear")
-
-year.remove <- temp.df[temp.df$record %in% year.25, ]
-year.removeID <- year.remove$articleID
-
-full.df <- full.df[!(full.df$articleID %in% year.removeID), ]
-
-full.df$record <- ifelse(full.df$record == 
-    "The British Journal of Social Work",          # Spelling difference
-        "British Journal of Social Work",           
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "Revista de Asistenta Sociala (Social Work Review)",
-        "Social Work Review",
-                        full.df$record)
-
-full.df$record <- gsub("Arete", "xxx", full.df$record)
-full.df$record <- gsub("Aret.{1,3}", "Arete", full.df$record)
-full.df$record <- gsub("xxx", "Arete", full.df$record) 
-                                      #Replaces special character       
-                                      #in Arete and preserves other formatting
-      
-full.df$record <- ifelse(full.df$record ==
-    "Journal of Gay and Lesbian Social Services",     #Spelling difference
-        "Journal of Gay & Lesbian Social Services",
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "Canadian Social Work Review/Revue canadienne de service social",
-        "Canadian Social Work Review",
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "INDIAN JOURNAL OF SOCIAL WORK",                    #Spelling difference
-        "Indian Journal of Social Work",
-                      full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "The Indian Journal of Social Work",              #Spelling difference
-        "Indian Journal of Social Work",
-                            full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "Asia Pacific Journal of Social Work",              #Spelling difference
-        "Asia Pacific Journal of Social Work and Development",
-                            full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "Social Work & Society",                           #Spelling difference
-        "Social Work and Society",
-                            full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-    "Journal of Social Work in Disability & Rehabilitation",
-        "Journal of Social Work in Disability and Rehabilitation", 
-                            full.df$record)           #Spelling difference
-
-full.df$record <- ifelse(full.df$record ==
-    "Hong Kong Journal of Social Work",
-        "The Hong Kong Journal of Social Work", 
-                            full.df$record)           #Spelling difference
-
-full.df$record <- ifelse(full.df$record ==
-    "The Journal of Baccalaureate Social Work",
-        "Journal of Baccalaureate Social Work", 
-                            full.df$record)           #Spelling difference
-
-full.df$record <- ifelse(full.df$record ==
-    "Journal of Practice Teaching in Health and Social Work",
-        "Journal of Practice Teaching in Social Work and Health", 
-                            full.df$record)           #Spelling difference
-
-full.df$record <- ifelse(full.df$record ==
-    "Professional Development: The International Journal of Continuing Social Work Education",
-        "Professional Development", 
-                            full.df$record)           #Spelling difference
-
-full.df$record <- ifelse(full.df$record ==
-    "Social Work with Groups",
-        "Social Work With Groups", 
-                            full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Social Work & Social Sciences Review",     # Spelling difference
-        "Social Work and Social Sciences Review", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Social Work with Groups",                  # Spelling difference
-        "Social Work With Groups", 
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Journal of Sociology & Social Welfare",    # Spelling difference
-        "Journal of Sociology and Social Welfare",  
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-    "The British Journal Social Work",          # Spelling difference
-        "British Journal of Social Work",           
-                        full.df$record)
-
-#shortens Professional Development
-full.df$record <- ifelse(full.df$attributes == "journal",
-        gsub(":.+", "", full.df$record), 
-        full.df$record)
-
-#shortens Canadian Social Work review by eliminating foreign title and is
-#automatically combined with other short spelling
-full.df$record <- ifelse(full.df$attributes == "journal",
-        gsub("(/R){1}.+", "", full.df$record), 
-        full.df$record)
-
-# shortens Contemporary Rural Social Work
-full.df$record <- ifelse(full.df$attributes == "journal",
-        gsub("\\s\\(.+", "", full.df$record), 
-        full.df$record)
-
-full.df$record <- ifelse(full.df$attributes == "journal", 
-      gsub("and", "&", full.df$record), full.df$record)
-
-articles.appendData <- length(which(full.df$attributes == "article"))
-journals.appendData <- filter(full.df, attributes == "journal") %>% 
-    summarise(Unique = n_distinct(record))
-
-full.df$record <- ifelse(full.df$record == 
-    "The British Journal of Pyschiatric Social Work" | 
-        full.df$record == 
-    "The British Journal of Social Work", # Old
-        "British Journal of Social Work",           # New title
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Computers in Human Services",              # Old title
-        "Journal of Technology in Human Services",  # New title
-                        full.df$record)
-
-
-full.df$record <- ifelse(full.df$record == 
-        "The Family" | full.df$record ==                    # Old title
-        "Journal of Social Casework" | full.df$record ==    # Old title
-        "Social Casework",                                  # Old title
-        "Families in Society",                              # New title
-                        full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Social Work in Education",                 # Old title
-        "Children & Schools",                       # New title
-                    full.df$record)
-
-full.df$record <- ifelse(full.df$record == 
-        "Journal of Independent Social Work" | full.df$record ==    # New title
-        "Journal of Analytic Social Work",                          # Old title
-        "Psychoanalytic Social Work",                               # Old title
-                full.df$record)
-
-full.df$record <- ifelse(full.df$record ==
-        "Journal of Practice Teaching in Social Work and Practice", #Old title
-        "Journal of Practice Teaching in Social Work and Health",   #New title
-                    full.df$record)
-
-# Journals were originally merged after suffixes were eliminated (after the
-# colon).  Thus, Practice: Social Work in Action  (new title) was shortened to
-# Practice (old title).  This section resolves two of these issues to be
-# consistent in the comparison with Hodge.
-
-practice.temp <- grep("^Practice$", full.df$record)
-full.df$record[practice.temp] <- "Practice: Social Work in Action"
-
-practice.temp <- grep("^Reflections$", full.df$record)
-full.df$record[practice.temp] <- "Reflections: Narratives of Professional Helping"
-
-exclusions.1 <- c(
-    "American Journal of Preventive Medicine", 
-    "Behavior Modification", 
-    "Brain and Cognition",
-    "Brain & Cognition",
-    "Canadian Journal of Community Mental Health",
-    "Canadian Journal on Aging",
-    "Early Child Development and Care",
-    "Early Child Development & Care",
-    "Early Education and Development",
-    "Early Education & Development", 
-    "Employee Assistance Quarterly",
-    "Evaluation and Program Planning",
-    "Evaluation & Program Planning",
-    "General Hospital Psychiatry",
-    "International Review of Social Research",
-    "Journal of Applied Behavioral Science",
-    "Journal of Applied Rehabilitation Counseling",
-    "Journal of Community & Applied Social Psychology",
-    "Journal of Health & Human Services Administration",
-    "Journal of Nonverbal Behavior",
-    "Journal of Psychosomatic Research",
-    "Learning Disabilities Research & Practice",
-    "Professional Development in Education",
-    "PROFILE Issues in Teachers' Professional Development",
-    "Psychotherapy",
-    "Systems Research and Behavioral Science",
-    "Systems Research & Behavioral Science",
-    "Teaching & Teacher Education", 
-    "Teaching and Teacher Education",
-    "The Scientific Review of Mental Health Practice",
-    "The Clinical Supervisor",
-    "Arete: Revista de Filosofia",
-    "Arete Revista de Filosofia")
-
-ebsco.remove <- full.df[full.df$record %in% exclusions.1, ]
-ebsco.remove <- ebsco.remove[, "articleID"]
-full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
-
-rm(ebsco.remove)
-
-number.of.articles <- length(which(full.df$attributes == "article"))
-number.of.journals <- filter(full.df, attributes == "journal") %>% 
+append.articles <- length(which(full.df$attributes == "article"))
+append.journals <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(
         N = n())
-#print.data.frame(unique.titles, rowNames=FALSE)
-
 ```
 
-```{r, comment=NA, echo=FALSE}
-
-#Deletes article records associated with articles that are 3 pages or less  (this can be adjusted below in   ###                                                                               this chunk)
-
-
-pages.df<-filter(full.df, attributes=="pages")
-pages.df$record <- gsub("p", "", pages.df$record)
-pages.df$record <- gsub("ArtID:\\s", "", pages.df$record)
-pages.df$record<-gsub("S", "", pages.df$record)
-pages.df$record <- gsub(" ", "", pages.df$record)
-
-dashes<-filter(pages.df, grepl("-", record) )
-
-splitDash<-strsplit(dashes$record, "-")
-mat  <- matrix(unlist(splitDash), ncol=2, byrow=TRUE)
-mat <- as.data.frame(mat)
-
-mat$V1<- as.character(mat$V1)
-mat$V2<- as.character(mat$V2)
-
-mat$V1<- as.numeric(mat$V1)
-mat$V2<- as.numeric(mat$V2)
-mat <-mutate(mat, record=V2-V1)
-mat<-select(mat, record)
-
-dashes<-select(dashes, -record)
-dashes.df<-cbind(dashes, mat)
-dashes.ID<-dashes.df$articleID
-
-pages.noDashes<-pages.df[!pages.df$articleID %in% dashes.ID, ]
-
-pages.df<-rbind(pages.noDashes, dashes.df)
-pages.df$record<-as.numeric(pages.df$record)
-pages.df[is.na(pages.df)] <- 0
-
-pages.remove<-filter(pages.df, record < 4)    ## Set threshold for retaining articles by number of pages
-pages.remove.ID <- pages.remove$articleID
-
-full.df <- full.df[!full.df$articleID %in% pages.remove.ID, ]
-rownames(full.df) <- NULL
-View(full.df)
-
-rm(dashes, splitDash, mat, dashes.df, dashes.ID, pages.df, pages.noDashes)
-
+```{r shortArticles, comment=NA, echo=FALSE, warning=FALSE}
+shortArticles.f()
 ```
-
 
 ```{r titleMatching, echo=FALSE}
-titles <- filter(full.df, attributes == "article")
-titles$matching <- tolower(titles$record)
-
-#Eliminate `the` and `a` at the beginning of sentences and after colons
-titles$matching <- gsub("^the\\s", "", titles$matching)
-titles$matching <- gsub("^a\\s", "", titles$matching)
-titles$matching <- gsub("[[:punct:]]", "", titles$matching)
-
-#Strips out white space and punctuation to ensure small differences in data 
-#entry are detected during duplicate elimination
-titles$matching <- gsub(" ","", titles$matching)
-  
-duplicated.titles <- duplicated(titles$matching)
-duplicated.ID <- titles$articleID[duplicated.titles]
-full.df <- full.df[!(full.df$articleID %in% duplicated.ID), ]
+titleMatching.f()
 
 articles.titleMatching <- length(which(full.df$attributes == "article"))
-journals.titleMatching <- filter(full.df, attributes == "journal") %>% 
-    summarise(Unique = n_distinct(record))
+
+journals.titleMatching <- filter(full.df, attributes == "journal") %>%
+        summarise(Unique = n_distinct(record))
 ```  
 
 ```{r otherDocuments, echo=FALSE}
-#Identify records that were incorrectly captured in the wrangle
-#using regular expressions
-titles <- filter(full.df, attributes == "article")
-insert.1<-"[B|b]ook [R|r]eview[.:]|^[F|f]orum.+|[F|f]orum$|[C|c]ommentary|Comment.+"
-insert.2<-"^[I|i]ndex\\s[T|t]o|[I|i]ntroduction:|[I|i]ntroduction [T|t]o|\\([B|b]ook\\)"
-insert.3<-"[H|h]andbook|Volume|volumes|newsletters|[L|l]etter from"
-insert.4<-"[P|p]reface|\\([0-9]{4}-[0-9]{4}\\):|: [A|a] [R|r]esponse [T|t]o [B-Z]"
-insert.5<-"[S|s]pecial\\s[I|i]ssue|[T|t]able\\s[O|o]f\\s[C|c]ontent|\\([U|u]ndetermined"
-insert.6<-"^Book.+ | ^COMMENTARY.+ | Call\\s.+ | Contents.+ | Editor.+ | Errat.+"
-insert.7<-"^FROM\\THE.+ | ^From\\sthe\\ed.+ | Health\\s[&]\\sS.+ | ^LETTER.+ |
-             ^Letter\\sfrom.+ | ^News\\and.+ | ^Response\\sto\\s[A-Z] | Vol\\.\\s[0-9] |
-            ^Volume.+ | ^\\["
-insert<-paste(insert.1,insert.2,insert.3,insert.4,insert.5, insert.6, 
-              insert.7, sep="|")
-
-badRecords<-subset(titles, grepl(insert, record))
-badRecords.ID<-badRecords$articleID
-
-full.df <- full.df[!(full.df$articleID %in% badRecords.ID), ]
+otherDocuments.f()
 articles.otherDocuments <- length(which(full.df$attributes == "article"))
 journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 ```
 
 ```{r final, comment=NA, echo=FALSE}
-titles <- filter(full.df, attributes == "article")
-journals <- filter(full.df, attributes == "journal")
-year <- filter(full.df, attributes == "pubYear")
-
-
-year.journal <- dplyr::intersect(year$articleID, journals$articleID)
-year.journal.titles <- dplyr::intersect(year.journal, titles$articleID)
-full.df <- full.df[full.df$articleID %in% year.journal.titles, ]
-
-exclusions.2 <- c(
-    "Issues in Social Work Education", 
-    "Maatskaplike Werk/Social Work",
-    "Pediatric Social Work", 
-    "Critical Social Work"
-    )
-
-ebsco.remove <- full.df[full.df$record %in% exclusions.2, ]
-ebsco.remove <- ebsco.remove[, "articleID"]
-full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
-
-rm(ebsco.remove, exclusions.2)
+fewArticles.f()
 articles.final <- length(which(full.df$attributes == "article"))
 journals.final <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
@@ -387,42 +77,40 @@ journals.final <- filter(full.df, attributes == "journal") %>%
 
 # Methods
 
-### Extraction of Article Records
-The work of Hodge and Lacasse (2011) served as an initial list of 84 core social work journals.  This list was based on a review of a variety of sources, including An Author’s Guide to Social Work Journals (NASW Press, 1997), Thyer’s (2005) more recent listing of social work periodicals, and Genamics JournalSeek (http://journalseek.net/). Hodge and Lacasse (2011) examined the mission and aims of each journal, and eliminated all journals that had an inter-disciplinary focus.  An initial search query was built using all the journal titles, limiting the results to only journal articles.      
+### Extraction of article records
 
-To help ensure comprehensive coverage of all possible core social work journals, a subsequent search was conducted by searching the journal titles of each database using the following search specification, limiting the results to only peer-reviewed journals and journal articles.  This subsequent query included the following search terms:     
+Our list of social work journals was guided by the work of Hodge and Lacasse (2011).  More specifically, Hodge and Lacasse (2011) identified 84 disciplinary social work journals based on a variety of sources, including _An Author’s Guide to Social Work Journals_ (NASW Press, 1997), Thyer’s (2005) more recent listing of social work periodicals, and Genamics JournalSeek (http://journalseek.net/). Hodge and Lacasse (2011) examined the mission and aims of each journal, and eliminated journals that were specific to another field or had an had an inter-disciplinary focus.  For the current study, our primary search query included all journal titles in this list.
+
+To help ensure comprehensive coverage of all possible core social work journals, we created a supplemental search query that extracted journal titles with any of the following terms:  
 
 + "social work"
 + "social welfare"
-+ "social casework", 
-+ "social service", 
-+ "human  service", 
-+ "social development", 
++ "social casework"
++ "social service" 
++ "human  service" 
++ "social development" 
 + "social environment"
 
-These queries were used to extract articles from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  We then conducted a supplemental search of the ProQuest database that searched across an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  We limited the search to all research from 1988 to the end of 2013, representing a quarter century of social work research.  Articles published in 2014 and 2015 were excluded because of observed delays in indexing for numerous journals.  
+Using this search queries, we extract journal article recrods from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  Because of known gaps in indexing in databases (Holden, Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail, Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  In every search, we used a filter in attempt to extract only article records that were classified as _journal articles_, thereby excluding other forms of scholarly communication that was not relevant to the current study (e.g., book reviews, editorials, obituaries, etc.).  We limited the timeframe to a 25 year period, from 1988 to 2013 (inclusive).  Articles published in years 2014 and 2015 were excluded because of delays in indexing.  Search results were exported in batches of article records based on the restrictions of the platform.  Article records were text files in a _generic bibliographic format_.  The article records contained various meta-data based on the database from which the article record was extracted.   Meta-data include (but are not limited to):  article title, journal title, publication year, author name(s), author affiliation(s), abstract, keywords, methodological classification, funding source, location of study, subject groups, digital object identifier (DOI), number of references, number of pages, etc.  These files were post-processed into a structured database using a set of scripts written in the R statistical programming language.  The initial search resulted in 36,094 article records from 117 different journals.  
 
-Search results were exported in series of large batches as raw text files in a generic bibliographic format.  Article records were merged into a single file and then transformed into a structured database for subsequent data cleaning and analysis.  This transformation was done using a set of scripts designed specifically for the R statistical programming language.  
-
-
-# Pre-processing and cleaning of data
-
-The extraction process resulted in 36,094 article records from 117 different journals.  The search process was designed to be overly inclusive to ensure full coverage of all possible social work journals contained in the major and minor databases.  Thus, it was necessary to implement a series of data cleaning procedures to ensure a focus only on journal articles from peer-reviewed social work journals.    
-
-The first step involved fixing journal title names because of discrepancies that occurred in the indexing process.  For example, _British Journal of Social Work_ was extracted as a journal that was different than _The British Journal of Social Work_, and _Journal of Gay and Lesbian Social Services_ _Journal of Gay & Lesbian Social Services_.  Some social work journals changed titles over their history.  For example, _Families in Society_ had three titles that preceded the current title:  _Social Casework_, _Journal of Social Casework_, and _The Family_.  The database that contributed the largest number of articles to the study database indexed the majority of journal titles under the journal's current name, and provided an additional data field for the historical name.  However, historical names from Social Science Abstracts and Social Work Abstracts were not merged with the current name.  Thus, the last step of the data cleaning procedures was to conduct these merges.  
+The search queries were purposefully specified to be overly inclusive to ensure full coverage of all possible social work journals contained in the major and minor databases.  Additionally, a visual inspection of the article records revealed problems in the original indexing of articles that requires subsequent data cleaning.  Thus, our data cleaning procedures focused separately on journal titles and article records.
 
 
-We then excluded all non-social work journals from the search list.  These journal titles were captured in the search because many journals from allied health disciplines (e.g., nursing and psychology) used the term “psychosocial” in the title of a special editions.  To facilitate this process, a list of all journal titles that did not match the core list (as defined by Hodge and LaCasse) was created and distributed among the study authors.  Study authors reviewed these candidate journal titles and discussed whether each candidate title should be retained or excluded.  When disagreements occurred, the study authors reviewed the mission and aims of the journals, names of editorial board members, and focus of the articles.  A consensus was reached on all journal titles, reducing the article and journal count to `r articles.appendData`  `r journals.appendData` (respectively).  
+### Data cleaning: Journal titles
 
-Because separate searches were conducted across multiple databases to help ensure comprehensive coverage due to known gaps in indexing for many social work journals, a matching algorithm was developed to identify and remove duplicate article records.  The matching algorithm reduced the total number of article records to `r articles.titleMatching`.
+The first step of data cleaning involved fixing journal title names due to discrepant errors in indexing. For example, _Journal of Gay and Lesbian Social Services_ was indexed as a journal separate from _Journal of Gay & Lesbian Social Services_ (use of "and" vs. "&").  Other examples involved journals indexed with and without subtitles, or journals with and without the word "The" at the beginning of the title.  Additionally, some journals changed titles over their history.  For example, _Journal of Technnology in Human Services_ is formerly known as _Computers in Human Services_.  In these situations, the former titles were merged with the current titles.  
 
-In the extraction process, limiters were applied to extract only journal article in order to avoid other scholarly communications from being captured, such as editorials, commentaries, book reviews, software reviews, tables of contents, obituaries, and calls for papers.  A visual scan of the database revealed many instances in which these limiters were unsuccessful.  Thus, a set of regular expressions were created and tested against a reduced database comprised of representative examples of communications to be excluded and articles to be retained. Regular expressions are special search strings used to identify specific search patterns within text.  When the regular expression achieved > 98% sensitivity and specificity in detecting target article records, they were applied to the full database, reducing the article count to `r articles.otherDocuments`.
+Many journals from allied health disciplines used one of the supplemental search terms in special editions, which were also included in the journal title.  Thus, many non-social work journals were captured in the extraction process.  To resolve this issue, we created a list of all journal titles that were not part of the core list defined by Hodge and Lacasse (2011).  Study authors reviewed these journal titles and discussed whether each candidate title should be retained or excluded.  When disagreements occurred, the study authors reviewed the mission and aims of the journals, names of editorial board members, and focus of the articles.  A consensus was reached on all journal titles to be excluded and retained.   After these procedures, the number of article records and journal titles was reduced to `r pretty(append.articles)` and `r append.journals` (respectively).  
 
-The final step involved scanning the database to exclude article records without any information in the author, journal title, article title, or publication year fields, as well as eliminating social work journals with total article counts of < 10 for the entire 25 year window.  This produced a database of `r articles.final` unique social work articles, and `r journals.final` journal titles.  
+### Data cleaning:  Article records
 
-# Results
+Our search procedures involved the use of three major databased and 46 minor databases, which resulted in some duplication of article records.  Thus, a matching algorithm was constructed to identify and remove all duplicate article records. As previously noted, the filtering of only journal articles was not successful due to errors in the original indexing.  Thus, other scholarly communications were captured in the extractio process.  These other scholarly communications were readily identified due to specific patterns in the titles, such as the terms "Book Review," "From the Editor," and "Obituary."  Given the number of article records in the database, it was not feasbile to manually extract these recrods.  Instead, we created a separate database with representative examples of article records that we wanted to extract.  We also added representative examples of article records to be retained.  We then wrote a series of _regular expressions_ to extract the problematic article records.  Regular expressions are a sequence of characters that form search patterns, allowing extraction of records that match the specified pattern.  In other words, it is a more sophisticated implementation of the search function common to all major word processors.  We tested our regular expressions on the test database, achieving > 95% accuracy with regard to retaining and extracting article records.  These regular expressions were then applied to the full database.  We then excluded article records if they were missing essential meta-data, including author name(s), journal title, article title, and publication field.  As an additional requirement, we required all articles to be $\geq 3$ pages in length.   Finally, we eliminated all social work journals with total article counts of < 10 for the enitre 25 year window (_Issues in Social Work Education_, _Maatskaplike Werk/Social Work_, _Pediatric Social Work_, and _Critical Social Work_).  These cleaning procedures resulted in a final database of `r pretty(articles.final)`  and `r journals.final`.  
 
-This section provides a summary of the revised database after the initial processing with the `ebscoBWR` function and the subsequent data cleaning.  An additional code is included in this summary to indicate whether the journal title overlaps with the list of Hodge (indicated by *H*).  
+### Data quality checks
+
+We performed a variety of checks on the final database.  Because the size of the database, it was not feasible to manually inspect all records.  Thus, we randomly sampled article records from the database and cross-checked the data we procured with the information listed with the journal's homepage.  We also inspected a scatter plot of the number of article records for each journal by the number of years the journal appeared within the 25 window timeframe.  Journals that exhibited significant deviation from the regression line were inspected to ensure that our cleaning procedures did not systematically exclude article records or retain other scholarly communications.  All observed discrepancies were verified as differences in journals actual publication output.  Finally, we also made checks of number of journal article records for various journals indexed in the _Web of Science_.  Although the counts were close -- i.e., within 10% -- similar indexing problems observed from our record extraction were also observed in the _Web of Science_ database, such as misclassification of book reviews as journal articles.  Thus, we are unable to quantify the actual amount of error in our database is due to problems in indexing.  At the same time, we are relying on the same source of data that social work researchers use to inform their work.  Too much cleaning and post-processing of the search results can give rise to validity issues because social work researchers are using an information source that contain the errors we have attempted to eliminate.  The issue of reliability and validity are given further attention in the discussion section of this study.  
+
+\newpage
 
 ```{r echo=FALSE, comment=NA}
 unique.titles <- filter(full.df, attributes == "journal") %>%
@@ -453,7 +141,6 @@ n.so.yr <- left_join(n.so, n.yr) %>%
 H <- unique.titles$Hodge
 
 final.list <- cbind(n.so.yr, H)
-
 print.data.frame(final.list, row.names=FALSE)
 
 ```
@@ -462,12 +149,25 @@ print.data.frame(final.list, row.names=FALSE)
 
 
 
-## Intersection
+
+\newpage
+
+```{r message=FALSE, warning=FALSE}
+cor.data <- select(final.list, first, last, n) %>%
+            mutate(no.years = as.numeric(last) - as.numeric(first)) 
+
+ggplot(cor.data, aes(x = no.years, y = n)) + 
+            geom_point(shape = 1) + 
+            geom_smooth() + 
+            xlab("Years") + 
+            ylab("Number of articles")
+```
+
+\newpage
 
 
-This list shows which journal titles are common to both lists.
 
-```{r}
+```{r intersection}
 unique.swHistory <- filter(full.df, attributes == "journal") %>%
                 distinct(record)
 
@@ -480,57 +180,20 @@ swHistory.hodge.diff <- setdiff(unique.swHistory$record, hodge)
 ```
 
 
-```{r}
-print(sort(hodge.swHistory.intersect))
-```
 
 ## Differences
 
-This list shows the articles on Hodge but not the current study.  
+Articles on Hodge and Lacasse (2011) but not in the current study.  
 
 ```{r}
 print(sort(hodge.swHistory.diff))
 ```
-This list shows the articles on the current study but not on Hodge.
-
-```{r}
-print(sort(swHistory.hodge.diff))
-```
 
 
 
-## Descriptive summary of records
-
-```{r comment=NA, echo=TRUE} 
-number.of.articles <- length(which(full.df$attributes == "article"))
-range.of.years <- range(full.df$record[full.df$attributes == "pubYear"])
-```
 
 
-```{r}
-# Number of articles
-cat(number.of.articles)
-```
 
-```{r}
-# Range of years
-cat(range.of.years)
-```
-
-```{r}
-cor.data <- select(final.list, first, last, n) %>%
-            mutate(no.years = as.numeric(last) - as.numeric(first)) 
-
-ggplot(cor.data, aes(x = no.years, y = n)) + 
-            geom_point(shape = 1) + 
-            geom_smooth() + 
-            xlab("Years") + 
-            ylab("Number of articles")
-
-cor(cor.data$no.years, cor.data$n)
-```
-
-The following evaluation argument in the chunk is set to FALSE.  Set this function to TRUE to process CSV files of the target journals for inspection. CSV files are named by the journal title.  Be sure to use the exact spelling of the journal as it is contained in the data files.  Set the other arguments to TRUE if you want additional fields to be included.  Please note that it will save the files to your current working directory, which is not specified in this Markdown document.  
 
 ```{r eval=FALSE}
 journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
@@ -540,6 +203,8 @@ journalArticleFinder.f <- function(journalTitle, keyword = FALSE,
     article.search.ID <- select(article.search, articleID)
     target.ID <- full.df$articleID %in% article.search.ID$articleID
     journal.article.df <- full.df[target.ID, ]
+    journal.article.df <- filter(journal.article.df, attributes == "article")
+    journal.article.df <- arrange(journal.article.df, record)
     if(keyword == FALSE){journal.article.df <- filter(journal.article.df, attributes != "keyWord")}
     if(authorAff == FALSE){journal.article.df <- filter(journal.article.df, attributes != "authorAff")}
     if(abstract == FALSE){journal.article.df <- filter(journal.article.df, attributes != "abstract")}
@@ -547,8 +212,8 @@ journalArticleFinder.f <- function(journalTitle, keyword = FALSE,
     write.csv(journal.article.df, file = paste0(x.shortened, ".csv"), row.names=F)
     }
 
-journalArticleFinder.f("Research on Social Work Practice")
-journalArticleFinder.f("Social Work")
+journalArticleFinder.f("Journal of Gerontological Social Work")
+#journalArticleFinder.f("Social Work")
 
 articles <- filter(full.df, attributes == "article") %>% arrange(record)
 write.csv(articles, file = "articles.csv")
