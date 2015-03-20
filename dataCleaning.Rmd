@@ -11,6 +11,7 @@ rm(list=ls())
 # Load required packages
 library(ggplot2)
 library(dplyr)
+library(gridExtra)
 
 # Read data files
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
@@ -103,6 +104,7 @@ n.so.yr <- left_join(n.so, n.yr) %>%
 H <- unique.titles$Hodge
 
 final.list <- cbind(n.so.yr, H)
+final.list <- arrange(final.list, desc(n))
 ```
 
 ```{r plotArticleCount}
@@ -119,13 +121,16 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
                     y = year.count, group=1)) + 
     geom_line(colour="black") +
     #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
-    ylab("Number of articles") + 
-    ggtitle("Number of Articles Published Over Time") +
-    scale_x_discrete(breaks=c(seq(1988, 2013, 2))) +
+    ylab("Articles") + 
+    ggtitle("A. Number of Articles by Year") +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 2500, 200))) +
-    geom_smooth()
+    annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
+             ymin = 1700, ymax = 2050, alpha = .20) +
+      annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
+             ymin = 1400, ymax = 1750, alpha = .20)  
 ```
 
 ```{r plotJournalCount}
@@ -143,13 +148,16 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
                     y = Journal.count, group=1)) + 
     geom_line(colour="black") +
     #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=8), title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
-    ylab("Number of journals") + 
-    ggtitle("Number of Social Work Journals Over Time") +
-    scale_x_discrete(breaks=c(seq(1988, 2013, 2))) +
-    scale_y_continuous(breaks = c(seq(0, 100, 10))) +
-    geom_smooth()
+    ylab("Journals") + 
+    ggtitle("B. Number of Journals by Year") +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
+    scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 70)) +
+     annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
+             ymin = 55, ymax = 70, alpha = .20) +
+         annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
+             ymin = 53, ymax = 62, alpha = .20)  
 ```
 
 
@@ -178,16 +186,142 @@ n_authors <- n_authors%>%
                   max.n = max(n),
                   std.dev  = sd(n) )
 
-plot.author.count <- ggplot(n_authors, aes(as.factor(pubYear), y=median.n, group=1)) +  
+plot.author.count <- ggplot(n_authors, aes(as.factor(pubYear), y=average.n, group=1)) +  
     geom_ribbon(aes(ymin = average.n-std.dev, ymax=average.n+std.dev), colour="lightblue", fill="lightblue", alpha=.40) +
     geom_line(colour="black") + 
-    ylab("Number of authors") +
-    xlab("Publication year") +
-    ggtitle("Number of Authors per Article Over Time") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    scale_x_discrete(breaks=c(seq(1988, 2013, 2))) +
-    geom_smooth()
+    ylab("Authors") +
+    xlab("Year") +
+    ggtitle("Average Number of Authors per Article by Year") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), 
+          plot.title = element_text(size = 10), 
+          title = element_text(size = 10)) + 
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) 
 ```
+
+```{r locationExtraction}
+LO.df <- filter(full.df, attributes == "location") %>%
+         group_by(record) %>%
+         summarise(Country = unique(record),
+                   N = n()) %>%
+        arrange(desc(N)) %>% 
+        select(-record)
+
+```
+
+
+```{r locationWithoutUS}
+year.df <- filter(full.df, attributes == "pubYear") %>%
+            select(articleID, record)
+
+location.df <- filter(full.df, attributes == "location") %>%
+            select(articleID, record)
+
+year.location.df <- left_join(year.df, location.df, by = "articleID")
+
+colnames(year.location.df) <- c("articleID", "pubYear", "country")
+year.location.df <- year.location.df[!is.na(year.location.df$country), ]
+
+location.summary.df <- group_by(year.location.df, country) %>%
+           summarize(Number = n()) %>%
+           arrange(desc(Number)) %>%
+           slice(2:6) %>%
+           select(country)
+
+location.df <- location.df[location.df$record %in% location.summary.df$country, ]
+year.location.df <- left_join(location.df, year.df, by = "articleID") 
+colnames(year.location.df) <- c("articleID", "country", "pubYear")
+year.location.df.noUS <- group_by(year.location.df, country, pubYear) %>%
+                    summarise(N = n())
+
+```
+
+```{r locationWithtUS}
+year.df <- filter(full.df, attributes == "pubYear") %>%
+            select(articleID, record)
+
+location.df <- filter(full.df, attributes == "location") %>%
+            select(articleID, record)
+
+year.location.df <- left_join(year.df, location.df, by = "articleID")
+
+colnames(year.location.df) <- c("articleID", "pubYear", "country")
+year.location.df <- year.location.df[!is.na(year.location.df$country), ]
+
+location.summary.df <- group_by(year.location.df, country) %>%
+           summarize(Number = n()) %>%
+           arrange(desc(Number)) %>%
+           slice(1:6) %>%
+           select(country)
+
+location.df <- location.df[location.df$record %in% location.summary.df$country, ]
+year.location.df <- left_join(location.df, year.df, by = "articleID") 
+colnames(year.location.df) <- c("articleID", "country", "pubYear")
+year.location.df <- group_by(year.location.df, country, pubYear) %>%
+                    summarise(N = n())
+
+```
+
+
+```{r plotLocationWithUS}
+plot.location.withUS <- ggplot(year.location.df, aes(pubYear, N, group = country, colour=country)) + 
+    geom_line() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), title = element_text(size = 10)) +
+    scale_y_continuous(limits = c(0,600)) + 
+    xlab("Year") +
+    ylab("Articles") +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
+    ggtitle("Number of Articles by Country and Year")
+```
+
+
+
+
+```{r}
+nsf <- data.frame(c(238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280), as.factor(seq(2002,2012, 1)))
+colnames(nsf) <- c("n.grads", "years")
+```
+
+
+```{r}
+plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
+    geom_line(linetype="dotted") + 
+    geom_point() +
+     scale_y_continuous(breaks = c(seq(0, 350, 25)), limits = c(200,350)) +
+     ylab("Doctoral degrees") +
+     xlab("Year") +
+     geom_text(aes(label = n.grads), vjust = -1.2, size = 2.75) + 
+     theme(axis.text.x = element_text(angle = 45, hjust = 1), title = element_text(size = 10)) +
+     ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
+```
+
+
+barplot(diff(nsf$n.grads), ylab="Change in value", main="Growth")
+
+
+
+
+```{r twoyearoffset}
+nsf.reduced <- nsf[1:10,]
+nsf.reduced$years <- 2004:2013
+
+
+
+```
+
+
+
+
+
+# Introduction
+
+It is estimated that 90% of all data in human history has been created in the last two years -- roughly 2.5 quintillion bytes of data every day [IBM, nd-a](http://www-01.ibm.com/software/data/bigdata/what-is-big-data.html).  _Big data_ has become ubiquitious in the business community and has recently captured the attention of governmental organizations given its potential to generate actionable insights from a wide range of data sources [IBM, nd-b](http://www-01.ibm.com/software/data/bigdata/industry-government.html).  The concept is most commonly understood with respect to _volume_ -- that is, an amount of data that exceeds the storage capacity of conventional database systems.  However, _big data_ is also distinguished from traditional data with respect to _velocity_ and _variety_.  Velocity refers to data arriving at a rate that exceeds conventional computing power, and variety refers to data structures that are not directly amenable to analysis with conventional software packages.  Volume, velocity and variety are commonly referred to as the three _V's_.  
+
+Big data comes from 
+
+
+Although the popularity of In fact, the interest in big data is growing in popularity as an internet search term, while ``social work'' is experiencing a decline.  
+
+(but not limited to) sensors that capture events in real time, GPS, social media sites, digitized text, electronic audio and video, purchase transactions, and weblogs.  These data provide rich opportunities for social work research that are  
 
 # Methods
 
@@ -205,7 +339,7 @@ To help ensure comprehensive coverage of all possible core social work journals,
 + "social development" 
 + "social environment"
 
-Using this search queries, we extract journal article recrods from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  Because of known gaps in indexing in databases (Holden, Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail, Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  In every search, we used a filter in attempt to extract only article records that were classified as _journal articles_, thereby excluding other forms of scholarly communication that was not relevant to the current study (e.g., book reviews, editorials, obituaries, etc.).  We limited the timeframe to a 25 year period, from 1988 to 2013 (inclusive).  Articles published in years 2014 and 2015 were excluded because of delays in indexing.  Search results were exported in batches of article records based on the restrictions of the platform.  Article records were text files in a _generic bibliographic format_.  The article records contained various meta-data based on the database from which the article record was extracted.   Meta-data include (but are not limited to):  article title, journal title, publication year, author name(s), author affiliation(s), abstract, keywords, methodological classification, funding source, location of study, subject groups, digital object identifier (DOI), number of references, number of pages, etc.  These files were post-processed into a structured database using a set of scripts written in the R statistical programming language.  The initial search resulted in 36,094 article records from 117 different journals.  
+Using this search queries, we extract journal article recrods from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  Because of known gaps in indexing in databases (Holden, Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail, Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  In every search, we used a filter in attempt to extract only article records that were classified as _journal articles_, thereby excluding other forms of scholarly communication that was not relevant to the current study (e.g., book reviews, editorials, obituaries, etc.).  We limited the timeframe to a 25 year period, from 1989 to 2013 (inclusive).  Articles published in years 2014 and 2015 were excluded because of delays in indexing.  Search results were exported in batches of article records based on the restrictions of the platform.  Article records were text files in a _generic bibliographic format_.  The article records contained various meta-data based on the database from which the article record was extracted.   Meta-data include (but are not limited to):  article title, journal title, publication year, author name(s), author affiliation(s), abstract, keywords, methodological classification, funding source, location of study, subject groups, digital object identifier (DOI), number of references, number of pages, etc.  These files were post-processed into a structured database using a set of scripts written in the R statistical programming language.  The initial search resulted in 36,094 article records from 117 different journals.  ```NOTE: these values are hardcoded--should be changed to draw from actual data.```
 
 The search queries were purposefully specified to be overly inclusive to ensure full coverage of all possible social work journals contained in the major and minor databases.  Additionally, a visual inspection of the article records revealed problems in the original indexing of articles that requires subsequent data cleaning.  Thus, our data cleaning procedures focused separately on journal titles and article records.
 
@@ -232,45 +366,38 @@ We performed a variety of checks on the final database.  Because the size of the
 print.data.frame(final.list, row.names=FALSE)
 ```
 
+
+\newpage
+
+```{r}
+grid.arrange(plot.article.count, plot.journal.count, ncol=2)
+```
+
+\newpage
+
+```{r}
+plot.PhD
+```
+
+\newpage
+
+Insert Western Hemisphere Map Here
+
+\newpage
+Insert Eastern Hemisphere Map Here
+\newpage
+```{r}
+plot.location.withUS
+```
+
 \newpage
 
 ```{r}
 plot.author.count
 ```
 
-\newpage
-
-```{r}
-plot.article.count
-```
 
 \newpage
-
-```{r}
-plot.journal.count
-```
-
-
-
-```{r}
-LO.df <- filter(full.df, attributes == "location") %>%
-         group_by(record) %>%
-         summarise(Country = unique(record),
-                   N = n()) %>%
-        arrange(desc(N)) %>% 
-        select(-record)
-
-```
-
-
-
-
-
-
-
-\newpage
-
-
 
 
 
@@ -338,4 +465,5 @@ articles <- filter(full.df, attributes == "article") %>% arrange(record)
 write.csv(articles, file = "articles.csv")
 
 ```
+
 
