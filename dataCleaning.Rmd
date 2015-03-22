@@ -1,7 +1,7 @@
 ---
 title: "25 years of Social Work Research"
 author: "Summary of Data Cleaning Procedures"
-output: pdf_document
+output: html_document
 ---
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
@@ -128,9 +128,9 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 2500, 200))) +
     annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-             ymin = 1700, ymax = 2050, alpha = .20) +
+             ymin = 1700, ymax = 2050, alpha = .20, fill = "red") +
       annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-             ymin = 1400, ymax = 1750, alpha = .20)  
+             ymin = 1400, ymax = 1750, alpha = .20, fill="red")  
 ```
 
 ```{r plotJournalCount}
@@ -155,9 +155,9 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 70)) +
      annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-             ymin = 55, ymax = 70, alpha = .20) +
+             ymin = 55, ymax = 70, alpha = .20, fill="red") +
          annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-             ymin = 53, ymax = 62, alpha = .20)  
+             ymin = 53, ymax = 62, alpha = .20, fill = "red")  
 ```
 
 
@@ -187,15 +187,18 @@ n_authors <- n_authors%>%
                   std.dev  = sd(n) )
 
 plot.author.count <- ggplot(n_authors, aes(as.factor(pubYear), y=average.n, group=1)) +  
-    geom_ribbon(aes(ymin = average.n-std.dev, ymax=average.n+std.dev), colour="lightblue", fill="lightblue", alpha=.40) +
-    geom_line(colour="black") + 
+    #geom_ribbon(aes(ymin = average.n-std.dev, ymax=average.n+std.dev), colour="lightblue", fill="lightblue", alpha=.40) +
+    #geom_line(colour="black") + 
+    geom_point() +
+    geom_line() + 
     ylab("Authors") +
     xlab("Year") +
     ggtitle("Average Number of Authors per Article by Year") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), 
           plot.title = element_text(size = 10), 
           title = element_text(size = 10)) + 
-    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) 
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
+    scale_y_continuous(limits = c(0,3))
 ```
 
 ```{r locationExtraction}
@@ -295,13 +298,6 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
 ```
 
 
-```{r twoyearoffset}
-nsf.reduced <- nsf[1:10,]
-nsf.reduced$years <- 2004:2013
-
-
-
-```
 
 ### Data Revolution
 
