@@ -17,6 +17,7 @@ library(gridExtra)
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries.csv")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
 #hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
@@ -128,9 +129,9 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 2500, 200))) +
     annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-             ymin = 1700, ymax = 2050, alpha = .20, fill = "red") +
+             ymin = 1700, ymax = 2050, alpha = .20, fill = "#0072B2") +
       annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-             ymin = 1400, ymax = 1750, alpha = .20, fill="red")  
+             ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
 ```
 
 ```{r plotJournalCount}
@@ -155,11 +156,10 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 70)) +
      annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-             ymin = 55, ymax = 70, alpha = .20, fill="red") +
+             ymin = 55, ymax = 70, alpha = .20, fill= "#0072B2") +
          annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-             ymin = 53, ymax = 62, alpha = .20, fill = "red")  
+             ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
 ```
-
 
 ```{r plotAuthorCount}
 
@@ -186,19 +186,30 @@ n_authors <- n_authors%>%
                   max.n = max(n),
                   std.dev  = sd(n) )
 
-plot.author.count <- ggplot(n_authors, aes(as.factor(pubYear), y=average.n, group=1)) +  
-    #geom_ribbon(aes(ymin = average.n-std.dev, ymax=average.n+std.dev), colour="lightblue", fill="lightblue", alpha=.40) +
-    #geom_line(colour="black") + 
-    geom_point() +
-    geom_line() + 
-    ylab("Authors") +
+n_authors2 <- n_authors%>% 
+       select(median.n, average.n, std.dev) %>%
+       rename(median = median.n, average = average.n)
+
+
+n_authors2$ID <- as.factor(c(1989:2013))
+
+n_authors2_melted <- reshape2::melt(n_authors2, id.vars = "ID")
+colnames(n_authors2_melted) <- c("pubYear", "summaryStat", "value")
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group = summaryStat, colour = summaryStat)) + 
+     geom_line(size = .75) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          title = element_text(size = 10), 
+          legend.title=element_blank()) +
+    scale_colour_manual(values=cbPalette)  +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
+    scale_y_continuous(limits = c(0,2.5)) +
+    ylab("Value") +
     xlab("Year") +
-    ggtitle("Average Number of Authors per Article by Year") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), 
-          plot.title = element_text(size = 10), 
-          title = element_text(size = 10)) + 
-    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
-    scale_y_continuous(limits = c(0,3))
+    ggtitle("Authors Per Article by Year")
+
 ```
 
 ```{r locationExtraction}
@@ -208,35 +219,21 @@ LO.df <- filter(full.df, attributes == "location") %>%
                    N = n()) %>%
         arrange(desc(N)) %>% 
         select(-record)
-
 ```
 
+```{r locationExtraction2}
+LO.df2 <- filter(full.df, attributes == "location" | attributes == "abstract" |
+                 attributes == "article" | attributes == "keyword")
+indx.country <- paste(countries.csv$x, collapse = "|")
+library(stringi)
+countries.extracted <- na.omit(within(LO.df2, text1<- stri_extract(LO.df2$record, regex=indx.country)))[-2]
+country.indexed <- as.numeric(rownames(countries.extracted))
+location.ID <- LO.df2$articleID[country.indexed]
 
-```{r locationWithoutUS}
-year.df <- filter(full.df, attributes == "pubYear") %>%
-            select(articleID, record)
 
-location.df <- filter(full.df, attributes == "location") %>%
-            select(articleID, record)
-
-year.location.df <- left_join(year.df, location.df, by = "articleID")
-
-colnames(year.location.df) <- c("articleID", "pubYear", "country")
-year.location.df <- year.location.df[!is.na(year.location.df$country), ]
-
-location.summary.df <- group_by(year.location.df, country) %>%
-           summarize(Number = n()) %>%
-           arrange(desc(Number)) %>%
-           slice(2:6) %>%
-           select(country)
-
-location.df <- location.df[location.df$record %in% location.summary.df$country, ]
-year.location.df <- left_join(location.df, year.df, by = "articleID") 
-colnames(year.location.df) <- c("articleID", "country", "pubYear")
-year.location.df.noUS <- group_by(year.location.df, country, pubYear) %>%
-                    summarise(N = n())
-
+detach(package:stringi)
 ```
+
 
 ```{r locationWithtUS}
 year.df <- filter(full.df, attributes == "pubYear") %>%
@@ -266,34 +263,38 @@ year.location.df <- group_by(year.location.df, country, pubYear) %>%
 
 
 ```{r plotLocationWithUS}
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 plot.location.withUS <- ggplot(year.location.df, aes(pubYear, N, group = country, colour=country)) + 
     geom_line() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), title = element_text(size = 10)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          title = element_text(size = 10), 
+          legend.title=element_blank())  +
     scale_y_continuous(limits = c(0,600)) + 
     xlab("Year") +
     ylab("Articles") +
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
+    scale_colour_manual(values=cbPalette) +
     ggtitle("Number of Articles by Country and Year")
 ```
 
-
-
-
-```{r}
+```{r nsf}
 nsf <- data.frame(c(238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280), as.factor(seq(2002,2012, 1)))
 colnames(nsf) <- c("n.grads", "years")
 ```
 
 
-```{r}
+```{r nsfPlot}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
-    geom_line(linetype="dotted") + 
-    geom_point() +
+    geom_line(linetype="dotted", colour = "#0072B2", size = .75) + 
+    geom_point(colour = "#0072B2", size = .75) +
      scale_y_continuous(breaks = c(seq(0, 350, 25)), limits = c(200,350)) +
      ylab("Doctoral degrees") +
      xlab("Year") +
      geom_text(aes(label = n.grads), vjust = -1.2, size = 2.75) + 
-     theme(axis.text.x = element_text(angle = 45, hjust = 1), title = element_text(size = 10)) +
+     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+           title = element_text(size = 10)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
