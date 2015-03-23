@@ -10,6 +10,8 @@ output: html_document
 ```{r initialization}
 rm(list=ls())  
 load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+#load("BRYAN'S PATH HERE")
+
 
 # Load required packages
 library(ggplot2)
@@ -301,7 +303,9 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-#save.image(file = "socialWorkHistory.Rdata")
+```{r}
+save.image(file = "socialWorkHistory.Rdata")
+```
 
 ### Data Revolution
 
