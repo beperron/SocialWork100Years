@@ -9,26 +9,30 @@ output: html_document
 
 ```{r initialization}
 rm(list=ls())  
-load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/SocialWorkHistory.Rdata")
+#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
 
 
 # Load required packages
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
+library(rworldmap)
+
+
+
 ```
 
 ```{r eval=FALSE}
 # Read data files
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries.csv")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-#hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
-#countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+#hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+#countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries.csv")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
+countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
 
 # Load special functions
 source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
@@ -327,6 +331,26 @@ full.df<-rbind(full.df, locations)
 detach(package:stringi)
 ```
 
+```{r worldmap, eval=FALSE}
+
+###Code for creating world maps.  The four countries in the UK are recoded as "United Kingdom" for data visualization.
+library(rworldmap)
+
+loc.tab<-table(locations$record)
+
+loc.tab<-as.data.frame(loc.tab)
+loc.tab<-select(loc.tab, country=Var1, frequency=Freq)
+
+
+#join to a coarse resolution map
+spdf <- joinCountryData2Map(loc.tab, joinCode="NAME", nameJoinColumn="country")
+
+loc.tab2<-filter(loc.tab, frequency>=25)
+spdf2 <- joinCountryData2Map(loc.tab2, joinCode="NAME", nameJoinColumn="country")
+
+
+```
+
 
 ```{r locationWithtUS, eval=FALSE}
 year.df <- filter(full.df, attributes == "pubYear") %>%
@@ -507,10 +531,21 @@ plot.PhD
 
 \newpage
 
-Insert Western Hemisphere Map Here
+```{r}
+mapCountryData(spdf, nameColumnToPlot="frequency", catMethod="quantiles", 
+                                  colourPalette="white2Black", 
+                                  mapTitle="Article Countss by Country, 1989-2013")
+```
+
 
 \newpage
-Insert Eastern Hemisphere Map Here
+```{r}
+mapCountryData(spdf2, nameColumnToPlot="frequency", catMethod="quantiles", 
+                    colourPalette="white2Black", 
+                    mapTitle="Article Counts for Countries with Sustained Presence, 1989-2013")
+
+```
+
 \newpage
 ```{r}
 plot.location.withUS
