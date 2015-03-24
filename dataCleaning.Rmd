@@ -28,6 +28,7 @@ countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
 #hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
+#countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
 
 # Load special functions
 source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
@@ -36,6 +37,13 @@ source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
 
 pretty <- function(x){
     x <- prettyNum(x,big.mark=",",scientific=F)
@@ -229,13 +237,93 @@ LO.df <- filter(full.df, attributes == "location") %>%
 ```
 
 ```{r locationExtraction2, eval=FALSE}
-LO.df2 <- filter(full.df, attributes == "location" | attributes == "abstract" |
+LO.df2 <- filter(full.df, attributes == "abstract" |
                  attributes == "article" | attributes == "keyword")
-indx.country <- paste(countries.csv$x, collapse = "|")
+indx.country <- paste(countries.csv$x, collapse = "[\\s|[[:punct:]]]|")
 library(stringi)
-countries.extracted <- na.omit(within(LO.df2, text1<- stri_extract(LO.df2$record, regex=indx.country)))[-2]
-country.indexed <- as.numeric(rownames(countries.extracted))
-location.ID <- LO.df2$articleID[country.indexed]
+countries.extracted <- na.omit(within(LO.df2, text1<- stri_extract(LO.df2$record, opts_fixed=TRUE, regex=indx.country)))[-2]
+countries.extracted$text1<-gsub("[[:punct:]]", "", countries.extracted$text1)
+countries.extracted$text1<-gsub("^\\s+|\\s+$", "", countries.extracted$text1)
+
+new.countries<-unique(countries.extracted[,c("articleID","text1")])
+new.countries<-mutate(new.countries, attributes="location")
+new.countries<-select(new.countries, articleID, attributes, record=text1)
+
+loc<-filter(full.df, attributes=="location")
+locations<-rbind(loc, new.countries)
+locations<-unique(locations[,c("articleID","attributes","record")])
+locations<-filter(locations, record!="NA")
+
+
+#Set of code to address labeling issues related to the United Kingdom
+
+locations$record[locations$record=="Great Britain"]<- "United Kingdom"    #Combines Great Britain and UK records
+
+uk<-filter(locations, record=="United Kingdom")  #creates temp DF with only UK records
+ukID<-uk$articleID
+
+#next four blocks of code check to see if the United Kindgom and each country are both listed as a research site and eliminates the UK location record when this was the case.  This means that remaining UK records represent cases of research within the UK in an unspecified country.
+
+
+scot<-filter(locations, record=="Scotland") 
+scotID<-scot$articleID
+remove<-ukID%in%scotID
+uk.remove<-cbind(uk, remove)
+uk.remove<-filter(uk, remove==TRUE)
+uk.remove.ID<-uk.remove$articleID
+uk<-uk[!(uk$articleID%in%uk.remove.ID),]
+ukID<-uk$articleID
+
+eng<-filter(locations, record=="England")  
+engID<-eng$articleID 
+remove<-ukID%in%engID
+uk.remove<-cbind(uk, remove)
+uk.remove<-filter(uk, remove==TRUE)
+uk.remove.ID<-uk.remove$articleID
+uk<-uk[!(uk$articleID%in%uk.remove.ID),]
+ukID<-uk$articleID
+
+ni<-filter(locations, record=="Northern Ireland") 
+niID<-ni$articleID
+remove<-ukID%in%niID
+uk.remove<-cbind(uk, remove)
+uk.remove<-filter(uk, remove==TRUE)
+uk.remove.ID<-uk.remove$articleID
+uk<-uk[!(uk$articleID%in%uk.remove.ID),]
+ukID<-uk$articleID
+
+wales<-filter(locations, record=="Wales") 
+walesID<-wales$articleID
+remove<-ukID%in%walesID
+uk.remove<-cbind(uk, remove)
+uk.remove<-filter(uk, remove==TRUE)
+uk.remove.ID<-uk.remove$articleID
+uk<-uk[!(uk$articleID%in%uk.remove.ID),]
+ukID<-uk$articleID
+
+locations<-filter(locations, record!="United Kingdom")  #removes old UK records
+locations<-rbind(locations, uk)
+
+locations$record[locations$record=="US"]<-"United States"
+locations$record[locations$record=="Appalachia"]<-"United States"
+locations$record[locations$record=="Bosnia"]<-"Bosnia-Herzegovina"
+locations$record[locations$record=="Democratic Republic of Congo"]<- "Congo (Brazzaville)"
+locations$record[locations$record=="Democratic Republic of the Congo"]<- "Congo (Brazzaville)"
+locations$record[locations$record=="Holland"]<- "Netherlands"
+locations$record[locations$record=="West Bank"]<-"Palestine"
+locations$record[locations$record=="Gaza"]<-"Palestine"
+locations$record[locations$record=="Gaza Strip"]<-"Palestine"
+locations$record[locations$record=="Trinidad"]<-"Trinidad and Tobago"
+locations$record[locations$record=="Gaza"]<-"Palestine"
+locations$record[locations$record=="England"]<-"United Kingdom"
+locations$record[locations$record=="Northern Ireland"]<-"United Kingdom"
+locations$record[locations$record=="Scotland"]<-"United Kingdom"
+locations$record[locations$record=="Wales"]<-"United Kingdom"
+
+
+full.df<-filter(full.df, attributes!="location")
+full.df<-rbind(full.df, locations)
+
 detach(package:stringi)
 ```
 
@@ -258,12 +346,23 @@ location.summary.df <- group_by(year.location.df, country) %>%
            slice(1:6) %>%
            select(country)
 
-location.df <- location.df[location.df$record %in% location.summary.df$country, ]
-year.location.df <- left_join(location.df, year.df, by = "articleID") 
-colnames(year.location.df) <- c("articleID", "country", "pubYear")
-year.location.df <- group_by(year.location.df, country, pubYear) %>%
+location.df.withUS <- location.df[location.df$record %in% location.summary.df$country, ]
+year.location.df.withUS <- left_join(location.df.withUS, year.df, by = "articleID") 
+colnames(year.location.df.withUS) <- c("articleID", "country", "pubYear")
+year.location.df.withUS <- group_by(year.location.df.withUS, country, pubYear) %>%
                     summarise(N = n())
 
+location.summary.df.noUS <- group_by(year.location.df, country) %>%
+           summarize(Number = n()) %>%
+           arrange(desc(Number)) %>%
+           slice(2:7) %>%
+           select(country)
+
+location.df.noUS <- location.df[location.df$record %in% location.summary.df.noUS$country, ]
+year.location.df.noUS <- left_join(location.df.noUS, year.df, by = "articleID") 
+colnames(year.location.df.noUS) <- c("articleID", "country", "pubYear")
+year.location.df.noUS <- group_by(year.location.df.noUS, country, pubYear) %>%
+                    summarise(N = n())
 ```
 
 
@@ -271,17 +370,31 @@ year.location.df <- group_by(year.location.df, country, pubYear) %>%
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-plot.location.withUS <- ggplot(year.location.df, aes(pubYear, N, group = country, colour=country)) + 
+plot.location.withUS <- ggplot(year.location.df.withUS, aes(pubYear, N, group = country, colour=country)) + 
     geom_line() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
           title = element_text(size = 10), 
           legend.title=element_blank())  +
-    scale_y_continuous(limits = c(0,600)) + 
+    scale_y_continuous(limits = c(0,700)) + 
     xlab("Year") +
     ylab("Articles") +
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
     scale_colour_manual(values=cbPalette) +
     ggtitle("Number of Articles by Country and Year")
+
+plot.location.noUS <- ggplot(year.location.df.noUS, aes(pubYear, N, group = country, colour=country)) + 
+    geom_line() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          title = element_text(size = 10), 
+          legend.title=element_blank())  +
+    scale_y_continuous(limits = c(0,150)) + 
+    xlab("Year") +
+    ylab("Articles") +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
+    scale_colour_manual(values=cbPalette) +
+    ggtitle("Number of Articles by Country and Year, United States Excluded")
+
+
 ```
 
 ```{r nsf, eval=FALSE}
@@ -401,6 +514,10 @@ Insert Eastern Hemisphere Map Here
 \newpage
 ```{r}
 plot.location.withUS
+```
+
+```{r}
+plot.location.noUS
 ```
 
 \newpage

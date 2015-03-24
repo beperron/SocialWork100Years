@@ -8,7 +8,9 @@ Andorra
 Angola
 Anguilla
 Antarctica
-Antigua and Barb.
+Antigua and Barbuda
+Antigua
+Barbuda
 Argentina
 Armenia
 Aruba
@@ -27,9 +29,10 @@ Benin
 Bermuda
 Bhutan
 Bolivia
-Bosnia and Herz.
+Bosnia and Herzegovina
+Bosnia
 Botswana
-Br. Indian Ocean Ter.
+British Indian Ocean Territory
 Brazil
 British Virgin Islands
 Brunei
@@ -47,8 +50,8 @@ Chile
 China
 Colombia
 Comoros
-Congo (Brazzaville)
-Congo (Kinshasa)
+Congo
+Democratic Republic of the Congo
 Cook Island
 Costa Rica
 Croatia
@@ -72,8 +75,8 @@ Falkland Islands
 Faroe Island
 Fiji
 Finland
-Fr. Polynesia
-Fr. S. and Antarctic Lands
+French Polynesia
+French South and Antarctic Lands
 France
 French Guiana
 Gabon
@@ -98,7 +101,7 @@ Hong Kong
 Hungary
 Iceland
 India
-Indian Ocean Ter.
+Indian Ocean Territory
 Indonesia
 Iran
 Iraq
@@ -106,10 +109,10 @@ Ireland
 Isle of Man
 Israel
 Italy
+Cote d'Ivoire
 Ivory Coast
 Jamaica
 Japan
-Jersey
 Jordan
 Kazakhstan
 Kenya
@@ -134,7 +137,7 @@ Malaysia
 Maldives
 Mali
 Malta
-Marshall Ilands
+Marshall Islands
 Mauritania
 Mauritius
 Mexico
@@ -147,14 +150,14 @@ Montserrat
 Morocco
 Mozambique
 Myanmar
-N. Cyprus
-N. Korea
-N. Mariana Ilands
-NA
+Northern Cyprus
+North Korea
+Northern Mariana Islands
 Namibia
 Nauru
 Nepal
 Netherlands
+Holland
 New Caledonia
 New Zealand
 Nicaragua
@@ -179,7 +182,7 @@ Qatar
 Romania
 Russia
 Rwanda
-South Geo. and South Sandwich Islands
+South Georgia and the South Sandwich Islands
 South Korea
 South  Sudan
 Saint Helena
@@ -203,10 +206,15 @@ South Africa
 Spain
 Sri Lanka
 St. Barthelemy
+Saint Barthelemy
 St. Kitts and Nevis
+Saint Kitts and Nevis
 St. Martin
+Saint Martin
 St. Pierre and Miquelon
+Saint Pierre and Miquelon
 St. Vincent and Grenadines
+Saint Vincent and Grenadines
 Sudan
 Suriname
 Swaziland
@@ -220,12 +228,13 @@ Thailand
 Togo
 Tonga
 Trinidad and Tobago
+Trinidad
 Tunisia
 Turkey
 Turkmenistan
-Turks and Caicos Ilands
+Turks and Caicos Islands
 Tuvalu
-U.S. Virgin Ilands
+U.S. Virgin Islands
 Uganda
 Ukraine
 United Arab Emirates
@@ -237,9 +246,9 @@ Vanuatu
 Vatican
 Venezuela
 Vietnam
-W. Sahara
+Western Sahara
 Wallis and Futuna
 West Bank
 Yemen
 Zambia
-Zimbabwe
+Zimbabwe\\s[[:punct:]]
