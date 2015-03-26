@@ -329,6 +329,27 @@ full.df<-filter(full.df, attributes!="location")
 full.df<-rbind(full.df, locations)
 
 detach(package:stringi)
+
+setwd("C:/Users/SSW/Documents/GitHub/SocialWork100Years/Data")
+GDP<-read.csv("GDP.csv")
+GDP<-select(GDP, Country=Country.Name, GDPperCapita=GDPperCapita2013, GDPRank)
+
+
+PPP<-read.csv("PPP.csv")
+PPP$PPP2013<-gsub(",", "", PPP$PPP2013)
+PPP$PPP2013<-as.character(PPP$PPP2013)
+PPP$PPP2013<-as.numeric(PPP$PPP2013)
+
+articleCountries<-table(locations$record)
+articleCountries<-as.data.frame(articleCountries)
+articleCountries<-articleCountries%>%
+                    select(Country=Var1, articleCount=Freq)
+
+rankSet<-merge(articleCountries, GDP, by="Country", all=TRUE)
+rankSet$articleCount[is.na(rankSet$articleCount)]<-0
+rankSet<-merge(rankSet, PPP, by="Country", all=TRUE)
+
+rankSet<-mutate(rankSet, articleRank=rank(-articleCount))
 ```
 
 ```{r worldmap, eval=FALSE}
