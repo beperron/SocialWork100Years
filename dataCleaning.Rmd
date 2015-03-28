@@ -9,8 +9,8 @@ output: html_document
 
 ```{r initialization}
 rm(list=ls())  
-#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
+load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+#load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
 
 
 # Load required packages
@@ -461,7 +461,7 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-```{r}
+```{r eval=FALSE}
 save.image(file = "socialWorkHistory.Rdata")
 ```
 
@@ -555,7 +555,7 @@ plot.PhD
 ```{r}
 mapCountryData(spdf, nameColumnToPlot="frequency", catMethod="quantiles", 
                                   colourPalette="white2Black", 
-                                  mapTitle="Article Countss by Country, 1989-2013")
+                                  mapTitle="Article Counts by Country, 1989-2013")
 ```
 
 
