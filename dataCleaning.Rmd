@@ -1,7 +1,7 @@
 ---
 title: "25 years of Social Work Research"
 author: "Summary of Data Cleaning Procedures"
-output: html_document
+output: pdf_document
 ---
 
 
@@ -18,8 +18,6 @@ library(ggplot2)
 library(dplyr)
 library(gridExtra)
 library(rworldmap)
-
-
 
 ```
 
@@ -443,8 +441,16 @@ plot.location.noUS <- ggplot(year.location.df.noUS, aes(pubYear, N, group = coun
 ```
 
 ```{r nsf, eval=FALSE}
-nsf <- data.frame(c(238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280), as.factor(seq(2002,2012, 1)))
-colnames(nsf) <- c("n.grads", "years")
+nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
+
+growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 3), "Increase", 
+     rep("Decrease", 4), "Unknown")
+nsf <- cbind(nsf, growth)
+
+colnames(nsf) <- c("n.grads", "years", "growth")
+
+write.csv(nsf, file="nsf.csv")
+
 ```
 
 
@@ -460,6 +466,19 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
            title = element_text(size = 10)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
+
+```{r pages, eval=FALSE}
+pages.df <- full.df %>% filter(attributes == "pages")
+page.identifier <- grepl("[-p]", pages.df$record)
+pages.df.reduced <- pages.df[page.identifier == FALSE,]
+
+reduced <- full.df[full.df$articleID %in% pages.df.reduced$articleID, ]
+reduced <- filter(reduced, attributes == "article" | attributes == "journal" | 
+            attributes == "pubYear" | attributes == "pages" | attributes == "abstract")
+
+```
+
+
 
 ```{r eval=FALSE}
 save.image(file = "socialWorkHistory.Rdata")
