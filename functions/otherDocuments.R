@@ -12,12 +12,21 @@ insert.5<-"[S|s]pecial\\s[I|i]ssue|[T|t]able\\s[O|o]f\\s[C|c]ontent|\\([U|u]ndet
 insert.6<-"^Book.+ | ^COMMENTARY.+ | Call\\s.+ | Contents.+ | Editor.+ | Errat.+"
 insert.7<-"^FROM\\THE.+ | ^From\\sthe\\ed.+ | Health\\s[&]\\sS.+ | ^LETTER.+ |
              ^Letter\\sfrom.+ | ^News\\and.+ | ^Response\\sto\\s[A-Z] | Vol\\.\\s[0-9] |
-            ^Volume.+ | ^\\["
+            ^Volume.+ | ^\\[|Retraction|Endpage"
+
 
 insert<-paste(insert.1,insert.2,insert.3,insert.4,insert.5, insert.6,
               insert.7, sep="|")
 
 badRecords<-subset(titles, grepl(insert, record))
+badRecords.ID<-badRecords$articleID
+
+full.df <<- full.df[!(full.df$articleID %in% badRecords.ID), ]
+
+abstracts<-filter(full.df, attributes=="abstract")
+insert<-"special\\sissue\\s|special\\sissue[[:punct:]]|this\\scommentary|endpage"
+badRecords<-subset(abstracts, grepl(insert, record, ignore.case=TRUE))
+badRecords<-subset(badRecords, !grepl("Part of a special issue", record, ignore.case=TRUE))
 badRecords.ID<-badRecords$articleID
 
 full.df <<- full.df[!(full.df$articleID %in% badRecords.ID), ]
