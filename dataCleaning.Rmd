@@ -1,7 +1,7 @@
 ---
 title: "25 years of Social Work Research"
 author: "Summary of Data Cleaning Procedures"
-output: pdf_document
+output: html_document
 ---
 
 
@@ -9,7 +9,7 @@ output: pdf_document
 
 ```{r initialization}
 rm(list=ls())  
-load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
 
 
@@ -21,7 +21,7 @@ library(rworldmap)
 
 ```
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 # Read data files
 #load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 #load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
@@ -33,19 +33,19 @@ hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specif
 countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
 
 # Load special functions
-source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
 
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
 
 pretty <- function(x){
     x <- prettyNum(x,big.mark=",",scientific=F)
@@ -53,7 +53,7 @@ pretty <- function(x){
     }
 ```
 
-```{r appendData, comment=NA, echo=FALSE, eval=FALSE}
+```{r appendData, comment=NA, echo=FALSE, eval=TRUE}
 appendData.f()
 
 append.articles <- length(which(full.df$attributes == "article"))
@@ -66,11 +66,11 @@ unique.titles <- filter(full.df, attributes == "journal") %>%
         N = n())
 ```
 
-```{r shortArticles, comment=NA, echo=FALSE, warning=FALSE, eval=FALSE}
+```{r shortArticles, comment=NA, echo=FALSE, warning=FALSE, eval=TRUE}
 shortArticles.f()
 ```
 
-```{r titleMatching, echo=FALSE, eval=FALSE}
+```{r titleMatching, echo=FALSE, eval=TRUE}
 titleMatching.f()
 
 articles.titleMatching <- length(which(full.df$attributes == "article"))
@@ -79,21 +79,21 @@ journals.titleMatching <- filter(full.df, attributes == "journal") %>%
         summarise(Unique = n_distinct(record))
 ```  
 
-```{r otherDocuments, echo=FALSE, eval=FALSE}
+```{r otherDocuments, echo=FALSE, eval=TRUE}
 otherDocuments.f()
 articles.otherDocuments <- length(which(full.df$attributes == "article"))
 journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 ```
 
-```{r final, comment=NA, echo=FALSE, eval=FALSE}
+```{r final, comment=NA, echo=FALSE, eval=TRUE}
 fewArticles.f()
 articles.final <- length(which(full.df$attributes == "article"))
 journals.final <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 ```
 
-```{r finalList, comment=NA, echo=FALSE, eval=FALSE}
+```{r finalList, comment=NA, echo=FALSE, eval=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
@@ -125,7 +125,7 @@ final.list <- cbind(n.so.yr, H)
 final.list <- arrange(final.list, desc(n))
 ```
 
-```{r plotArticleCount, eval=FALSE}
+```{r plotArticleCount, eval=TRUE}
 n.articles.year <- filter(full.df, attributes == "pubYear") 
 year.split <- split(n.articles.year, n.articles.year$record)
 year.count <- unlist(lapply(year.split, nrow))
@@ -151,7 +151,7 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
              ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
 ```
 
-```{r plotJournalCount, eval=FALSE}
+```{r plotJournalCount, eval=TRUE}
 n.journals.year <- filter(full.df, attributes == "journal") %>%
     select(articleID, record)
 
@@ -178,7 +178,7 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
              ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
 ```
 
-```{r plotAuthorCount, eval=FALSE}
+```{r plotAuthorCount, eval=TRUE}
 
 year.df <- full.df %>%
         filter(attributes == "pubYear") %>%
@@ -238,7 +238,7 @@ LO.df <- filter(full.df, attributes == "location") %>%
         select(-record)
 ```
 
-```{r locationExtraction2, eval=FALSE}
+```{r locationExtraction2, eval=TRUE}
 LO.df2 <- filter(full.df, attributes == "abstract" |
                  attributes == "article" | attributes == "keyword")
 indx.country <- paste(countries.csv$x, collapse = "[\\s|[[:punct:]]]|")
@@ -329,28 +329,11 @@ full.df<-rbind(full.df, locations)
 detach(package:stringi)
 
 setwd("C:/Users/SSW/Documents/GitHub/SocialWork100Years/Data")
-GDP<-read.csv("GDP.csv")
-GDP<-select(GDP, Country=Country.Name, GDPperCapita=GDPperCapita2013, GDPRank)
+rankSet<-read.csv("rankSet.csv")
 
-
-PPP<-read.csv("PPP.csv")
-PPP$PPP2013<-gsub(",", "", PPP$PPP2013)
-PPP$PPP2013<-as.character(PPP$PPP2013)
-PPP$PPP2013<-as.numeric(PPP$PPP2013)
-
-articleCountries<-table(locations$record)
-articleCountries<-as.data.frame(articleCountries)
-articleCountries<-articleCountries%>%
-                    select(Country=Var1, articleCount=Freq)
-
-rankSet<-merge(articleCountries, GDP, by="Country", all=TRUE)
-rankSet$articleCount[is.na(rankSet$articleCount)]<-0
-rankSet<-merge(rankSet, PPP, by="Country", all=TRUE)
-
-rankSet<-mutate(rankSet, articleRank=rank(-articleCount))
 ```
 
-```{r worldmap, eval=FALSE}
+```{r worldmap, eval=TRUE}
 
 ###Code for creating world maps.  The four countries in the UK are recoded as "United Kingdom" for data visualization.
 library(rworldmap)
@@ -371,7 +354,7 @@ spdf2 <- joinCountryData2Map(loc.tab2, joinCode="NAME", nameJoinColumn="country"
 ```
 
 
-```{r locationWithtUS, eval=FALSE}
+```{r locationWithtUS, eval=TRUE}
 year.df <- filter(full.df, attributes == "pubYear") %>%
             select(articleID, record)
 
@@ -409,7 +392,7 @@ year.location.df.noUS <- group_by(year.location.df.noUS, country, pubYear) %>%
 ```
 
 
-```{r plotLocationWithUS, eval=FALSE}
+```{r plotLocationWithUS, eval=TRUE}
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
@@ -440,7 +423,7 @@ plot.location.noUS <- ggplot(year.location.df.noUS, aes(pubYear, N, group = coun
 
 ```
 
-```{r nsf, eval=FALSE}
+```{r nsf, eval=TRUE}
 nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
 
 growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 3), "Increase", 
@@ -454,7 +437,7 @@ write.csv(nsf, file="nsf.csv")
 ```
 
 
-```{r nsfPlot, eval=FALSE}
+```{r nsfPlot, eval=TRUE}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
     geom_line(linetype="dotted", colour = "#0072B2", size = .75) + 
     geom_point(colour = "#0072B2", size = .75) +
@@ -467,7 +450,7 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-```{r pages, eval=FALSE}
+```{r pages, eval=TRUE}
 pages.df <- full.df %>% filter(attributes == "pages")
 page.identifier <- grepl("[-p]", pages.df$record)
 pages.df.reduced <- pages.df[page.identifier == FALSE,]
@@ -480,7 +463,7 @@ reduced <- filter(reduced, attributes == "article" | attributes == "journal" |
 
 
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 save.image(file = "socialWorkHistory.Rdata")
 ```
 
@@ -632,7 +615,7 @@ print(sort(hodge.swHistory.diff))
 
 
 
-```{r message=FALSE, warning=FALSE, eval=FALSE}
+```{r message=FALSE, warning=FALSE, eval=TRUE}
 cor.data <- select(final.list, first, last, n) %>%
             mutate(no.years = as.numeric(last) - as.numeric(first)) 
 
@@ -646,7 +629,7 @@ ggplot(cor.data, aes(x = no.years, y = n)) +
 
 
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
                            authorAff = FALSE, abstract = FALSE){
     article.search <- which(full.df$record == journalTitle)
