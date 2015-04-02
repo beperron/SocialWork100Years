@@ -1,5 +1,5 @@
 ---
-title: "Examining a Quarter Century of Publishing Trends in Social Work: A Data Science Perspective"
+title: "Examining a Quarter Century of Publishing Trends in Social Work Research: A Data Science Perspective"
 author: 
 output: pdf_document
 ---
@@ -53,9 +53,17 @@ source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
 source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/pretty.R")
 ```
 
-```{r appendData, comment=NA, echo=FALSE, eval=FALSE}
+```{r dataCleaning, comment=NA, echo=FALSE, eval=FALSE}
 appendData.f()
+shortArticles.f()
+titleMatching.f()
+otherDocuments.f()
+fewArticles.f()
+save.image(file = "socialWorkHistory.Rdata")
+```
 
+
+```{r eval=TRUE}
 append.articles <- length(which(full.df$attributes == "article"))
 append.journals <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
@@ -64,36 +72,25 @@ unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(
         N = n())
-```
-
-```{r shortArticles, comment=NA, echo=FALSE, warning=FALSE, eval=FALSE}
-shortArticles.f()
-```
-
-```{r titleMatching, echo=FALSE, eval=FALSE}
-titleMatching.f()
 
 articles.titleMatching <- length(which(full.df$attributes == "article"))
 
 journals.titleMatching <- filter(full.df, attributes == "journal") %>%
         summarise(Unique = n_distinct(record))
-```  
 
-```{r otherDocuments, echo=FALSE, eval=FALSE}
-otherDocuments.f()
+
 articles.otherDocuments <- length(which(full.df$attributes == "article"))
 journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
-```
 
-```{r final, comment=NA, echo=FALSE, eval=FALSE}
-fewArticles.f()
+
 articles.final <- length(which(full.df$attributes == "article"))
 journals.final <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
+
 ```
 
-```{r finalList, comment=NA, echo=FALSE, eval=FALSE}
+```{r finalList, comment=NA, echo=FALSE, eval=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
@@ -267,7 +264,7 @@ pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>%
 
 ```
 
-```{r nsfPlot, eval=FALSE}
+```{r nsfPlot, eval=TRUE}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
     geom_line(linetype="dotted", colour = "#0072B2", size = .75) + 
     geom_point(colour = "#0072B2", size = .75) +
@@ -280,7 +277,7 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 colnames(n.journals.year) <- c("years", "journals")
 n_authors2 <- rename(n_authors2, years = ID, Avg.Authors = Average, Mdn.Authors = Median, Sd.Authors = Standard_Deviation)
 
@@ -298,13 +295,9 @@ scholarly.df <- mutate(scholarly.df, years = as.numeric(years)) %>%
 scholarly.df$gade <- rep(NA, nrow(scholarly.df))  
 scholarly.df$gade[15] <- 72
 scholarly.df$gade[27] <- 86
-
-#write.csv(scholarly.df, file = "scholarship.csv")
 ```
 
-```{r eval=FALSE}
-save.image(file = "socialWorkHistory.Rdata")
-```
+
 
 ### Data Revolution
 
@@ -420,19 +413,3 @@ Articles on Hodge and Lacasse (2011) but not in the current study.
 ```{r}
 print(sort(hodge.swHistory.diff))
 ```
-
-```{r message=FALSE, warning=FALSE, eval=FALSE}
-cor.data <- select(final.list, first, last, n) %>%
-            mutate(no.years = as.numeric(last) - as.numeric(first)) 
-
-ggplot(cor.data, aes(x = no.years, y = n)) + 
-            geom_point(shape = 1) + 
-            geom_smooth() + 
-            xlab("Years") + 
-            ylab("Number of articles")
-```
-
-
-
-
-
