@@ -229,9 +229,6 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
 
 ```
 
-
-
-
 ```{r nsf, eval=FALSE}
 nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
 
@@ -304,7 +301,6 @@ scholarly.df$gade[27] <- 86
 
 #write.csv(scholarly.df, file = "scholarship.csv")
 ```
-
 
 ```{r eval=FALSE}
 save.image(file = "socialWorkHistory.Rdata")
@@ -397,8 +393,6 @@ plot.PhD
 
 \newpage
 
-\newpage
-
 ```{r}
 plot.author.count
 ```
@@ -421,16 +415,11 @@ swHistory.hodge.diff <- setdiff(unique.swHistory$record, hodge)
 #hodge.swHistory.union <- union(hodge, unique.swHistory$record)
 ```
 
-
 Articles on Hodge and Lacasse (2011) but not in the current study.  
 
 ```{r}
 print(sort(hodge.swHistory.diff))
 ```
-
-
-
-
 
 ```{r message=FALSE, warning=FALSE, eval=FALSE}
 cor.data <- select(final.list, first, last, n) %>%
@@ -445,30 +434,5 @@ ggplot(cor.data, aes(x = no.years, y = n)) +
 
 
 
-
-```{r eval=FALSE}
-journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
-                           authorAff = FALSE, abstract = FALSE){
-    article.search <- which(full.df$record == journalTitle)
-    article.search <- full.df[article.search,]
-    article.search.ID <- select(article.search, articleID)
-    target.ID <- full.df$articleID %in% article.search.ID$articleID
-    journal.article.df <- full.df[target.ID, ]
-    journal.article.df <- filter(journal.article.df, attributes == "article")
-    journal.article.df <- arrange(journal.article.df, record)
-    if(keyword == FALSE){journal.article.df <- filter(journal.article.df, attributes != "keyWord")}
-    if(authorAff == FALSE){journal.article.df <- filter(journal.article.df, attributes != "authorAff")}
-    if(abstract == FALSE){journal.article.df <- filter(journal.article.df, attributes != "abstract")}
-    x.shortened <- gsub(" ", "", journalTitle)
-    write.csv(journal.article.df, file = paste0(x.shortened, ".csv"), row.names=F)
-    }
-
-journalArticleFinder.f("Journal of Gerontological Social Work")
-#journalArticleFinder.f("Social Work")
-
-articles <- filter(full.df, attributes == "article") %>% arrange(record)
-write.csv(articles, file = "articles.csv")
-
-```
 
 
