@@ -23,29 +23,29 @@ library(rworldmap)
 
 ```{r eval=TRUE}
 # Read data files
-#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-#hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-#countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries.csv")
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
-countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries.csv")
+#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+#hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
+#countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
 
 # Load special functions
-#source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
 
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
 
 pretty <- function(x){
     x <- prettyNum(x,big.mark=",",scientific=F)
@@ -229,6 +229,29 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
 
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r locationExtraction}
 LO.df <- filter(full.df, attributes == "location") %>%
          group_by(record) %>%
@@ -242,8 +265,9 @@ LO.df <- filter(full.df, attributes == "location") %>%
 LO.df2 <- filter(full.df, attributes == "abstract" |
                  attributes == "article" | attributes == "keyword")
 indx.country <- paste(countries.csv$x, collapse = "[\\s|[[:punct:]]]|")
+
 library(stringi)
-countries.extracted <- na.omit(within(LO.df2, text1<- stri_extract(LO.df2$record, opts_fixed=TRUE, regex=indx.country)))[-2]
+countries.extracted <- na.omit(within(LO.df2, text1 <- stri_extract(LO.df2$record, regex=indx.country)))[-2]
 countries.extracted$text1<-gsub("[[:punct:]]", "", countries.extracted$text1)
 countries.extracted$text1<-gsub("^\\s+|\\s+$", "", countries.extracted$text1)
 
@@ -326,7 +350,7 @@ locations$record[locations$record=="Wales"]<-"United Kingdom"
 full.df<-filter(full.df, attributes!="location")
 full.df<-rbind(full.df, locations)
 
-detach(package:stringi)
+#detach(package:stringi)
 
 setwd("C:/Users/SSW/Documents/GitHub/SocialWork100Years/Data")
 rankSet<-read.csv("rankSet.csv")
@@ -436,6 +460,34 @@ write.csv(nsf, file="nsf.csv")
 
 ```
 
+```{r gade, eval=TRUE}
+
+years <- c(1989:2015)
+programs <- rep(NA, 27)
+gade <- as.data.frame(cbind(as.character(years), programs))
+gade$programs <- as.numeric(gade$programs)
+gade[15, 2] <- 72
+gade[27, 2] <- 86
+colnames(gade) <- c("years", "programs")
+```
+
+```{r pages, eval=TRUE}
+pages.tmp <- full.df %>% filter(attributes == "pages")
+years.tmp <- full.df %>% filter(attributes == "pubYear")
+pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>% 
+    select(record.y, record.x) %>%
+    rename(years = record.y, pages = record.x) %>%
+    mutate(pages = as.numeric(pages)) %>%
+    group_by(years) %>%
+    summarise(
+        Median.Pages = median(pages, na.rm=TRUE), 
+        Mean.Pages = mean(pages, na.rm=TRUE),
+        Std.Pages = sd(pages, na.rm=TRUE))
+
+```
+
+
+
 
 ```{r nsfPlot, eval=TRUE}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
@@ -450,17 +502,28 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-```{r pages, eval=TRUE}
-pages.df <- full.df %>% filter(attributes == "pages")
-page.identifier <- grepl("[-p]", pages.df$record)
-pages.df.reduced <- pages.df[page.identifier == FALSE,]
+```{r}
+colnames(n.journals.year) <- c("years", "journals")
+n_authors2 <- rename(n_authors2, years = ID, Avg.Authors = Average, Mdn.Authors = Median, Sd.Authors = Standard_Deviation)
 
-reduced <- full.df[full.df$articleID %in% pages.df.reduced$articleID, ]
-reduced <- filter(reduced, attributes == "article" | attributes == "journal" | 
-            attributes == "pubYear" | attributes == "pages" | attributes == "abstract")
+
+scholarly.df <- left_join(articles.year.df, n.journals.year, by = "years") 
+scholarly.df <- left_join(scholarly.df, n_authors2, by = "years")
+scholarly.df <- left_join(scholarly.df, nsf, by = "years")
+scholarly.df <- left_join(scholarly.df, pages.df, by = "years")
+scholarly.df[c(26, 27), ] <- rep(NA)
+scholarly.df[26, 1] <- 2014
+scholarly.df[27, 1] <- 2015
+
+scholarly.df <- mutate(scholarly.df, years = as.numeric(years)) %>%
+    rename(article.count = year.count, journal.count = year.count, program.growth = growth) 
+scholarly.df$gade <- rep(NA, nrow(scholarly.df))  
+scholarly.df$gade[15] <- 72
+scholarly.df$gade[27] <- 86
+
+write.csv(scholarly.df, file = "scholarship.csv")
 
 ```
-
 
 
 ```{r eval=TRUE}
