@@ -19,6 +19,15 @@ appendData.f <- function(){
 
     full.df <- full.df[!(full.df$articleID %in% year.removeID), ]
 
+    article.count <- filter(full.df, attributes == "article") 
+    article.count.initial <<- article.count
+    journal.count <- filter(full.df, attributes == "journal")
+    
+    journal.count.initial <<- length(unique(journal.count$record))
+    
+    
+    
+    
     full.df$record <- ifelse(full.df$record ==
                                  "The British Journal of Social Work",          # Spelling difference
                              "British Journal of Social Work",

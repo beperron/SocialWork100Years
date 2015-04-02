@@ -4,14 +4,11 @@ author:
 output: pdf_document
 ---
 
-
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
 
-```{r initialization}
+```{r BEPinitialization, eval=TRUE}
 rm(list=ls())  
 load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
-
 
 # Load required packages
 library(ggplot2)
@@ -19,38 +16,41 @@ library(dplyr)
 library(gridExtra)
 library(rworldmap)
 
-```
-
-```{r eval=FALSE}
 # Read data files
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-countries.csv <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/countries.csv")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-#load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-#hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
-#countries.csv<-read.csv("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/countries.csv")
 
-# Load special functions
 source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
+```
 
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-#source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
+```{r BGVinitialization, eval=FALSE}
+rm(list=ls())  
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
 
-pretty <- function(x){
-    x <- prettyNum(x,big.mark=",",scientific=F)
-    x
-    }
+# Load required packages
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(rworldmap)
+
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
+load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
+hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
+
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
+source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/pretty.R")
 ```
 
 ```{r appendData, comment=NA, echo=FALSE, eval=FALSE}
@@ -229,200 +229,8 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
 
 ```
 
-```{r locationExtraction, eval=FALSE}
-LO.df <- filter(full.df, attributes == "location") %>%
-         group_by(record) %>%
-         summarise(Country = unique(record),
-                   N = n()) %>%
-        arrange(desc(N)) %>% 
-        select(-record)
-```
-
-```{r locationExtraction2, eval=FALSE}
-LO.df2 <- filter(full.df, attributes == "abstract" |
-                 attributes == "article" | attributes == "keyword")
-indx.country <- paste(countries.csv$x, collapse = "[\\s|[[:punct:]]]|")
-
-library(stringi)
-countries.extracted <- na.omit(within(LO.df2, text1 <- stri_extract(LO.df2$record, regex=indx.country)))[-2]
-countries.extracted$text1<-gsub("[[:punct:]]", "", countries.extracted$text1)
-countries.extracted$text1<-gsub("^\\s+|\\s+$", "", countries.extracted$text1)
-
-new.countries<-unique(countries.extracted[,c("articleID","text1")])
-new.countries<-mutate(new.countries, attributes="location")
-new.countries<-select(new.countries, articleID, attributes, record=text1)
-
-loc<-filter(full.df, attributes=="location")
-locations<-rbind(loc, new.countries)
-locations<-unique(locations[,c("articleID","attributes","record")])
-locations<-filter(locations, record!="NA")
 
 
-#Set of code to address labeling issues related to the United Kingdom
-
-locations$record[locations$record=="Great Britain"]<- "United Kingdom"    #Combines Great Britain and UK records
-
-uk<-filter(locations, record=="United Kingdom")  #creates temp DF with only UK records
-ukID<-uk$articleID
-
-#next four blocks of code check to see if the United Kindgom and each country are both listed as a research site and eliminates the UK location record when this was the case.  This means that remaining UK records represent cases of research within the UK in an unspecified country.
-
-
-scot<-filter(locations, record=="Scotland") 
-scotID<-scot$articleID
-remove<-ukID%in%scotID
-uk.remove<-cbind(uk, remove)
-uk.remove<-filter(uk, remove==TRUE)
-uk.remove.ID<-uk.remove$articleID
-uk<-uk[!(uk$articleID%in%uk.remove.ID),]
-ukID<-uk$articleID
-
-eng<-filter(locations, record=="England")  
-engID<-eng$articleID 
-remove<-ukID%in%engID
-uk.remove<-cbind(uk, remove)
-uk.remove<-filter(uk, remove==TRUE)
-uk.remove.ID<-uk.remove$articleID
-uk<-uk[!(uk$articleID%in%uk.remove.ID),]
-ukID<-uk$articleID
-
-ni<-filter(locations, record=="Northern Ireland") 
-niID<-ni$articleID
-remove<-ukID%in%niID
-uk.remove<-cbind(uk, remove)
-uk.remove<-filter(uk, remove==TRUE)
-uk.remove.ID<-uk.remove$articleID
-uk<-uk[!(uk$articleID%in%uk.remove.ID),]
-ukID<-uk$articleID
-
-wales<-filter(locations, record=="Wales") 
-walesID<-wales$articleID
-remove<-ukID%in%walesID
-uk.remove<-cbind(uk, remove)
-uk.remove<-filter(uk, remove==TRUE)
-uk.remove.ID<-uk.remove$articleID
-uk<-uk[!(uk$articleID%in%uk.remove.ID),]
-ukID<-uk$articleID
-
-locations<-filter(locations, record!="United Kingdom")  #removes old UK records
-locations<-rbind(locations, uk)
-
-locations$record[locations$record=="US"]<-"United States"
-locations$record[locations$record=="Appalachia"]<-"United States"
-locations$record[locations$record=="Bosnia"]<-"Bosnia-Herzegovina"
-locations$record[locations$record=="Democratic Republic of Congo"]<- "Congo (Brazzaville)"
-locations$record[locations$record=="Democratic Republic of the Congo"]<- "Congo (Brazzaville)"
-locations$record[locations$record=="Holland"]<- "Netherlands"
-locations$record[locations$record=="West Bank"]<-"Palestine"
-locations$record[locations$record=="Gaza"]<-"Palestine"
-locations$record[locations$record=="Gaza Strip"]<-"Palestine"
-locations$record[locations$record=="Trinidad"]<-"Trinidad and Tobago"
-locations$record[locations$record=="Gaza"]<-"Palestine"
-locations$record[locations$record=="England"]<-"United Kingdom"
-locations$record[locations$record=="Northern Ireland"]<-"United Kingdom"
-locations$record[locations$record=="Scotland"]<-"United Kingdom"
-locations$record[locations$record=="Wales"]<-"United Kingdom"
-
-
-full.df<-filter(full.df, attributes!="location")
-full.df<-rbind(full.df, locations)
-
-#detach(package:stringi)
-
-setwd("C:/Users/SSW/Documents/GitHub/SocialWork100Years/Data")
-rankSet<-read.csv("rankSet.csv")
-
-```
-
-```{r worldmap, eval=FALSE}
-
-###Code for creating world maps.  The four countries in the UK are recoded as "United Kingdom" for data visualization.
-library(rworldmap)
-
-loc.tab<-table(locations$record)
-
-loc.tab<-as.data.frame(loc.tab)
-loc.tab<-select(loc.tab, country=Var1, frequency=Freq)
-
-
-#join to a coarse resolution map
-spdf <- joinCountryData2Map(loc.tab, joinCode="NAME", nameJoinColumn="country")
-
-loc.tab2<-filter(loc.tab, frequency>=25)
-spdf2 <- joinCountryData2Map(loc.tab2, joinCode="NAME", nameJoinColumn="country")
-
-
-```
-
-
-```{r locationWithtUS, eval=FALSE}
-year.df <- filter(full.df, attributes == "pubYear") %>%
-            select(articleID, record)
-
-location.df <- filter(full.df, attributes == "location") %>%
-            select(articleID, record)
-
-year.location.df <- left_join(year.df, location.df, by = "articleID")
-
-colnames(year.location.df) <- c("articleID", "pubYear", "country")
-year.location.df <- year.location.df[!is.na(year.location.df$country), ]
-
-location.summary.df <- group_by(year.location.df, country) %>%
-           summarize(Number = n()) %>%
-           arrange(desc(Number)) %>%
-           slice(1:6) %>%
-           select(country)
-
-location.df.withUS <- location.df[location.df$record %in% location.summary.df$country, ]
-year.location.df.withUS <- left_join(location.df.withUS, year.df, by = "articleID") 
-colnames(year.location.df.withUS) <- c("articleID", "country", "pubYear")
-year.location.df.withUS <- group_by(year.location.df.withUS, country, pubYear) %>%
-                    summarise(N = n())
-
-location.summary.df.noUS <- group_by(year.location.df, country) %>%
-           summarize(Number = n()) %>%
-           arrange(desc(Number)) %>%
-           slice(2:7) %>%
-           select(country)
-
-location.df.noUS <- location.df[location.df$record %in% location.summary.df.noUS$country, ]
-year.location.df.noUS <- left_join(location.df.noUS, year.df, by = "articleID") 
-colnames(year.location.df.noUS) <- c("articleID", "country", "pubYear")
-year.location.df.noUS <- group_by(year.location.df.noUS, country, pubYear) %>%
-                    summarise(N = n())
-```
-
-
-```{r plotLocationWithUS, eval=FALSE}
-
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-plot.location.withUS <- ggplot(year.location.df.withUS, aes(pubYear, N, group = country, colour=country)) + 
-    geom_line() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-          title = element_text(size = 10), 
-          legend.title=element_blank())  +
-    scale_y_continuous(limits = c(0,700)) + 
-    xlab("Year") +
-    ylab("Articles") +
-    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
-    scale_colour_manual(values=cbPalette) +
-    ggtitle("Number of Articles by Country and Year")
-
-plot.location.noUS <- ggplot(year.location.df.noUS, aes(pubYear, N, group = country, colour=country)) + 
-    geom_line() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-          title = element_text(size = 10), 
-          legend.title=element_blank())  +
-    scale_y_continuous(limits = c(0,150)) + 
-    xlab("Year") +
-    ylab("Articles") +
-    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) + 
-    scale_colour_manual(values=cbPalette) +
-    ggtitle("Number of Articles by Country and Year, United States Excluded")
-
-
-```
 
 ```{r nsf, eval=FALSE}
 nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
@@ -438,7 +246,6 @@ colnames(nsf) <- c("n.grads", "years", "growth")
 ```
 
 ```{r gade, eval=FALSE}
-
 years <- c(1989:2015)
 programs <- rep(NA, 27)
 gade <- as.data.frame(cbind(as.character(years), programs))
@@ -496,7 +303,6 @@ scholarly.df$gade[15] <- 72
 scholarly.df$gade[27] <- 86
 
 #write.csv(scholarly.df, file = "scholarship.csv")
-
 ```
 
 
@@ -549,7 +355,7 @@ To help ensure comprehensive coverage of all possible core social work journals,
 + "social development" 
 + "social environment"
 
-Using this search queries, we extract journal article recrods from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  Because of known gaps in indexing in databases (Holden, Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail, Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  In every search, we used a filter in attempt to extract only article records that were classified as _journal articles_, thereby excluding other forms of scholarly communication that was not relevant to the current study (e.g., book reviews, editorials, obituaries, etc.).  We limited the timeframe to a 25 year period, from 1989 to 2013 (inclusive).  Articles published in years 2014 and 2015 were excluded because of delays in indexing.  Search results were exported in batches of article records based on the restrictions of the platform.  Article records were text files in a _generic bibliographic format_.  The article records contained various meta-data based on the database from which the article record was extracted.   Meta-data include (but are not limited to):  article title, journal title, publication year, author name(s), author affiliation(s), abstract, keywords, methodological classification, funding source, location of study, subject groups, digital object identifier (DOI), number of references, number of pages, etc.  These files were post-processed into a structured database using a set of scripts written in the R statistical programming language.  The initial search resulted in 36,094 article records from 117 different journals.  ```NOTE: these values are hardcoded--should be changed to draw from actual data.```
+Using this search queries, we extract journal article recrods from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  Because of known gaps in indexing in databases (Holden, Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail, Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  In every search, we used a filter in attempt to extract only article records that were classified as _journal articles_, thereby excluding other forms of scholarly communication that was not relevant to the current study (e.g., book reviews, editorials, obituaries, etc.).  We limited the timeframe to a 25 year period, from 1989 to 2013 (inclusive).  Articles published in years 2014 and 2015 were excluded because of delays in indexing.  Search results were exported in batches of article records based on the restrictions of the platform.  Article records were text files in a _generic bibliographic format_.  The article records contained various meta-data based on the database from which the article record was extracted.   Meta-data include (but are not limited to):  article title, journal title, publication year, author name(s), author affiliation(s), abstract, keywords, methodological classification, funding source, location of study, subject groups, digital object identifier (DOI), number of references, number of pages, etc.  These files were post-processed into a structured database using a set of scripts written in the R statistical programming language.  The initial search resulted in `r pretty(nrow(article.count.initial))` article records from `r journal.count.initial`.
 
 The search queries were purposefully specified to be overly inclusive to ensure full coverage of all possible social work journals contained in the major and minor databases.  Additionally, a visual inspection of the article records revealed problems in the original indexing of articles that requires subsequent data cleaning.  Thus, our data cleaning procedures focused separately on journal titles and article records.
 
@@ -591,30 +397,6 @@ plot.PhD
 
 \newpage
 
-```{r}
-mapCountryData(spdf, nameColumnToPlot="frequency", catMethod="quantiles", 
-                                  colourPalette="white2Black", 
-                                  mapTitle="Article Counts by Country, 1989-2013")
-```
-
-
-\newpage
-```{r}
-mapCountryData(spdf2, nameColumnToPlot="frequency", catMethod="quantiles", 
-                    colourPalette="white2Black", 
-                    mapTitle="Article Counts for Countries with Sustained Presence, 1989-2013")
-
-```
-
-\newpage
-```{r}
-plot.location.withUS
-```
-
-```{r}
-plot.location.noUS
-```
-
 \newpage
 
 ```{r}
@@ -623,8 +405,6 @@ plot.author.count
 
 
 \newpage
-
-
 
 
 
