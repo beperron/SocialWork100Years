@@ -115,6 +115,12 @@ appendData.f <- function(){
                              "British Journal of Social Work",
                              full.df$record)
 
+    full.df$record <- ifelse(full.df$record ==
+                               "Social Work Research & Abstracts",          # Spelling difference
+                             "Social Work Research",
+                             full.df$record)
+    
+    
     #shortens Professional Development
     full.df$record <- ifelse(full.df$attributes == "journal",
                              gsub(":.+", "", full.df$record),

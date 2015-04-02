@@ -1,7 +1,7 @@
 ---
-title: "25 years of Social Work Research"
-author: "Summary of Data Cleaning Procedures"
-output: html_document
+title: "Examining a Quarter Century of Publishing Trends in Social Work: A Data Science Perspective"
+author: 
+output: pdf_document
 ---
 
 
@@ -9,7 +9,7 @@ output: html_document
 
 ```{r initialization}
 rm(list=ls())  
-#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
 #load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
 
 
@@ -21,7 +21,7 @@ library(rworldmap)
 
 ```
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 # Read data files
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
@@ -53,7 +53,7 @@ pretty <- function(x){
     }
 ```
 
-```{r appendData, comment=NA, echo=FALSE, eval=TRUE}
+```{r appendData, comment=NA, echo=FALSE, eval=FALSE}
 appendData.f()
 
 append.articles <- length(which(full.df$attributes == "article"))
@@ -66,11 +66,11 @@ unique.titles <- filter(full.df, attributes == "journal") %>%
         N = n())
 ```
 
-```{r shortArticles, comment=NA, echo=FALSE, warning=FALSE, eval=TRUE}
+```{r shortArticles, comment=NA, echo=FALSE, warning=FALSE, eval=FALSE}
 shortArticles.f()
 ```
 
-```{r titleMatching, echo=FALSE, eval=TRUE}
+```{r titleMatching, echo=FALSE, eval=FALSE}
 titleMatching.f()
 
 articles.titleMatching <- length(which(full.df$attributes == "article"))
@@ -79,21 +79,21 @@ journals.titleMatching <- filter(full.df, attributes == "journal") %>%
         summarise(Unique = n_distinct(record))
 ```  
 
-```{r otherDocuments, echo=FALSE, eval=TRUE}
+```{r otherDocuments, echo=FALSE, eval=FALSE}
 otherDocuments.f()
 articles.otherDocuments <- length(which(full.df$attributes == "article"))
 journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 ```
 
-```{r final, comment=NA, echo=FALSE, eval=TRUE}
+```{r final, comment=NA, echo=FALSE, eval=FALSE}
 fewArticles.f()
 articles.final <- length(which(full.df$attributes == "article"))
 journals.final <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 ```
 
-```{r finalList, comment=NA, echo=FALSE, eval=TRUE}
+```{r finalList, comment=NA, echo=FALSE, eval=FALSE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
@@ -125,7 +125,7 @@ final.list <- cbind(n.so.yr, H)
 final.list <- arrange(final.list, desc(n))
 ```
 
-```{r plotArticleCount, eval=TRUE}
+```{r plotArticleCount, eval=FALSE}
 n.articles.year <- filter(full.df, attributes == "pubYear") 
 year.split <- split(n.articles.year, n.articles.year$record)
 year.count <- unlist(lapply(year.split, nrow))
@@ -151,7 +151,7 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
              ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
 ```
 
-```{r plotJournalCount, eval=TRUE}
+```{r plotJournalCount, eval=FALSE}
 n.journals.year <- filter(full.df, attributes == "journal") %>%
     select(articleID, record)
 
@@ -178,7 +178,7 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
              ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
 ```
 
-```{r plotAuthorCount, eval=TRUE}
+```{r plotAuthorCount, eval=FALSE}
 
 year.df <- full.df %>%
         filter(attributes == "pubYear") %>%
@@ -229,30 +229,7 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r locationExtraction}
+```{r locationExtraction, eval=FALSE}
 LO.df <- filter(full.df, attributes == "location") %>%
          group_by(record) %>%
          summarise(Country = unique(record),
@@ -261,7 +238,7 @@ LO.df <- filter(full.df, attributes == "location") %>%
         select(-record)
 ```
 
-```{r locationExtraction2, eval=TRUE}
+```{r locationExtraction2, eval=FALSE}
 LO.df2 <- filter(full.df, attributes == "abstract" |
                  attributes == "article" | attributes == "keyword")
 indx.country <- paste(countries.csv$x, collapse = "[\\s|[[:punct:]]]|")
@@ -357,7 +334,7 @@ rankSet<-read.csv("rankSet.csv")
 
 ```
 
-```{r worldmap, eval=TRUE}
+```{r worldmap, eval=FALSE}
 
 ###Code for creating world maps.  The four countries in the UK are recoded as "United Kingdom" for data visualization.
 library(rworldmap)
@@ -378,7 +355,7 @@ spdf2 <- joinCountryData2Map(loc.tab2, joinCode="NAME", nameJoinColumn="country"
 ```
 
 
-```{r locationWithtUS, eval=TRUE}
+```{r locationWithtUS, eval=FALSE}
 year.df <- filter(full.df, attributes == "pubYear") %>%
             select(articleID, record)
 
@@ -416,7 +393,7 @@ year.location.df.noUS <- group_by(year.location.df.noUS, country, pubYear) %>%
 ```
 
 
-```{r plotLocationWithUS, eval=TRUE}
+```{r plotLocationWithUS, eval=FALSE}
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
@@ -447,7 +424,7 @@ plot.location.noUS <- ggplot(year.location.df.noUS, aes(pubYear, N, group = coun
 
 ```
 
-```{r nsf, eval=TRUE}
+```{r nsf, eval=FALSE}
 nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
 
 growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 3), "Increase", 
@@ -456,11 +433,11 @@ nsf <- cbind(nsf, growth)
 
 colnames(nsf) <- c("n.grads", "years", "growth")
 
-write.csv(nsf, file="nsf.csv")
+#write.csv(nsf, file="nsf.csv")
 
 ```
 
-```{r gade, eval=TRUE}
+```{r gade, eval=FALSE}
 
 years <- c(1989:2015)
 programs <- rep(NA, 27)
@@ -471,7 +448,7 @@ gade[27, 2] <- 86
 colnames(gade) <- c("years", "programs")
 ```
 
-```{r pages, eval=TRUE}
+```{r pages, eval=FALSE}
 pages.tmp <- full.df %>% filter(attributes == "pages")
 years.tmp <- full.df %>% filter(attributes == "pubYear")
 pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>% 
@@ -486,10 +463,7 @@ pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>%
 
 ```
 
-
-
-
-```{r nsfPlot, eval=TRUE}
+```{r nsfPlot, eval=FALSE}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
     geom_line(linetype="dotted", colour = "#0072B2", size = .75) + 
     geom_point(colour = "#0072B2", size = .75) +
@@ -502,7 +476,7 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
      ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-```{r}
+```{r eval=FALSE}
 colnames(n.journals.year) <- c("years", "journals")
 n_authors2 <- rename(n_authors2, years = ID, Avg.Authors = Average, Mdn.Authors = Median, Sd.Authors = Standard_Deviation)
 
@@ -521,12 +495,12 @@ scholarly.df$gade <- rep(NA, nrow(scholarly.df))
 scholarly.df$gade[15] <- 72
 scholarly.df$gade[27] <- 86
 
-write.csv(scholarly.df, file = "scholarship.csv")
+#write.csv(scholarly.df, file = "scholarship.csv")
 
 ```
 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 save.image(file = "socialWorkHistory.Rdata")
 ```
 
@@ -678,7 +652,7 @@ print(sort(hodge.swHistory.diff))
 
 
 
-```{r message=FALSE, warning=FALSE, eval=TRUE}
+```{r message=FALSE, warning=FALSE, eval=FALSE}
 cor.data <- select(final.list, first, last, n) %>%
             mutate(no.years = as.numeric(last) - as.numeric(first)) 
 
@@ -692,7 +666,7 @@ ggplot(cor.data, aes(x = no.years, y = n)) +
 
 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 journalArticleFinder.f <- function(journalTitle, keyword = FALSE, 
                            authorAff = FALSE, abstract = FALSE){
     article.search <- which(full.df$record == journalTitle)
