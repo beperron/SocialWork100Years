@@ -19,7 +19,7 @@ fewArticles.f <- function(){
 
     ebsco.remove <- full.df[full.df$record %in% exclusions.2, ]
     ebsco.remove <- ebsco.remove[, "articleID"]
-    full.df <<- full.df[!(full.df$articleID %in% ebsco.remove),]
+    full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
     
     author<-filter(full.df, attributes=="author")
     no.author<-filter(author, grepl("authorship|anonymous", record, ignore.case=TRUE))

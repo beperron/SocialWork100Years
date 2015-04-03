@@ -8,26 +8,13 @@ output: pdf_document
 
 ```{r BEPinitialization, eval=TRUE}
 rm(list=ls())  
+
 load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
 
 # Load required packages
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
-library(rworldmap)
-
-# Read data files
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-
-source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
 ```
 
 ```{r BGVinitialization, eval=FALSE}
@@ -38,34 +25,33 @@ load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
-library(rworldmap)
-
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/ebscoFULL.R")
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/Data/proQuest.R")
-hodge <- readLines("/Users/SSW/Documents/GitHub/SocialWork100Years/search_specifications/hodge.txt", n = -1)
-
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/appendData.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/shortArticles.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/otherDocuments.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/titleMatching.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/fewArticles.R")
-source("/Users/SSW/Documents/GitHub/SocialWork100Years/functions/pretty.R")
 ```
 
-```{r dataCleaning, comment=NA, echo=FALSE, eval=FALSE}
-appendData.f()
-shortArticles.f()
-titleMatching.f()
-otherDocuments.f()
-fewArticles.f()
-save.image(file = "socialWorkHistory.Rdata")
+```{r imageMaker, comment=NA, echo=FALSE, eval=FALSE}
+# Read data files
+#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+#hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+
+#source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+#source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
+
+#appendData.f()
+#shortArticles.f()
+#titleMatching.f()
+#otherDocuments.f()
+#fewArticles.f()
+#save.image(file = "socialWorkHistory.Rdata")
 ```
 
-
-```{r eval=TRUE}
-append.articles <- length(which(full.df$attributes == "article"))
-append.journals <- filter(full.df, attributes == "journal") %>% 
+```{r methodSummaryData, eval=TRUE}
+append.articles <- length(which(full.append.df$attributes == "article"))
+append.journals <- filter(full.append.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 
 unique.titles <- filter(full.df, attributes == "journal") %>%
@@ -90,7 +76,7 @@ journals.final <- filter(full.df, attributes == "journal") %>%
 
 ```
 
-```{r finalList, comment=NA, echo=FALSE, eval=TRUE}
+```{r Table_1, comment=NA, echo=FALSE, eval=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
@@ -122,7 +108,7 @@ final.list <- cbind(n.so.yr, H)
 final.list <- arrange(final.list, desc(n))
 ```
 
-```{r plotArticleCount, eval=FALSE}
+```{r plotArticleCount, eval=TRUE}
 n.articles.year <- filter(full.df, attributes == "pubYear") 
 year.split <- split(n.articles.year, n.articles.year$record)
 year.count <- unlist(lapply(year.split, nrow))
@@ -148,7 +134,7 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
              ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
 ```
 
-```{r plotJournalCount, eval=FALSE}
+```{r plotJournalCount, eval=TRUE}
 n.journals.year <- filter(full.df, attributes == "journal") %>%
     select(articleID, record)
 
@@ -175,7 +161,7 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
              ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
 ```
 
-```{r plotAuthorCount, eval=FALSE}
+```{r plotAuthorCount, eval=TRUE}
 
 year.df <- full.df %>%
         filter(attributes == "pubYear") %>%
@@ -226,7 +212,7 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
 
 ```
 
-```{r nsf, eval=FALSE}
+```{r nsf, eval=TRUE}
 nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
 
 growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 3), "Increase", 
@@ -239,7 +225,7 @@ colnames(nsf) <- c("n.grads", "years", "growth")
 
 ```
 
-```{r gade, eval=FALSE}
+```{r gade, eval=TRUE}
 years <- c(1989:2015)
 programs <- rep(NA, 27)
 gade <- as.data.frame(cbind(as.character(years), programs))
@@ -249,7 +235,7 @@ gade[27, 2] <- 86
 colnames(gade) <- c("years", "programs")
 ```
 
-```{r pages, eval=FALSE}
+```{r pages, eval=TRUE}
 pages.tmp <- full.df %>% filter(attributes == "pages")
 years.tmp <- full.df %>% filter(attributes == "pubYear")
 pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>% 
@@ -297,7 +283,15 @@ scholarly.df$gade[15] <- 72
 scholarly.df$gade[27] <- 86
 ```
 
+```{r appendix_A_intersection}
+unique.swHistory <- filter(full.df, attributes == "journal") %>%
+                distinct(record)
 
+hodge.swHistory.intersect <- intersect(hodge, unique.swHistory$record)
+
+hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
+
+```
 
 ### Data Revolution
 
@@ -357,7 +351,7 @@ Many journals from allied health disciplines used one of the supplemental search
 
 ### Data cleaning:  Article records
 
-Our search procedures involved the use of three major databased and 46 minor databases, which resulted in some duplication of article records.  Thus, a matching algorithm was constructed to identify and remove all duplicate article records. As previously noted, the filtering of only journal articles was not successful due to errors in the original indexing.  Thus, other scholarly communications were captured in the extractio process.  These other scholarly communications were readily identified due to specific patterns in the titles, such as the terms "Book Review," "From the Editor," and "Obituary."  Given the number of article records in the database, it was not feasbile to manually extract these recrods.  Instead, we created a separate database with representative examples of article records that we wanted to extract.  We also added representative examples of article records to be retained.  We then wrote a series of _regular expressions_ to extract the problematic article records.  Regular expressions are a sequence of characters that form search patterns, allowing extraction of records that match the specified pattern.  In other words, it is a more sophisticated implementation of the search function common to all major word processors.  We tested our regular expressions on the test database, achieving > 95% accuracy with regard to retaining and extracting article records.  These regular expressions were then applied to the full database.  We then excluded article records if they were missing essential meta-data, including author name(s), journal title, article title, and publication field.  As an additional requirement, we required all articles to be $\geq 3$ pages in length.   Finally, we eliminated all social work journals with total article counts of < 10 for the enitre 25 year window (_Issues in Social Work Education_, _Maatskaplike Werk/Social Work_, _Pediatric Social Work_, and _Critical Social Work_).  These cleaning procedures resulted in a final database of `r pretty(articles.final)` articles and `r journals.final` journals.  
+Our search procedures involved the use of three major databased and 46 minor databases, which resulted in some duplication of article records.  Thus, a matching algorithm was constructed to identify and remove all duplicate article records. As previously noted, the filtering of only journal articles was not successful due to errors in the original indexing.  Thus, other scholarly communications were captured in the extractio process.  These other scholarly communications were readily identified due to specific patterns in the titles, such as the terms "Book Review," "From the Editor," and "Obituary."  Given the number of article records in the database, it was not feasbile to manually extract these recrods.  Instead, we created a separate database with representative examples of article records that we wanted to extract.  We also added representative examples of article records to be retained.  We then wrote a series of _regular expressions_ to extract the problematic article records.  Regular expressions are a sequence of characters that form search patterns, allowing extraction of records that match the specified pattern.  In other words, it is a more sophisticated implementation of the search function common to all major word processors.  We tested our regular expressions on the test database, achieving > 95% accuracy with regard to retaining and extracting article records.  These regular expressions were then applied to the full database.  We then excluded article records if they were missing essential meta-data, including author name(s), journal title, article title, and publication field.  As an additional requirement, we required all articles to be $\geq 3$ pages in length.   Finally, we eliminated all social work journals with total article counts of < 10 for the entire 25 year window (_Issues in Social Work Education_, _Maatskaplike Werk/Social Work_, _Pediatric Social Work_, and _Critical Social Work_).  These cleaning procedures resulted in a final database of `r pretty(articles.final)` articles and `r journals.final` journals.  
 
 ### Data quality checks
 
@@ -390,26 +384,12 @@ plot.PhD
 plot.author.count
 ```
 
-
 \newpage
 
-
-
 # Appendix A
-```{r intersection}
-unique.swHistory <- filter(full.df, attributes == "journal") %>%
-                distinct(record)
-
-hodge.swHistory.intersect <- intersect(hodge, unique.swHistory$record)
-
-hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
-swHistory.hodge.diff <- setdiff(unique.swHistory$record, hodge)
-
-#hodge.swHistory.union <- union(hodge, unique.swHistory$record)
-```
 
 Articles on Hodge and Lacasse (2011) but not in the current study.  
 
-```{r}
+```{r appendix_Print, eval=TRUE}
 print(sort(hodge.swHistory.diff))
 ```

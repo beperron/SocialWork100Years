@@ -185,9 +185,11 @@ appendData.f <- function(){
                              full.df$record)
 
     full.df$record <- ifelse(full.df$record ==
-                                 "Journal of Practice Teaching in Social Work and Practice", #Old title
-                             "Journal of Practice Teaching in Social Work and Health",   #New title
-                             full.df$record)
+              "Journal of Practice Teaching in Social Work and Practice" |
+                full.df$record == "Journal of Practice Teaching in Social Work & Practice" |
+                full.df$record == "Journal of Practice Teaching in Social Work and Health", #Old title
+               "Journal of Practice Teaching in Social Work & Health",   #New title
+                full.df$record)
 
     # Journals were originally merged after suffixes were eliminated (after the
     # colon).  Thus, Practice: Social Work in Action  (new title) was shortened to
@@ -223,9 +225,11 @@ appendData.f <- function(){
         "Journal of Nonverbal Behavior",
         "Journal of Psychosomatic Research",
         "Learning Disabilities Research & Practice",
+        "Prevention in Human Services",
         "Professional Development in Education",
         "PROFILE Issues in Teachers' Professional Development",
         "Psychotherapy",
+        "Social Development",
         "Systems Research and Behavioral Science",
         "Systems Research & Behavioral Science",
         "Teaching & Teacher Education",
@@ -238,4 +242,5 @@ appendData.f <- function(){
     ebsco.remove <- full.df[full.df$record %in% exclusions.1, ]
     ebsco.remove <- ebsco.remove[, "articleID"]
     full.df <<- full.df[!(full.df$articleID %in% ebsco.remove),]
+    full.append.df <<- full.df
 }
