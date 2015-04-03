@@ -1,6 +1,7 @@
 ---
-title: "Examining a Quarter Century of Publishing Trends in Social Work Research: A Data Science Perspective"
-author: 
+title: 'Examining a Quarter Century of Publishing Trends in Social Work Research:
+  A Data Science Perspective'
+author: ''
 output: pdf_document
 ---
 
@@ -29,30 +30,31 @@ library(gridExtra)
 
 ```{r imageMaker, comment=NA, echo=FALSE, eval=FALSE}
 # Read data files
-#load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-#load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-#hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 
-#source("/Users/beperron/Git/SocialWorkResearch/functions/appendData.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
 
-#appendData.f()
-#shortArticles.f()
-#titleMatching.f()
-#otherDocuments.f()
-#fewArticles.f()
+combineData.f()
+cleaningJournals.f()
+shortArticles.f()
+titleMatching.f()
+otherDocuments.f()
+fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
 ```{r methodSummaryData, eval=TRUE}
-append.articles <- length(which(full.append.df$attributes == "article"))
-append.journals <- filter(full.append.df, attributes == "journal") %>% 
-    summarise(Unique = n_distinct(record))
+#append.articles <- length(which(full.append.df$attributes == "article"))
+#append.journals <- filter(full.append.df, attributes == "journal") %>% 
+#    summarise(Unique = n_distinct(record))
 
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
@@ -297,7 +299,7 @@ hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
 
 It is estimated that 90% of all the data in human history has been generated in the past two years, and the amount of data continues to grow by roughly 2.5 quintillion bytes every day [(IBM, nd-a)](http://www-01.ibm.com/software/data/bigdata/what-is-big-data.html).  We have unprecedented opportunities for deriving actionable insights from these data to advance the human condition.  The significance continues to gain the attention of national and international organizations.  For example, the Independent Expert Advisory Group (IEAG) of the United Nations prepared a report entitled, _A World That Counts:  Mobilising the Data Revolution for Sustainable Development_ [(IEAG, 2014)](http://www.undatarevolution.org/report/).  The IEAG (2014) argues that "Data are the lifeblood of decision-making and the raw material for accountability.  Without high-quality data providing the right information on the right things at the right time; designing, monitoring and evaluating effective policies becomes almost impossible" (p. 2).  The United States federal government established an open data initiative, motivated by the awareness that data can have the greatest impact when it is "accessible, discoverable, and usable" [(www.data.gov)](www.data.gov).  Data from all levels of government that is made completely open can lead to "cost savings, efficiency, fuel for business, improved civic services, informed policy, performance planning, research and scientific discoveries, transparency and accountability, and increased public participation in the democratic dialogue" (www.data.gov).  At the time of preparing this article, over 124,000 data sets were freely available through www.data.gov among a diverse set of topic areas:  agriculture, business, climate, consumers, ecosystems, education, energy, finance, health, local government, manufacturing, ocean studies, public safety, and science and research.  
 
-In 2012, the NIH established the Big Data to Knowledge (BD2K) initiative, recognizing the potential of data to advance our understanding of human health and disease.  This initiative was designed to support four broad goals:  1) to facilitate use of biomedical digital assets by making them discoverable, accessible, and citable; 2) to conduct research and develop methods, software and tools to analyze biomedical big data; 3) to enhance training in the development of use and tools necessary for biomedical big data science; and 4) to support a data ecosystem that accelerates discovery as part of the digital enterprise (NIH).  At roughly the same time, the National Science Foundation (NSF) created new initiatives to harness the potential of the data revolution, arguing that ”data are motivating a profound transformation in the culture and conduct of scientific research in every field of science and engineering ... American scientists must rise to the challenges and seize the opportunities afforded by this new, data-driven revolution" (Suresh, XXX).  The programs of the NSF are organized around capacity building and innovative applications.  Capacity building activities focus on developing fundamental theories, techniques, methodologies and technologies that are broadly applicable to big data problems.  Innovative applications relate to specific domains advancing innovative ideas that provide solutions “with potential for a broader impact on data science and its applications.” 
+In 2012, the NIH established the Big Data to Knowledge (BD2K) initiative, recognizing the potential of data to advance our understanding of human health and disease.  This initiative was designed to support four broad goals:  1) to facilitate use of biomedical digital assets by making them discoverable, accessible, and citable; 2) to conduct research and develop methods, software and tools to analyze biomedical big data; 3) to enhance training in the development of use and tools necessary for biomedical big data science; and 4) to support a data ecosystem that accelerates discovery as part of the digital enterprise (NIH).  At roughly the same time, the National Science Foundation (NSF) created new initiatives to harness the potential of the data revolution, arguing that "data are motivating a profound transformation in the culture and conduct of scientific research in every field of science and engineering ... American scientists must rise to the challenges and seize the opportunities afforded by this new, data-driven revolution" (Suresh, XXX).  The programs of the NSF are organized around capacity building and innovative applications.  Capacity building activities focus on developing fundamental theories, techniques, methodologies and technologies that are broadly applicable to big data problems.  Innovative applications relate to specific domains advancing innovative ideas that provide solutions “with potential for a broader impact on data science and its applications.” 
 
 ### Data Science and Social Work
 
@@ -347,7 +349,7 @@ The search queries were purposefully specified to be overly inclusive to ensure 
 
 The first step of data cleaning involved fixing journal title names due to discrepant errors in indexing. For example, _Journal of Gay and Lesbian Social Services_ was indexed as a journal separate from _Journal of Gay & Lesbian Social Services_ (use of "and" vs. "&").  Other examples involved journals indexed with and without subtitles, or journals with and without the word "The" at the beginning of the title.  Additionally, some journals changed titles over their history.  For example, _Journal of Technnology in Human Services_ is formerly known as _Computers in Human Services_.  In these situations, the former titles were merged with the current titles.  
 
-Many journals from allied health disciplines used one of the supplemental search terms in special editions, which were also included in the journal title.  Thus, many non-social work journals were captured in the extraction process.  To resolve this issue, we created a list of all journal titles that were not part of the core list defined by Hodge and Lacasse (2011).  Study authors reviewed these journal titles and discussed whether each candidate title should be retained or excluded.  When disagreements occurred, the study authors reviewed the mission and aims of the journals, names of editorial board members, and focus of the articles.  A consensus was reached on all journal titles to be excluded and retained.   After these procedures, the number of article records and journal titles was reduced to `r pretty(append.articles)` and `r append.journals` (respectively).  
+Many journals from allied health disciplines used one of the supplemental search terms in special editions, which were also included in the journal title.  Thus, many non-social work journals were captured in the extraction process.  To resolve this issue, we created a list of all journal titles that were not part of the core list defined by Hodge and Lacasse (2011).  Study authors reviewed these journal titles and discussed whether each candidate title should be retained or excluded.  When disagreements occurred, the study authors reviewed the mission and aims of the journals, names of editorial board members, and focus of the articles.  A consensus was reached on all journal titles to be excluded and retained.   After these procedures, the number of article records and journal titles was reduced to `r pretty(nrow(article.count.journalsCleaned))` and `r journal.count.journalsCleaned`.  
 
 ### Data cleaning:  Article records
 
