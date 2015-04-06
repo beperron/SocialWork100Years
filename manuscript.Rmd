@@ -52,10 +52,6 @@ library(gridExtra)
 ```
 
 ```{r methodSummaryData, eval=TRUE}
-#append.articles <- length(which(full.append.df$attributes == "article"))
-#append.journals <- filter(full.append.df, attributes == "journal") %>% 
-#    summarise(Unique = n_distinct(record))
-
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(
@@ -66,16 +62,13 @@ articles.titleMatching <- length(which(full.df$attributes == "article"))
 journals.titleMatching <- filter(full.df, attributes == "journal") %>%
         summarise(Unique = n_distinct(record))
 
-
 articles.otherDocuments <- length(which(full.df$attributes == "article"))
 journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 
-
 articles.final <- length(which(full.df$attributes == "article"))
 journals.final <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
-
 ```
 
 ```{r Table_1, comment=NA, echo=FALSE, eval=TRUE}
@@ -89,7 +82,6 @@ unique.titles <- filter(full.df, attributes == "journal") %>%
     summarise(N = n(), 
               Hodge.list = max(Hodge.list)) %>%
     mutate(Hodge = ifelse(Hodge.list == 1, "Y", "N"))
-
 
 n.so.yr <- filter(full.df, attributes == "journal" | attributes == "pubYear")
 
@@ -108,7 +100,18 @@ H <- unique.titles$Hodge
 
 final.list <- cbind(n.so.yr, H)
 final.list <- arrange(final.list, desc(n))
+
 ```
+
+
+
+```{r}
+final.list.updated <- final.list %>% mutate(study.time = 
+    as.numeric(last)-as.numeric(first) +1) 
+    
+```
+
+
 
 ```{r plotArticleCount, eval=TRUE}
 n.articles.year <- filter(full.df, attributes == "pubYear") 
@@ -121,19 +124,20 @@ articles.year.df <- data.frame(years, year.count)
 rownames(articles.year.df) <- NULL
 
 plot.article.count <- ggplot(articles.year.df, aes(as.factor(years), 
-                    y = year.count, group=1)) + 
+    y = year.count, group=1)) + 
     geom_line(colour="black") +
     #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), title = element_text(size = 10), plot.title=element_text(size=10)) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
     ylab("Articles") + 
     ggtitle("A. Number of Articles by Year") +
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 2500, 200))) +
     annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-             ymin = 1700, ymax = 2050, alpha = .20, fill = "#0072B2") +
-      annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-             ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
+    ymin = 1700, ymax = 2050, alpha = .20, fill = "#0072B2") +
+    annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
+    ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
 ```
 
 ```{r plotJournalCount, eval=TRUE}
@@ -148,45 +152,43 @@ n.journals.year <- left_join(n.journals.year, n.year, by = "articleID", copy=TRU
     summarise(Journal.count = n_distinct(record.x))
 
 plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y), 
-                    y = Journal.count, group=1)) + 
+    y = Journal.count, group=1)) + 
     geom_line(colour="black") +
-    #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=8), title = element_text(size = 10), plot.title=element_text(size=10)) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
     ylab("Journals") + 
     ggtitle("B. Number of Journals by Year") +
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 70)) +
-     annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-             ymin = 55, ymax = 70, alpha = .20, fill= "#0072B2") +
-         annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-             ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
+    annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
+    ymin = 55, ymax = 70, alpha = .20, fill= "#0072B2") +
+    annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
+    ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
 ```
 
 ```{r plotAuthorCount, eval=TRUE}
-
 year.df <- full.df %>%
-        filter(attributes == "pubYear") %>%
-        select(id = articleID, pubYear = record)
+    filter(attributes == "pubYear") %>%
+    select(id = articleID, pubYear = record)
 
 authors.df <- full.df %>%
-        filter(attributes == "author") %>%
-        select(id = articleID, author = record)
-
+    filter(attributes == "author") %>%
+    select(id = articleID, author = record)
 
 n_authors <- authors.df %>%
-        group_by(id) %>%
-        summarise(n=n())
+    group_by(id) %>%
+    summarise(n=n())
 
 n_authors <- n_authors%>% 
-        left_join(year.df) %>%
-        group_by(pubYear) %>%
-        mutate(n = as.numeric(n)) %>%
-        summarise(median.n = median(n),
-                  average.n = mean(n),
-                  min.n = min(n),
-                  max.n = max(n),
-                  std.dev  = sd(n) )
+    left_join(year.df) %>%
+    group_by(pubYear) %>%
+    mutate(n = as.numeric(n)) %>%
+    summarise(median.n = median(n),
+                average.n = mean(n),
+                min.n = min(n),
+                max.n = max(n),
+                std.dev  = sd(n) )
 
 n_authors2 <- n_authors%>% 
        select(median.n, average.n, std.dev) %>%
@@ -201,30 +203,37 @@ colnames(n_authors2_melted) <- c("pubYear", "summaryStat", "value")
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group = summaryStat, colour = summaryStat)) + 
-     geom_line(size = .75) + 
+    geom_line(size = .75) + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-          title = element_text(size = 10), 
-          legend.title=element_blank()) +
+    title = element_text(size = 10), 
+    legend.title=element_blank()) +
     scale_colour_manual(values=cbPalette)  +
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     scale_y_continuous(limits = c(0,2.5)) +
     ylab("Value") +
     xlab("Year") +
     ggtitle("Authors Per Article by Year")
-
 ```
 
 ```{r nsf, eval=TRUE}
-nsf <- data.frame(c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332, 308, 289, 280, NA), as.factor(seq(1989,2013, 1)))
+n.grads <- c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332,      
+    308, 289, 280, NA)
+n.grads.1 <- c(rep(NA, 14), 238, 273, 304, 323, 308, 287, 338, 332, 
+    308, 289, 280)
+n.grads.2 <- c(rep(NA, 15), 238, 273, 304, 323, 308, 287, 338, 332, 
+    308, 289)
 
-growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 3), "Increase", 
-     rep("Decrease", 4), "Unknown")
-nsf <- cbind(nsf, growth)
+years <- c(1989:2013)
 
-colnames(nsf) <- c("n.grads", "years", "growth")
+growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 
+    3), "Increase", rep("Decrease", 4), "Unknown")
+
+nsf <- data.frame(cbind(n.grads, n.grads.1, n.grads.2, years))
+colnames(nsf) <- c("n.grads", "n.grads.1", "n.grads.2", "years")
+
+
 
 #write.csv(nsf, file="nsf.csv")
-
 ```
 
 ```{r gade, eval=TRUE}
@@ -250,22 +259,72 @@ pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>%
         Mean.Pages = mean(pages, na.rm=TRUE),
         Std.Pages = sd(pages, na.rm=TRUE))
 
+pages.df.melted <- reshape2::melt(pages.df, id.vars = "years")
+
+```
+
+```{r pages.plot, eval=TRUE}
+
+page.plot <- ggplot(pages.df.melted, aes(years, value, group = 
+    variable, color=variable)) + 
+    geom_line() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+    title = element_text(size = 10), 
+    legend.title=element_blank()) +
+    scale_colour_manual(values=cbPalette)  +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
+    scale_y_continuous(limits = c(0,16)) +
+    ylab("Value") +
+    xlab("Year") +
+    ggtitle("Article Length by Year")
 ```
 
 ```{r nsfPlot, eval=TRUE}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
     geom_line(linetype="dotted", colour = "#0072B2", size = .75) + 
     geom_point(colour = "#0072B2", size = .75) +
-     scale_y_continuous(breaks = c(seq(0, 350, 25)), limits = c(200,350)) +
-     ylab("Doctoral degrees") +
-     xlab("Year") +
-     geom_text(aes(label = n.grads), vjust = -1.2, size = 2.75) + 
-     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-           title = element_text(size = 10)) +
-     ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
+    scale_y_continuous(breaks = c(seq(0, 350, 25)), limits = c(200,350)) +
+    ylab("Doctoral degrees") +
+    xlab("Year") +
+    geom_text(aes(label = n.grads), vjust = -1.2, size = 2.75) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+    title = element_text(size = 10)) +
+    ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
 ```
 
-```{r eval=TRUE}
+```{r ratios}
+years <- c(1989:2013)
+article.grad.ratio <- articles.year.df$year.count / nsf$n.grads
+article.grad.ratio.1 <- articles.year.df$year.count / nsf$n.grads.1
+article.grad.ratio.2 <- articles.year.df$year.count / nsf$n.grads.2
+
+
+ratio.df <- data.frame(cbind(years, article.grad.ratio, article.grad.ratio.1, article.grad.ratio.2))
+colnames(ratio.df) <- c("years", "ratio", "ratio.1", "ratio.2")
+ratio.df <- ratio.df[-(1:13), ]
+
+grad.ratio.df.melted <- reshape2::melt(ratio.df, id.vars="years")
+
+
+
+ratio.plot <- ggplot(grad.ratio.df.melted, aes(years, value, group= variable, 
+    color=variable)) + geom_line() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+    title = element_text(size = 10), 
+    legend.title=element_blank()) +
+    scale_colour_manual(values=cbPalette)  +
+    scale_x_continuous(breaks=c(seq(2002, 2013))) +
+    scale_y_continuous(limits = c(0,8)) +
+    ylab("Value") +
+    xlab("Year")
+
+```
+
+
+
+
+
+```{r eval=FALSE}
 colnames(n.journals.year) <- c("years", "journals")
 n_authors2 <- rename(n_authors2, years = ID, Avg.Authors = Average, Mdn.Authors = Median, Sd.Authors = Standard_Deviation)
 
@@ -287,7 +346,7 @@ scholarly.df$gade[27] <- 86
 
 ```{r appendix_A_intersection}
 unique.swHistory <- filter(full.df, attributes == "journal") %>%
-                distinct(record)
+    distinct(record)
 
 hodge.swHistory.intersect <- intersect(hodge, unique.swHistory$record)
 
@@ -314,8 +373,6 @@ Another feature that distinguishes data science from traditional academic resear
 In the current study, we seek to utilize the opportunities of the data revolution and data science by applying a range of tools and strategies to construct an historical base of social work research.  In doing so we take on two of the 3 Vs of big data: volume due the amount of data collected and variety in terms of the multiple sources of that data.  The data are article records harvested from existing bibliographic databases hosted on ProQuest and EbscoHost.  Article records are already widely used in various bibliometric studies, particularly those that are intended to reveal publication networks within scientific communities.  It does so by creating links between co-authors, and then visually representing the edges and vertices of the network.  This is also done with article citation histories, to show influence over time.  In this study, we were interested in the various article meta-data that are common to many scientific article records.  For example, a single article record in psycINFO can have as many as XX pieces of meta-data including:  dates, journal titles, article titles, author names, author affiliations, full text abstracts, keywords, subject classification, methodology, location, populations, page numbers, and source of funding.  This is a rather large amount of information about a single paper, at least compared to the amount of information contained in article records before the availability of electronic storage and access.  Large collections of article records may contain potentially interesting trends in the research, assuming the selection of the article records were conducted in a way that allowed meaningful inferences to be derived. 
 
 In the current study, we sought to capture every journal article record published in every social work journals over the in past quarter century (1989-2013) and to explore the various meta-data to uncover potentially interesting trends in the social work scholarship.  For example, we can reasonably infer estimates of the _size_  of social work scholarship by counting the number of unique article records.  And, growth of the field can be inferred by examining the number of article records over time.  Similarly, we examine the extent to which _team science_ has become part of the research practice, as this has implications for training of social work researchers.  We also use location meta-data to understand the extent to which different areas of the world have and have not been the focus of social work research.  Finally, we used topic modeling to extract topic areas that define the focus of social work research.  The execution of this research was grounded in the tools and values of data science.  Thus, all data were managed and analyzed using the open source software, R.  We also used an open source authoring system that integrates the statistical analysis with the text of the manuscript.  Along with this manuscript, the authors will also release the actual data and statistical code, thereby meeting the requirements of _reproducible research_, as defined by King ().  To our knowledge, this is the first time fully reproducible research (as defined by King, XXXX), has been published in a social work journal.    
-
-
 
 Davenport: http://blogs.wsj.com/cio/2014/06/25/so-you-want-to-build-a-data-product/
 
@@ -359,7 +416,13 @@ Our search procedures involved the use of three major databased and 46 minor dat
 
 We performed a variety of checks on the final database.  Because the size of the database, it was not feasible to manually inspect all records.  Thus, we randomly sampled article records from the database and cross-checked the data we procured with the information listed with the journal's homepage.  We also inspected a scatter plot of the number of article records for each journal by the number of years the journal appeared within the 25 window timeframe.  Journals that exhibited significant deviation from the regression line were inspected to ensure that our cleaning procedures did not systematically exclude article records or retain other scholarly communications.  All observed discrepancies were verified as differences in journals actual publication output.  Finally, we also made checks of number of journal article records for various journals indexed in the _Web of Science_.  Although the counts were close -- i.e., within 10% -- similar indexing problems observed from our record extraction were also observed in the _Web of Science_ database, such as misclassification of book reviews as journal articles.  Thus, we are unable to quantify the actual amount of error in our database is due to problems in indexing.  At the same time, we are relying on the same source of data that social work researchers use to inform their work.  Too much cleaning and post-processing of the search results can give rise to validity issues because social work researchers are using an information source that contain the errors we have attempted to eliminate.  The issue of reliability and validity are given further attention in the discussion section of this study.  
 
+### Analyses
+
+
+
 # Results
+
+
 
 \newpage
 
@@ -367,17 +430,17 @@ We performed a variety of checks on the final database.  Because the size of the
 print.data.frame(final.list, row.names=FALSE)
 ```
 
-
 \newpage
 
-```{r}
+```{r plotrticleCountText}
 grid.arrange(plot.article.count, plot.journal.count, ncol=2)
 ```
 
 \newpage
 
-```{r}
+```{r plotPhDdegrees}
 plot.PhD
+ratio.plot
 ```
 
 \newpage
@@ -385,6 +448,11 @@ plot.PhD
 ```{r}
 plot.author.count
 ```
+
+```{r}
+page.plot
+```
+
 
 \newpage
 
