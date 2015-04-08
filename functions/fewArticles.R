@@ -15,8 +15,9 @@ fewArticles.f <- function(){
         summarise(N = n()) %>%
         arrange(N)
 
-    exclusions.2 <- exclusions.2[exclusions.2$N <=20, "record"]
+    fewArticles <<- exclusions.2 %>% filter(N <=20)
 
+    exclusions.2 <- exclusions.2[exclusions.2$N <=20, "record"]
     fewArticles <- exclusions.2$record
 
 

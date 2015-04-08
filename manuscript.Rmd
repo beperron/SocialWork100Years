@@ -7,7 +7,6 @@ output: pdf_document
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
 
-
 ```{r objectMakerProQuest, warning=FALSE, message=FALSE, eval=FALSE, results='hide'}
 # Clear workspace
 rm(list=ls())
@@ -46,7 +45,6 @@ ebscoBWR.f(csv=FALSE, path=path)
 save(ebscoBWR.df, file = "ebscoFULL.R")
 ```
 
-
 ```{r BEPinitialization, eval=TRUE}
 rm(list=ls())  
 
@@ -68,26 +66,26 @@ library(dplyr)
 library(gridExtra)
 ```
 
-```{r imageMaker, comment=NA, echo=FALSE, eval=FALSE}
+```{r imageMaker, comment=NA, echo=FALSE, eval=TRUE}
 # Read data files
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 
-#source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticlesRevised.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
-#source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticlesRevised.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
 
-#combineData.f()
-#cleaningJournals.f()
-#shortArticles.f()
-#titleMatching.f()
-#otherDocuments.f()
-#fewArticles.f()
+combineData.f()
+cleaningJournals.f()
+shortArticles.f()
+titleMatching.f()
+otherDocuments.f()
+fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
@@ -143,15 +141,13 @@ final.list <- arrange(final.list, desc(n))
 
 ```
 
-
-
-```{r}
+```{r finalJournalList}
 final.list.updated <- final.list %>% mutate(study.time = 
-    as.numeric(last)-as.numeric(first) +1) 
-    
+    as.numeric(last)-as.numeric(first) +1)
+
+final.list.25 <- final.list.updated %>% filter(study.time == 25)
+
 ```
-
-
 
 ```{r plotArticleCount, eval=TRUE}
 n.articles.year <- filter(full.df, attributes == "pubYear") 
@@ -360,11 +356,6 @@ ratio.plot <- ggplot(grad.ratio.df.melted, aes(years, value, group= variable,
 
 ```
 
-
-
-
-
-
 ```{r eval=FALSE}
 colnames(n.journals.year) <- c("years", "journals")
 n_authors2 <- rename(n_authors2, years = ID, Avg.Authors = Average, Mdn.Authors = Median, Sd.Authors = Standard_Deviation)
@@ -421,7 +412,6 @@ http://www.nsf.gov/pubs/2015/nsf15544/nsf15544.htm
 
 http://www.nsf.gov/news/news_summ.jsp?cntn_id=123607&org=NSF&from=news
 
-
 # Methods
 
 ### Extraction of article records
@@ -459,9 +449,27 @@ We performed a variety of checks on the final database.  Because the size of the
 
 ### Analyses
 
-
-
 # Results
+
+### Journal summary
+
+The study was restricted to a 25-year timeframe, 1989 (inclusive) to 2013 (inclusive).  Table 1 provides a summary of all the journals contained in the database, the years of inclusion, number of articles present, and whether the journal was included on the list of disciplinary journals defined by Hodge and Lacasse (2011).  Appendix A provides a summary of journals on the list of Hodge and Lacasse that were not included in this historical database (N = `r length(hodge.swHistory.diff)`).  A total of `r nrow(fewArticles)` journals were excluded because they had only 1 or 2 article records (see Appendix A).  Otherwise, all other journals met the minimum requirement of at least 20 article records. It is important to note that the years of inclusion in the database may not be fully consistent with the actual output of the journal for the given timeframe.  The possible discrepancies are accounted due to delays and errors of indexing, which is a known and longstanding problem in social work research (see Holden; Holden).  The problems associated with indexing are reviewed in further detail in the discussion section of this article.  
+
+`r nrow(final.list.25)` journals were represented across all 25 years.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` `r options(digits=2); median(final.list.updated$study.time); sd(final.list.updated$study.time)`.  Figure 1a provides a graphical summary of the number of journal titles for each year over the 25 year study period.  The first year of the study period contained XX journals, and the maximum number of articles was observed for the years XX.  The decline in years 2012 to 2013 may be an artifact due to indexing, given that some journals were still in existence but article records could not be obtained (e.g., XXXX).
+
+
+### Article summary
+
+The historical database include XXXXX articles for the 25 year period (see Table 1).  The average number of articles per journal was XX (median, sd = ).  XXXX contained the largest number of article records (N = XX), followed by XXXX (N = XXXX) and XXXX (N = XXXX).  Figure 1b shows the number of articles published each year.  The ratio of journals to articles (see figure 1a) was relatively consistent across time.  
+
+The length of the articles showed some change over time, going from approximately 12 pages in 1989.  The length of the articles increased to about 15 pages and has remain at approximately this length since the early 2000's.  The standard deviation has remained fairly stable over the time period, ranging from XX to XX.  
+
+
+### Author summary
+
+The mean number of authors showed a rising trajectory over the study time period, with an average of XX authors (sd = XX) in 1989 to XX authors (sd = XX) in 2013.  The median number of authors was XX.  Between years XX and XX, the number fluctuated between 1 and 2, and has remained stable at 2 authors per year since 2009.  The standard deviation of the number of authors per paper has continued on a steady upward trajectory since the beginning of the study period.  
+
+For further contextual information, the number of PhD degrees was plotted using data available from the NSF for years 2002 to 2012.  The ratio of the number of PhD degress to the number of articles published that year was XXXX.  
 
 
 
@@ -503,4 +511,5 @@ Articles on Hodge and Lacasse (2011) but not in the current study.
 
 ```{r appendix_Print, eval=TRUE}
 print(sort(hodge.swHistory.diff))
+print(fewArticles)
 ```

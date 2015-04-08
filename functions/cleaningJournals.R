@@ -1,5 +1,5 @@
 cleaningJournals.f <- function(){
-    
+
     full.df$record <- ifelse(full.df$record ==
                                  "The British Journal of Social Work",          # Spelling difference
                              "British Journal of Social Work",
@@ -100,8 +100,8 @@ cleaningJournals.f <- function(){
                                "Social Work Research & Abstracts",          # Spelling difference
                              "Social Work Research",
                              full.df$record)
-    
-    
+
+
     #shortens Professional Development
     full.df$record <- ifelse(full.df$attributes == "journal",
                              gsub(":.+", "", full.df$record),
@@ -155,6 +155,12 @@ cleaningJournals.f <- function(){
                                  "Journal of Analytic Social Work",                          # Old title
                              "Psychoanalytic Social Work",                               # Old title
                              full.df$record)
+
+    full.df$record <- ifelse(full.df$record ==
+                                 "Social work in public health",
+                             "Social Work in Public Health",
+                             full.df$record)
+
 
     full.df$record <- ifelse(full.df$record ==
               "Journal of Practice Teaching in Social Work and Practice" |
@@ -211,15 +217,15 @@ cleaningJournals.f <- function(){
         "Arete: Revista de Filosofia",
         "Arete Revista de Filosofia")
 
-    
+
     ebsco.remove <- full.df[full.df$record %in% exclusions.1, ]
     ebsco.remove <- ebsco.remove[, "articleID"]
-    
+
     full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
     full.df <<- full.df
-    
-    article.count.journalsCleaned <<- filter(full.df, attributes == "article") 
+
+    article.count.journalsCleaned <<- filter(full.df, attributes == "article")
     journal.count <- filter(full.df, attributes == "journal")
     journal.count.journalsCleaned <<- length(unique(journal.count$record))
-    
+
 }
