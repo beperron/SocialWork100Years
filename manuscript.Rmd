@@ -7,10 +7,30 @@ output: pdf_document
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
 
+
+```{r warning=FALSE, message=FALSE, eval=TRUE}
+# Clear workspace
+rm(list=ls())
+
+# Read BWR functions for Mac OS
+source("/Users/beperron/Git/BibWrangleR/functions/proquestBWR.R")
+
+# Set the path where original raw data are stored
+setwd("/Users/beperron/Git/SocialWorkResearch/Data")
+
+# Set the working directory to store files created by BWR functions
+path <- "/Users/beperron/Git/SocialWorkResearch/Data/ProQuest"
+
+# Wrangle the data with the BWR function suite
+
+proQuestBWR.f(csv=FALSE, path=path)
+save(proQuestBWR.df, file = "ProQuest.R")
+```
+
 ```{r BEPinitialization, eval=TRUE}
 rm(list=ls())  
 
-load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
 
 # Load required packages
 library(ggplot2)
@@ -28,26 +48,26 @@ library(dplyr)
 library(gridExtra)
 ```
 
-```{r imageMaker, comment=NA, echo=FALSE, eval=FALSE}
+```{r imageMaker, comment=NA, echo=FALSE, eval=TRUE}
 # Read data files
-# load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-# load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-# hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-# 
-# source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
-# source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
-# source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticles.R")
-# source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-# source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-# source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
-# source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
-# 
-# combineData.f()
-# cleaningJournals.f()
-# shortArticles.f()
-# titleMatching.f()
-# otherDocuments.f()
-# fewArticles.f()
+load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
+load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
+hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+
+source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticlesRevised.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
+
+combineData.f()
+cleaningJournals.f()
+shortArticles.f()
+titleMatching.f()
+otherDocuments.f()
+fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
@@ -319,6 +339,7 @@ ratio.plot <- ggplot(grad.ratio.df.melted, aes(years, value, group= variable,
     xlab("Year")
 
 ```
+
 
 
 
