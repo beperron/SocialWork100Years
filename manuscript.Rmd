@@ -2,7 +2,7 @@
 title: 'Examining a Quarter Century of Publishing Trends in Social Work Research:
   A Data Science Perspective'
 author: ''
-output: pdf_document
+output: word_document
 ---
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
@@ -460,14 +460,14 @@ The study was restricted to a 25-year timeframe, 1989 (inclusive) to 2013 (inclu
 
 ### Article summary
 
-The historical database include XXXXX articles for the 25 year period (see Table 1).  The average number of articles per journal was XX (median, sd = ).  XXXX contained the largest number of article records (N = XX), followed by XXXX (N = XXXX) and XXXX (N = XXXX).  Figure 1b shows the number of articles published each year.  The ratio of journals to articles (see figure 1a) was relatively consistent across time.  
+The historical database includes `r pretty(sum(articles.year.df$year.count))` overr the 25 year period (see Table 1).  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`).  The ratio of journals to articles (see figure 1a) was relatively consistent across time.  
 
-The length of the articles showed some change over time, going from approximately 12 pages in 1989.  The length of the articles increased to about 15 pages and has remain at approximately this length since the early 2000's.  The standard deviation has remained fairly stable over the time period, ranging from XX to XX.  
+The length of the articles showed some change over time, going from approximately `r round(pages.df$Mean.Pages[pages.df$years == "1989"])` pages in 1989.  The length of the articles increased to about 15 pages and has remain at approximately this length since the early 2000's.  The standard deviation has remained fairly stable over the time period, ranging from `r options(digits=2); min(pages.df$Std.Pages)` to `r options(digits=2); max(pages.df$Std.Pages)`.  
 
 
 ### Author summary
 
-The mean number of authors showed a rising trajectory over the study time period, with an average of XX authors (sd = XX) in 1989 to XX authors (sd = XX) in 2013.  The median number of authors was XX.  Between years XX and XX, the number fluctuated between 1 and 2, and has remained stable at 2 authors per year since 2009.  The standard deviation of the number of authors per paper has continued on a steady upward trajectory since the beginning of the study period.  
+The mean number of authors showed a rising trajectory over the study time period, with an average of `r options(digits=2); n_authors2$Average[n_authors2$ID == "1989"]` authors (`r options(digits=2); n_authors2$Standard_DeviationA[n_authors2$ID == "1989"]`) in 1989 to `r options(digits=2); n_authors2$Average[n_authors2$ID == "2013"]` authors (sd = `r options(digits=2); n_authors2$Standard_Deviation[n_authors2$ID == "2013"]`) in 2013.  The median number of authors was XX.  Between years XX and XX, the number fluctuated between 1 and 2, and has remained stable at 2 authors per year since 2009.  The standard deviation of the number of authors per paper has continued on a steady upward trajectory since the beginning of the study period.  
 
 For further contextual information, the number of PhD degrees was plotted using data available from the NSF for years 2002 to 2012.  The ratio of the number of PhD degress to the number of articles published that year was XXXX.  
 
