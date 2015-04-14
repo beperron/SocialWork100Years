@@ -2,7 +2,7 @@
 title: 'Examining a Quarter Century of Publishing Trends in Social Work Research:
   A Data Science Perspective'
 author: ''
-output: word_document
+output: pdf_document
 ---
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
@@ -68,9 +68,11 @@ library(gridExtra)
 
 ```{r imageMaker, comment=NA, echo=FALSE, eval=TRUE}
 # Read data files
+options(stringsAsFactors = FALSE)
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
+hIndex <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/hIndex.csv")
 
 source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
@@ -89,6 +91,24 @@ fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
+
+```{r nsf, eval=TRUE}
+n.grads <- c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332,      
+    308, 289, 280, NA)
+n.grads.1 <- c(rep(NA, 14), 238, 273, 304, 323, 308, 287, 338, 332, 
+    308, 289, 280)
+n.grads.2 <- c(rep(NA, 15), 238, 273, 304, 323, 308, 287, 338, 332, 
+    308, 289)
+
+years <- c(1989:2013)
+
+growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 
+    3), "Increase", rep("Decrease", 4), "Unknown")
+
+nsf <- data.frame(cbind(n.grads, n.grads.1, n.grads.2, years))
+colnames(nsf) <- c("n.grads", "n.grads.1", "n.grads.2", "years")
+
+```
 ```{r methodSummaryData, eval=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
@@ -138,14 +158,37 @@ H <- unique.titles$Hodge
 
 final.list <- cbind(n.so.yr, H)
 final.list <- arrange(final.list, desc(n))
+final.list.index <- full_join(final.list, hIndex, by = "title") 
 
 ```
+
+
 
 ```{r finalJournalList}
 final.list.updated <- final.list %>% mutate(study.time = 
     as.numeric(last)-as.numeric(first) +1)
 
 final.list.25 <- final.list.updated %>% filter(study.time == 25)
+
+journals.year <- left_join(n.so, n.yr) %>%
+    group_by(title)
+
+journals.2012 <- filter(journals.year, year == "2012") %>%
+    group_by(title) %>%
+    summarize(N = n())
+
+journals.2012 <- arrange(journals.2012, desc(N))
+journals.2012$cumS <- cumsum(journals.2012$N)
+journals.2012$shortTitle <- factor(c(1:nrow(journals.2012)))
+
+journals.2012$cumperc <- (1:nrow(journals.2012))/nrow(journals.2012) 
+journals.2012 <- arrange(journals.2012, desc(N))
+
+journals.2012 <- transform(journals.2012,
+                          shortTitle = reorder(shortTitle, 
+                                                order(N, decreasing = TRUE)))
+ggplot(journals.2012, aes(x = title, y = N)) + 
+    geom_bar(stat="identity")
 
 ```
 
@@ -159,9 +202,10 @@ years <- names(year.count)
 articles.year.df <- data.frame(years, year.count)
 rownames(articles.year.df) <- NULL
 
-plot.article.count <- ggplot(articles.year.df, aes(as.factor(years), 
-    y = year.count, group=1)) + 
-    geom_line(colour="black") +
+plot.article.count <- ggplot(nsf, aes(as.factor(years), 
+    y = n.grads, group=1)) + 
+    geom_line(colour="red") + 
+    geom_point(colour="red") + 
     #geom_point(colour="red") + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), 
     title = element_text(size = 10), plot.title=element_text(size=10)) + 
@@ -169,12 +213,12 @@ plot.article.count <- ggplot(articles.year.df, aes(as.factor(years),
     ylab("Articles") + 
     ggtitle("A. Number of Articles by Year") +
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
-    scale_y_continuous(breaks = c(seq(0, 2500, 200))) +
-    annotate("rect", xmin = 2008-1989+1, xmax =  2012-1989+1, 
-    ymin = 1700, ymax = 2050, alpha = .20, fill = "#0072B2") +
-    annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
-    ymin = 1400, ymax = 1750, alpha = .20, fill= "#0072B2")  
+    ylim(c(0,2200)) + 
+    geom_line(data = articles.year.df, aes(as.factor(years), y = year.count), colour="steelblue") + 
+    geom_text(data = nsf, aes(label = n.grads), vjust = 2, size = 2.75) +
+    geom_point(data = articles.year.df, aes(as.factor(years), y = articles.year.df$year.count), colour="steelblue") 
 ```
+
 
 ```{r plotJournalCount, eval=TRUE}
 n.journals.year <- filter(full.df, attributes == "journal") %>%
@@ -201,6 +245,18 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
     ymin = 55, ymax = 70, alpha = .20, fill= "#0072B2") +
     annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
     ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
+```
+
+```{r plothIndex, eval=TRUE}
+final.list.index <- within(final.list.index, quartile <- as.integer(cut(h5Index, quantile(h5Index, probs=0:4/4, na.rm=TRUE), include.lowest=TRUE)))
+
+final.list.index <- within(final.list.index, years <- as.numeric(last) - as.numeric(first) +1)
+
+plotIndex <- ggplot(final.list.index, aes(x = n, y = h5Index )) + 
+    geom_point(aes(colour=factor(quartile), size = years), alpha=.80) +
+    geom_smooth()
+
+
 ```
 
 ```{r plotAuthorCount, eval=TRUE}
@@ -251,27 +307,15 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
     ggtitle("Authors Per Article by Year")
 ```
 
-```{r nsf, eval=TRUE}
-n.grads <- c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332,      
-    308, 289, 280, NA)
-n.grads.1 <- c(rep(NA, 14), 238, 273, 304, 323, 308, 287, 338, 332, 
-    308, 289, 280)
-n.grads.2 <- c(rep(NA, 15), 238, 273, 304, 323, 308, 287, 338, 332, 
-    308, 289)
+```{r}
 
-years <- c(1989:2013)
+authorNames  <- filter(full.df, attributes == "author")
 
-growth <- c(rep("Unknown", 14), rep("Increase", 2), rep("Decrease", 
-    3), "Increase", rep("Decrease", 4), "Unknown")
-
-nsf <- data.frame(cbind(n.grads, n.grads.1, n.grads.2, years))
-colnames(nsf) <- c("n.grads", "n.grads.1", "n.grads.2", "years")
-
-
-
-#write.csv(nsf, file="nsf.csv")
-```
-
+authorNames.df <- authorNames
+authorNames.df$record <- sub("(?<=, [A-Z]).*$", "", authorNames.df$record, perl=TRUE)
+authorNames.df <- authorNames.df %>% group_by(record) %>% 
+    summarize(N = n()) %>%
+    arrange(desc(N))
 ```{r gade, eval=TRUE}
 years <- c(1989:2015)
 programs <- rep(NA, 27)
@@ -331,12 +375,9 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
 ```{r ratios}
 years <- c(1989:2013)
 article.grad.ratio <- articles.year.df$year.count / nsf$n.grads
-article.grad.ratio.1 <- articles.year.df$year.count / nsf$n.grads.1
-article.grad.ratio.2 <- articles.year.df$year.count / nsf$n.grads.2
 
-
-ratio.df <- data.frame(cbind(years, article.grad.ratio, article.grad.ratio.1, article.grad.ratio.2))
-colnames(ratio.df) <- c("years", "ratio", "ratio.1", "ratio.2")
+ratio.df <- data.frame(cbind(years, article.grad.ratio))
+colnames(ratio.df) <- c("years", "ratio")
 ratio.df <- ratio.df[-(1:13), ]
 
 grad.ratio.df.melted <- reshape2::melt(ratio.df, id.vars="years")
@@ -432,7 +473,6 @@ Using this search queries, we extract journal article recrods from three major d
 
 The search queries were purposefully specified to be overly inclusive to ensure full coverage of all possible social work journals contained in the major and minor databases.  Additionally, a visual inspection of the article records revealed problems in the original indexing of articles that requires subsequent data cleaning.  Thus, our data cleaning procedures focused separately on journal titles and article records.
 
-
 ### Data cleaning: Journal titles
 
 The first step of data cleaning involved fixing journal title names due to discrepant errors in indexing. For example, _Journal of Gay and Lesbian Social Services_ was indexed as a journal separate from _Journal of Gay & Lesbian Social Services_ (use of "and" vs. "&").  Other examples involved journals indexed with and without subtitles, or journals with and without the word "The" at the beginning of the title.  Additionally, some journals changed titles over their history.  For example, _Journal of Technnology in Human Services_ is formerly known as _Computers in Human Services_.  In these situations, the former titles were merged with the current titles.  
@@ -450,26 +490,22 @@ We performed a variety of checks on the final database.  Because the size of the
 ### Analyses
 
 # Results
-
+		
 ### Journal summary
 
-The study was restricted to a 25-year timeframe, 1989 (inclusive) to 2013 (inclusive).  Table 1 provides a summary of all the journals contained in the database, the years of inclusion, number of articles present, and whether the journal was included on the list of disciplinary journals defined by Hodge and Lacasse (2011).  Appendix A provides a summary of journals on the list of Hodge and Lacasse that were not included in this historical database (N = `r length(hodge.swHistory.diff)`).  A total of `r nrow(fewArticles)` journals were excluded because they had only 1 or 2 article records (see Appendix A).  Otherwise, all other journals met the minimum requirement of at least 20 article records. It is important to note that the years of inclusion in the database may not be fully consistent with the actual output of the journal for the given timeframe.  The possible discrepancies are accounted due to delays and errors of indexing, which is a known and longstanding problem in social work research (see Holden; Holden).  The problems associated with indexing are reviewed in further detail in the discussion section of this article.  
+Table 1 provides a summary of the journal titles and corresponding article records collected from the databases.  This table includes the specific years each journal is represented in the current study, the number of corresponding article records, the journal's h-Index, and whether the journal was included on the list of social work disciplinary journals defined by Hodge and Lacasse (2011). Appendix A provides a summary of journals that were on the list by compiled by Hodge and Lacasse (2011) but not included in this study (N = `r length(hodge.swHistory.diff)`), in addition to the journals excluded from the study due to an article count $<=$ 20 (N = `r nrow(fewArticles)`).  It is important to note that the years of inclusion noted for each journals does not correspond to its full historical record.  Many journals have publications that both precede and proceed the 25-year timeframe of the current study.  Moreover, many journals are missing articles records due to delays and errors in indexing, which is a known and longstanding problem in social work research (HoldenXXXX). These issues are given further attention in the discussion section of the article. 
 
-`r nrow(final.list.25)` journals were represented across all 25 years.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` `r options(digits=2); median(final.list.updated$study.time); sd(final.list.updated$study.time)`.  Figure 1a provides a graphical summary of the number of journal titles for each year over the 25 year study period.  The first year of the study period contained XX journals, and the maximum number of articles was observed for the years XX.  The decline in years 2012 to 2013 may be an artifact due to indexing, given that some journals were still in existence but article records could not be obtained (e.g., XXXX).
+As shown in Table 1, `r nrow(final.list.25)` journals were included in the current study.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` (median = `r options(digits=2); median(final.list.updated$study.time);`, sd =  `r options(digits=2); sd(final.list.updated$study.time)`). The overall h-Index for each journal.  The h-Index values represent the current h-Index of each journal, as opposed to the h-Index of the final study period, so these values should be interpreted cautiously.  The mean h-Index value is XXXX, (median = XXX; sd = XXX). A total of `r pretty(sum(articles.year.df$year.count))` article records were obtained across these journals.  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`). This figure shows consistent growth in the number of articles from 1989 to 2005.  Notable fluctuations in the number of articles was observed from 2005 to 2008, followed by growth until 2012. The decline from 2012 to 2013 should be interpreted cautiously, as this may be an artifact due to delays in indexing.  
 
+Data from the National Science Foundation regarding the number of earned doctorates in social work and social welfare were added to further contextualize the publication trends.  These data reveal both growth and decline in the number of earned doctorates over the period of time for which data were available.  The number of earned doctorates exhibited a rise from 2003 to 2005, which corresponded to a rise in the number of article published during these years.  Between 2008 and 2012, the number of doctoral degrees exhibited a decline, but the number of published articles continued to rise.     
 
-### Article summary
+A bubble plot was created to facilitate interpretation of these data (see Figure 2).  This involved creating a scatter plot, mapping each journal's total number of publications on the X axis and h-Index value on the Y axis.  Each journal was assigned a quartile rating for its h-Index, and those quartile values were mapped to four unique colors.  Finally, the number of years of representation in the study was mapped to the size of the point, or _bubble_.  Journals without an h-Index rating are not represented in this plot (N = XX).  A smoothed loess line and confidence interval were added to show the trend between the h-Index scores and number of articles published.  
 
-The historical database includes `r pretty(sum(articles.year.df$year.count))` overr the 25 year period (see Table 1).  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`).  The ratio of journals to articles (see figure 1a) was relatively consistent across time.  
+The loess trend line shows a moderate association between the h-Index and number of articles published.  However, a number of notable deviations are observed.  Eleven journals were in the highest h-Index quartile.  The _British Journal of Social Work_ had the highest h-Index value but ranked third with regard to the overall number of publications. XXXX, XXXX, and XXXX were also in the top quartile but had comparably fewer published articles and existed for less time than the other journals in the same quartile. _Families in Society_ had the most published articles, spanning the full 25-year study period, but was in the second h-Index quartile.  
+
+Figure 3 provides a descriptive summary of the number of authors per article over time.  As indicated by the median, it was more common for articles to be sole-authored until 2006, at which time the median fluctuated between one and two authors, and then stabilizing in 2009 at 2 authors.  The steady increase in the standard deviation since 2000 indicates an increase in the number of authors for each article. The length of articles also increased over time, starting at roughly 12.5 pages in 1989 and increasing steadily over time and stabilizing around 15 pages in 2013.  The standard deviation remained relatively stable over the 25 year period, with all values falling between the range of XX and XX.  
 
 The length of the articles showed some change over time, going from approximately `r round(pages.df$Mean.Pages[pages.df$years == "1989"])` pages in 1989.  The length of the articles increased to about 15 pages and has remain at approximately this length since the early 2000's.  The standard deviation has remained fairly stable over the time period, ranging from `r options(digits=2); min(pages.df$Std.Pages)` to `r options(digits=2); max(pages.df$Std.Pages)`.  
-
-
-### Author summary
-
-The mean number of authors showed a rising trajectory over the study time period, with an average of `r options(digits=2); n_authors2$Average[n_authors2$ID == "1989"]` authors (`r options(digits=2); n_authors2$Standard_DeviationA[n_authors2$ID == "1989"]`) in 1989 to `r options(digits=2); n_authors2$Average[n_authors2$ID == "2013"]` authors (sd = `r options(digits=2); n_authors2$Standard_Deviation[n_authors2$ID == "2013"]`) in 2013.  The median number of authors was XX.  Between years XX and XX, the number fluctuated between 1 and 2, and has remained stable at 2 authors per year since 2009.  The standard deviation of the number of authors per paper has continued on a steady upward trajectory since the beginning of the study period.  
-
-For further contextual information, the number of PhD degrees was plotted using data available from the NSF for years 2002 to 2012.  The ratio of the number of PhD degress to the number of articles published that year was XXXX.  
 
 
 
@@ -481,16 +517,22 @@ print.data.frame(final.list, row.names=FALSE)
 
 \newpage
 
-```{r plotrticleCountText}
-grid.arrange(plot.article.count, plot.journal.count, ncol=2)
+```{r}
+plotIndex
 ```
 
 \newpage
 
-```{r plotPhDdegrees}
-plot.PhD
-ratio.plot
+```{r}
+plot.journal.count
 ```
+
+\newpage
+
+```{r}
+plot.article.count
+```
+
 
 \newpage
 
