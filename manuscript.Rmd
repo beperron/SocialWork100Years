@@ -73,6 +73,8 @@ load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 hIndex <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/hIndex.csv")
+hIndex$h5Index <- ifelse(is.na(hIndex$h5Index), 0, hIndex$h5Index)
+hIndex$h5Median <- ifelse(is.na(hIndex$h5Median), 0, hIndex$h5Median)
 
 source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
@@ -202,6 +204,15 @@ years <- names(year.count)
 articles.year.df <- data.frame(years, year.count)
 rownames(articles.year.df) <- NULL
 
+#Annotation data file
+articles.x <- as.factor(articles.year.df[c(1, 6, 12, 18, 25), 1]) 
+articles.y <- articles.year.df[c(1, 6, 12, 18, 25), 2] 
+articles.label <- as.character(articles.y)
+articles.placement <- articles.y-50
+
+articles.x1 <- as.factor(ar)
+
+
 plot.article.count <- ggplot(nsf, aes(as.factor(years), 
     y = n.grads, group=1)) + 
     geom_line(colour="red") + 
@@ -215,8 +226,14 @@ plot.article.count <- ggplot(nsf, aes(as.factor(years),
     scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
     ylim(c(0,2200)) + 
     geom_line(data = articles.year.df, aes(as.factor(years), y = year.count), colour="steelblue") + 
-    geom_text(data = nsf, aes(label = n.grads), vjust = 2, size = 2.75) +
-    geom_point(data = articles.year.df, aes(as.factor(years), y = articles.year.df$year.count), colour="steelblue") 
+    #geom_text(data = nsf, aes(label = n.grads), vjust = 2, size = 2.75) +
+    geom_point(data = articles.year.df, aes(as.factor(years), y = articles.year.df$year.count), colour="steelblue") + 
+    annotate("text", factor(c(2002, 2005, 2008, 2012)), 
+    c(165, 225, 250, 190) + 150, label = c("238","323", "338", "280") , size = 3) + 
+    annotate("text", articles.x, articles.placement, label = articles.label, size=3) + 
+    annotate("point", x = as.factor(2003), y = 720, alpha = .60, color = "green", size = 6) + 
+    annotate("point", x = as.factor(2015), y = 750, alpha = .60, color = "green", size = 6)  
+    
 ```
 
 
@@ -245,7 +262,20 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
     ymin = 55, ymax = 70, alpha = .20, fill= "#0072B2") +
     annotate("rect", xmin = 2005-1989+1, xmax =  2007-1989+1, 
     ymin = 53, ymax = 62, alpha = .20, fill = "#0072B2")  
-```
+
+
+
+plot.journal.count2 <- ggplot(n.journals.year, aes(as.factor(record.y), 
+    y = Journal.count, group=1)) + 
+    geom_line(colour="black") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) + 
+    xlab("Year") + 
+    ylab("Journals") + 
+    ggtitle("B. Number of Journals by Year") +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
+    scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 70)) 
+```    
 
 ```{r plothIndex, eval=TRUE}
 final.list.index <- within(final.list.index, quartile <- as.integer(cut(h5Index, quantile(h5Index, probs=0:4/4, na.rm=TRUE), include.lowest=TRUE)))
@@ -294,6 +324,23 @@ colnames(n_authors2_melted) <- c("pubYear", "summaryStat", "value")
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+
+n_authors2$ymin <- n_authors2$Average - n_authors2$Standard_Deviation
+n_authors2$ymax <- n_authors2$Average - n_authors2$Standard_Deviation
+
+
+plot.author.count2 <- ggplot(n_authors2, aes(ID, y = Average, group=1, size = Standard_Deviation, colour=as.factor(Median))) + 
+    geom_line(size=.75) +
+    geom_point() + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+    title = element_text(size = 10), 
+    legend.title=element_blank()) +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
+    scale_y_continuous(limits = c(0,2.5)) +
+    ylab("Value") +
+    xlab("Year") +
+    ggtitle("Authors Per Article by Year") 
+
 plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group = summaryStat, colour = summaryStat)) + 
     geom_line(size = .75) + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
@@ -305,6 +352,10 @@ plot.author.count <- ggplot(n_authors2_melted, aes(x = pubYear, y = value, group
     ylab("Value") +
     xlab("Year") +
     ggtitle("Authors Per Article by Year")
+
+
+
+
 ```
 
 ```{r}
@@ -357,7 +408,20 @@ page.plot <- ggplot(pages.df.melted, aes(years, value, group =
     ylab("Value") +
     xlab("Year") +
     ggtitle("Article Length by Year")
-```
+
+
+page.plot <- ggplot(pages.df, aes(years, Mean.Pages, colour=as.factor(Median.Pages), size = Std.Pages, group = 1))+ 
+    geom_line(size=.75) +
+    geom_point() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+    title = element_text(size = 10), 
+    legend.title=element_blank()) +
+    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
+    scale_y_continuous(limits = c(10.5,16)) +
+    ylab("Value") +
+    xlab("Year") +
+    ggtitle("Article Length by Year")
+````
 
 ```{r nsfPlot, eval=TRUE}
 plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) + 
@@ -366,10 +430,11 @@ plot.PhD <- ggplot(nsf, aes(years, n.grads, group=1)) +
     scale_y_continuous(breaks = c(seq(0, 350, 25)), limits = c(200,350)) +
     ylab("Doctoral degrees") +
     xlab("Year") +
-    geom_text(aes(label = n.grads), vjust = -1.2, size = 2.75) + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-    title = element_text(size = 10)) +
-    ggtitle("Number of Earned Social Work Doctoral Degrees by Year") 
+    #geom_text(aes(label = n.grads), vjust = -1.2, size = 2.75) + 
+    #theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+    #title = element_text(size = 10)) +
+    #ggtitle("Number of Earned Social Work Doctoral Degrees by Year")
+    geom_text(aes(2002, 230, label = "238", colour = "black"))
 ```
 
 ```{r ratios}
