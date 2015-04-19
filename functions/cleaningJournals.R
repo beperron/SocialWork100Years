@@ -101,6 +101,11 @@ cleaningJournals.f <- function(){
                              "Social Work Research",
                              full.df$record)
 
+    full.df$record <- ifelse(full.df$record ==
+                               "Journal of Multicultural Social Work",          # Spelling difference
+                             "Journal of Ehtnic & Cultural Diversity in Social Work",
+                             full.df$record)
+
 
     #shortens Professional Development
     full.df$record <- ifelse(full.df$attributes == "journal",
