@@ -54,9 +54,9 @@ save(ebscoBWR.df, file = "ebscoFULL.R")
 ```{r BEPinitialization, eval=TRUE}
 rm(list=ls())  
 
-load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
+#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
 
-# Load required packages
+#Load required packages
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
@@ -154,11 +154,11 @@ H <- unique.titles$Hodge
 
 final.list <- cbind(n.so.yr, H)
 final.list <- arrange(final.list, desc(n))
-final.list.index <- full_join(final.list, hIndex, by = "title")
+#final.list.index <- full_join(final.list, hIndex, by = "title")
 
-final.list.index$h5Index <- ifelse(is.na(final.list.index$h5Index), 0,final.list.index$h5Index)
-x <- ggplot(final.list.index, aes(x =reorder(title, n), y = n, colour = h5Index)) + geom_point(stat="identity") + coord_flip() + 
-    theme_bw() 
+#final.list.index$h5Index <- ifelse(is.na(final.list.index$h5Index), 0,final.list.index$h5Index)
+#x <- ggplot(final.list.index, aes(x =reorder(title, n), y = n, colour = h5Index)) + geom_point(stat="identity") + coord_flip() + 
+#    theme_bw() 
 
 ```
 
