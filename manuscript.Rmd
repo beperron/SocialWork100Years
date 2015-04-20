@@ -145,6 +145,21 @@ n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>%
 n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
     select(-attributes, -record)
 
+bigList <- left_join(n.so, n.yr) %>%
+    group_by(title, year) %>%
+    summarize(N = n())
+bigList$shortTitle <- abbreviate(bigList$title)
+
+ggplot(bigList, aes(year, N, group = 1)) + geom_line(colour="#5e3c99") + 
+    facet_wrap(~ title, ncol=7) +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), 
+panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
+    scale_x_discrete(breaks=seq(1989, 2013, 5)) + 
+    ylim(0, 150)
+
+
 n.so.yr <- left_join(n.so, n.yr) %>%
     group_by(title) %>%
     summarise(first = min(year), last = max(year), n = n()) %>%
