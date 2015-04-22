@@ -150,11 +150,19 @@ bigList <- left_join(n.so, n.yr) %>%
     summarize(N = n())
 bigList$shortTitle <- abbreviate(bigList$title)
 
-ggplot(bigList, aes(year, N, group = 1)) + geom_line(colour="#5e3c99") + 
-    facet_wrap(~ title, ncol=7) +
+bigList2 <- left_join(bigList, hIndex, by = "title")
+bigList2 <- within(bigList2, quartile <- as.integer(cut(h5Index, quantile(h5Index, probs=0:4/4, na.rm=TRUE), include.lowest=TRUE)))
+table(bigList2$h5Index, useNA = "always")
+
+bigList2$quartileFactor <- as.factor(bigList2$quartile)
+bigList2 <- bigList2 %>% arrange(desc(quartileFactor))
+
+
+ggplot(bigList2, aes(year, N, group = 1, colour=quartileFactor)) + geom_line() + 
+    facet_wrap(~ shortTitle, ncol=7) +
     theme_bw() +
     theme(panel.grid.major = element_blank(), 
-panel.grid.minor = element_blank(), 
+    panel.grid.minor = element_blank(), 
     axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
     scale_x_discrete(breaks=seq(1989, 2020, 8)) + 
     ylim(0, 150)
@@ -179,9 +187,8 @@ final.list.index$hScaled <- scale(final.list.index$h5Index)
 final.list.index <- arrange(final.list.index, scaleScore)
 
 
-ggplot(final.list.index, aes(x = scaleScore, y = title)) + geom_point(stat="identity", colour="red") + 
+x <- ggplot(final.list.index, aes(x = scaleScore, y = title)) + geom_point(stat="identity", colour="red") + 
     xlim(c(-3, 3)) 
-
 
 ```
 
@@ -323,6 +330,53 @@ gade[15, 2] <- 72
 gade[27, 2] <- 86
 colnames(gade) <- c("years", "programs")
 ```
+
+```{r abstracts}
+abstract.df <- filter(full.df, attributes == "abstract")
+year.df <- filter(full.df, attributes == "pubYear")
+journal.df <- filter(full.df, attributes == "journal")
+abstract.df <- left_join(year.df, abstract.df, by = "articleID")
+abstract.df <- left_join(abstract.df, journal.df, by = "articleID")
+abstract.df <- abstract.df %>% select(-attributes.x, -attributes.y, -attributes)
+colnames(abstract.df) <- c("articleID", "year", "abstract", "journal")
+abstract.df$abstract <- gsub("[[:punct:]]", "", abstract.df$abstract)
+abstract.df$abstract <- tolower(abstract.df$abstract)
+
+ebp.df <- abstract.df[grep("evidence\\s?based\\spractices?|ebp|empirically\\s?supported\\streatments?", abstract.df$abstract), ]
+ebp.df$ebp <- rep("ebp", nrow(ebp.df))
+
+meta.df <- abstract.df[grep("meta\\s?analysis", abstract.df$abstract), ]
+meta.df$meta <- rep("meta", nrow(meta.df))
+
+rct.df <- abstract.df[grep("randomi[s|z]ed.*trial|[^non]experimental\\sdesign|rct|controlled\\sclinical\\strial|cct", abstract.df$abstract), ]
+rct.df$rct <- rep("rct", nrow(rct.df))
+
+systematicReview.df <- abstract.df[grep("systematic\\s?review", abstract.df$abstract), ]
+systematicReview.df$systematicReview <- rep("sr", nrow(systematicReview.df))
+
+practiceGuidelines.df <- abstract.df[grep("practice\\sguidelines|treatment\\sguidelines?", abstract.df$abstract), ]
+practiceGuidelines.df$practiceGuidelines <- rep("pg", nrow(practiceGuidelines.df))
+
+quasi <- abstract.df[grep("quasi\\s?experimental|non\\s?experimental", abstract.df$abstract), ]
+quasi.df$quasi <- rep("quasi", nrow(quasi.df))
+
+longitudinal.df <- abstract.df[grep("longitudinal\\sstudy", abstract.df$abstract), ]
+longitudinal.df$longitudinal <- rep("longitudinal", nrow(longitudinal.df))
+
+observational.df <- abstract.df[grep("cohort\\sstudy|case\\scontrol\\sstudy", abstract.df$abstract), ]
+observational.df$observational <- rep("observational", nrow(observational.df))
+
+literatureReview.df <- abstract.df[grep("literature\\sreview|review of the.*literature", abstract.df$abstract),]
+literatureReview.df$literatureReview <- rep("literatureReview", nrow(literatureReview.df))
+
+survey.df <- abstract.df[grep("survey", abstract.df$abstract), ]
+survey.df$survey <- rep("survey", nrow(survey.df))
+
+
+
+```
+
+
 
 ```{r pagePlot, eval=TRUE}
 pages.tmp <- full.df %>% filter(attributes == "pages")
