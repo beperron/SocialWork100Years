@@ -343,37 +343,79 @@ abstract.df$abstract <- gsub("[[:punct:]]", "", abstract.df$abstract)
 abstract.df$abstract <- tolower(abstract.df$abstract)
 
 ebp.df <- abstract.df[grep("evidence\\s?based\\spractices?|ebp|empirically\\s?supported\\streatments?", abstract.df$abstract), ]
-ebp.df$ebp <- rep("ebp", nrow(ebp.df))
+ebp.df$studyType <- rep("ebp", nrow(ebp.df))
 
 meta.df <- abstract.df[grep("meta\\s?analysis", abstract.df$abstract), ]
-meta.df$meta <- rep("meta", nrow(meta.df))
+meta.df$studyType <- rep("meta", nrow(meta.df))
 
 rct.df <- abstract.df[grep("randomi[s|z]ed.*trial|[^non]experimental\\sdesign|rct|controlled\\sclinical\\strial|cct", abstract.df$abstract), ]
-rct.df$rct <- rep("rct", nrow(rct.df))
+rct.df$studyType <- rep("rct", nrow(rct.df))
 
 systematicReview.df <- abstract.df[grep("systematic\\s?review", abstract.df$abstract), ]
-systematicReview.df$systematicReview <- rep("sr", nrow(systematicReview.df))
+systematicReview.df$studyType <- rep("sr", nrow(systematicReview.df))
 
 practiceGuidelines.df <- abstract.df[grep("practice\\sguidelines|treatment\\sguidelines?", abstract.df$abstract), ]
-practiceGuidelines.df$practiceGuidelines <- rep("pg", nrow(practiceGuidelines.df))
+practiceGuidelines.df$studyType <- rep("pg", nrow(practiceGuidelines.df))
 
-quasi <- abstract.df[grep("quasi\\s?experimental|non\\s?experimental", abstract.df$abstract), ]
-quasi.df$quasi <- rep("quasi", nrow(quasi.df))
+quasi.df <- abstract.df[grep("quasi\\s?experimental|non\\s?experimental", abstract.df$abstract), ]
+quasi.df$studyType <- rep("quasi", nrow(quasi.df))
 
 longitudinal.df <- abstract.df[grep("longitudinal\\sstudy", abstract.df$abstract), ]
-longitudinal.df$longitudinal <- rep("longitudinal", nrow(longitudinal.df))
+longitudinal.df$studyType <- rep("longitudinal", nrow(longitudinal.df))
 
 observational.df <- abstract.df[grep("cohort\\sstudy|case\\scontrol\\sstudy", abstract.df$abstract), ]
-observational.df$observational <- rep("observational", nrow(observational.df))
+observational.df$studyType <- rep("observational", nrow(observational.df))
 
 literatureReview.df <- abstract.df[grep("literature\\sreview|review of the.*literature", abstract.df$abstract),]
-literatureReview.df$literatureReview <- rep("literatureReview", nrow(literatureReview.df))
+literatureReview.df$studyType <- rep("literatureReview", nrow(literatureReview.df))
 
 survey.df <- abstract.df[grep("survey", abstract.df$abstract), ]
-survey.df$survey <- rep("survey", nrow(survey.df))
+survey.df$studyType <- rep("survey", nrow(survey.df))
+
+evidence.df <- rbind(ebp.df, meta.df, rct.df, systematicReview.df, 
+     practiceGuidelines.df, quasi.df, longitudinal.df, observational.df, 
+     literatureReview.df, survey.df)
+
+evidence.summary <- select(evidence.df, -abstract) %>% 
+    group_by(year, studyType) %>%
+    summarize(N = n()) %>%
+    group_by(studyType) %>%
+  mutate(cumulative = cumsum(N))
+
+
+evidence.summary.main <- filter(evidence.summary, studyType != "literatureReview" , studyType != "survey" ,
+    studyType != "ebp" , studyType != "longitudinal", studyType != "pg", studyType != "quasi")
 
 
 
+cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
+evidence.summary.main <- ungroup(evidence.summary.main)
+evidence.summary.main$year <- as.numeric(evidence.summary.main$year)
+evidence.summary.main$studyType <- as.factor(evidence.summary.main$studyType)
+
+year.labs <- as.character(seq(1989,2013, 2))  
+
+ggplot(as.data.frame(xtabs(N~year+studyType, evidence.summary.main)), 
+    aes(x = as.numeric(year), y = Freq, fill=studyType)) + 
+    geom_area(alpha=.80, colour = "black", size = .2) + 
+    scale_fill_manual(values=cp, 
+          breaks = rev(levels(evidence.summary.main$studyType)),
+            labels = c("Systematic review", "RCT", 
+            "Cohort/Case Control", "Meta-analysis")) +
+  ylim(c(0, 60)) + 
+    scale_x_continuous(breaks = seq(0,24, 2), labels = year.labs) + 
+    theme(axis.text.x = element_text(angle = 45, hjust=1), 
+          panel.grid.minor=element_blank(),
+         legend.position=c(.25,.80),
+#         legend.background = element_blank(), 
+         legend.key = element_blank()   ) + 
+    ylab("Frequency") + 
+    xlab("Year") + 
+    labs(fill = "Study type") + 
+    scale_y_continuous(breaks = seq(0,60, 10))
+
+
+    
 ```
 
 
