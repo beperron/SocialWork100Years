@@ -373,9 +373,16 @@ evidence.summary <- ungroup(evidence.summary)
 evidence.summary$year <- as.numeric(evidence.summary$year)
 evidence.summary$studyType <- as.factor(evidence.summary$studyType)
 
-evidence.summary <- full_join(evidence.summary, abstractsYear.df, 
+
+abstractsYear.df <- group_by(abstract.df, year) %>% 
+    summarize(N.abstracts = n()) %>%
+    mutate(year = as.numeric(year))
+
+evidence.summary2 <- full_join(evidence.summary, abstractsYear.df, 
     by = "year") %>%
     mutate(studyProp =N / N.abstracts)
+
+
 
 year.labs <- as.character(seq(1989,2013, 2))  
 
@@ -398,7 +405,7 @@ ggplot(as.data.frame(xtabs(N~year+studyType, evidence.summary)),
     labs(fill = "Study type") + 
     scale_y_continuous(breaks = seq(0,60, 10))
 
-df <- evidence.summary
+df <- evidence.summary2
 
 levels(df$studyType) <- c("Meta-analysis", "Quasi-experimental", "Observational", "RCT", "Systematic review")
 
@@ -411,6 +418,38 @@ ggplot(na.omit(df), aes(year, studyProp, colour = studyType,
     ylab("Proportion") + 
     geom_point(colour = "black", alpha = .60)
 
+#####################
+
+evidence.summary3 <- select(evidence.df, -abstract) %>% 
+    group_by(journal, studyType) %>%
+    summarize(N = n()) 
+
+evidence.summaryOverall <- select(abstract.df, -abstract) %>%
+    group_by(journal) %>%
+    summarize(Overall.N = n())
+
+evidence.journals <- full_join(evidence.summary3, evidence.summaryOverall, by = "journal") %>%
+    mutate(N.prop = N/Overall.N) %>% group_by(journal) %>%
+    mutate(Overall.N.Strength = sum(N))
+    
+evidence.journalsOverall <- evidence.journals %>% group_by(journal) %>%
+    mutate(Overall.N.Strength = sum(N))
+
+journalOrder <- evidence.journalsOverall
+
+ggplot(na.omit(evidence.journals), aes(N.prop, journal, group = journal, colour = studyType)) + geom_point(size = 3, alpha = .70) +
+    theme_bw() +
+    scale_colour_manual(values = cp) +
+    facet_grid(.~studyType)
+
+ggplot(na.omit(evidence.journals), aes(N, journal, group = journal, colour = studyType)) + 
+    geom_segment(aes(yend = journal), xend=0, colour="grey50") +
+    geom_point(alpha = .8, size = 3) + 
+    scale_color_manual(values = cp) + 
+    theme_bw() +
+    facet_grid(.~studyType) + 
+    theme(panel.grid.major.y = element_blank()) 
+    
 
 
 ```
