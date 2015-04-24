@@ -429,27 +429,56 @@ evidence.summaryOverall <- select(abstract.df, -abstract) %>%
     summarize(Overall.N = n())
 
 evidence.journals <- full_join(evidence.summary3, evidence.summaryOverall, by = "journal") %>%
-    mutate(N.prop = N/Overall.N) %>% group_by(journal) %>%
+    mutate(JN.prop = N/Overall.N) %>% group_by(journal) %>%
     mutate(Overall.N.Strength = sum(N))
     
 evidence.journalsOverall <- evidence.journals %>% group_by(journal) %>%
     mutate(Overall.N.Strength = sum(N))
 
-journalOrder <- evidence.journalsOverall
 
-ggplot(na.omit(evidence.journals), aes(N.prop, journal, group = journal, colour = studyType)) + geom_point(size = 3, alpha = .70) +
-    theme_bw() +
-    scale_colour_manual(values = cp) +
-    facet_grid(.~studyType)
 
-ggplot(na.omit(evidence.journals), aes(N, journal, group = journal, colour = studyType)) + 
+df <-  select(evidence.journalsOverall, studyType, N, Overall.N.Strength) %>%
+    rename(N.sort = Overall.N.Strength)
+
+
+
+
+
+j.order <- unique(df$journal[order(df$N.sort, decreasing = FALSE)]) 
+df$journal <- factor(df$journal, levels = j.order)
+
+
+
+ggplot(na.omit(df), aes(x = N, y= journal, group = journal, colour = studyType)) + 
     geom_segment(aes(yend = journal), xend=0, colour="grey50") +
-    geom_point(alpha = .8, size = 3) + 
+    geom_point(size = 2.5) + 
     scale_color_manual(values = cp) + 
     theme_bw() +
     facet_grid(.~studyType) + 
-    theme(panel.grid.major.y = element_blank()) 
-    
+    theme(panel.grid.major.y = element_blank())
+
+evidence.journals <- full_join(evidence.summary3, evidence.summaryOverall, by = "journal") %>%
+    group_by(journal) %>%
+    mutate(Overall.N.Strength = sum(N)) %>%
+    select(-studyType, N) %>%
+    distinct(journal, Overall.N, Overall.N.Strength) %>%
+    mutate(Prop = Overall.N.Strength / Overall.N) 
+
+
+df2 <- data.frame(evidence.journals)
+
+j.order <- unique(df2$journal[order(df2$Prop, decreasing = FALSE)]) 
+df2$journal <- factor(df2$journal, levels = j.order)
+
+ggplot(na.omit(df2), aes(x = Prop, y= journal, group = journal)) + 
+    geom_segment(aes(yend = journal), xend=0, colour="#b2abd2") +
+    geom_point(aes(size = Overall.N.Strength), colour = "#5e3c99") + 
+    scale_color_manual(values = cp) + 
+    theme_bw() +
+    theme(panel.grid.major.y = element_blank())
+
+
+
 
 
 ```
