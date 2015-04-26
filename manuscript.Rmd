@@ -152,8 +152,8 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
 ```{r plotSmallMultiples}
 hIndex.df <- arrange(hIndex, desc(h5Median)) %>% select(title, h5Median)
 hIndex.df$top10 <- NA
-hIndex.df$top10[1:10] <- "yes"
-hIndex.df$top10[11:nrow(hIndex.df)] <- "no"
+hIndex.df$top10[1:10] <- "Yes"
+hIndex.df$top10[11:nrow(hIndex.df)] <- "No"
 hIndex.df <- data.frame(hIndex.df)
 
 sm.df <- left_join(n.so, n.yr) %>%
@@ -167,7 +167,7 @@ sm.df <- full_join(sm.df, hIndex.df, by = "title") %>%
     ungroup %>% 
     select(-h5Median) 
 
-sm.df$top10 <- ifelse(is.na(sm.df$top10), "no", sm.df$top10)
+sm.df$top10 <- ifelse(is.na(sm.df$top10), "No", sm.df$top10)
 
 
 title <- sm.df %>% arrange(desc(Overall.N)) %>% distinct(title)
@@ -180,27 +180,30 @@ sm.df$title2 <- factor(sm.df$title, levels = (title.order))
 Overall.N <- distinct(sm.df, title)  
 
 
-x.df <- data.frame(title = Overall.N$title, label = title$Overall.N)
 
-xpos = rep(10, 78)
+xpos = rep(12.5, 78)
 ypos = rep(130, 78)
-lab <- Overall.N$Overall.N
 title2 <- unique(sm.df$title2)
+lab <- paste("N=", Overall.N$Overall.N, sep="")
 
 
 ldata <- data.frame(xpos, ypos, lab, title2)
 
 
 
-ggplot(sm.df, aes(year, N, group = 1)) + geom_line(aes(colour = top10)) + 
+ggplot(sm.df, aes(year, N, group=1)) + geom_line(aes(colour = top10)) + 
 facet_wrap( ~ title2, ncol=7) +
 theme_bw() +
-theme(panel.grid.major = element_blank(), 
+theme(panel.grid.major = element_blank(), legend.position = "bottom", 
 panel.grid.minor = element_blank(), 
 axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
 scale_x_discrete(breaks=seq(1989, 2020, 8)) + 
 ylim(0, 150) + 
-geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab, size =1), parse=FALSE)
+geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab), size =3) +
+    scale_color_manual(values=cp[c(4,2)], 
+                       name = "Top-10 Journal") + 
+    ylab("") + 
+    xlab("")
 
 ```
 
