@@ -78,9 +78,6 @@ options(stringsAsFactors = FALSE)
 load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
 load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
 hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
-hIndex <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/hIndex.csv")
-hIndex$h5Index <- ifelse(is.na(hIndex$h5Index), 0, hIndex$h5Index)
-hIndex$h5Median <- ifelse(is.na(hIndex$h5Median), 0, hIndex$h5Median)
 
 source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
@@ -97,16 +94,6 @@ titleMatching.f()
 otherDocuments.f()
 fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
-```
-
-```{r dataNSF, eval=TRUE}
-n.grads <- c(rep(NA, 13), 238, 273, 304, 323, 308, 287, 338, 332,      
-    308, 289, 280, NA)
-
-years <- c(1989:2013)
-
-nsf <- data.frame(cbind(n.grads,  years))
-colnames(nsf) <- c("n.grads", "years")
 ```
 
 ```{r tableArticleSummary, eval=TRUE}
@@ -150,6 +137,8 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
 
 
 ```{r plotSmallMultiples}
+
+# Create an initial data frame from HD
 sm.df <- left_join(n.so, n.yr) %>%
     group_by(title, year) %>%
     summarize(N = n()) %>%
@@ -158,98 +147,46 @@ sm.df <- left_join(n.so, n.yr) %>%
     arrange(desc(Overall.N), title) %>%
     rename(Year = year, Journal= title) 
 
+# Read Scopus database
 scopus.df <- read.csv("scopus.csv")
 
+# Join HD with Scopus and join abbreviation names
 sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
     select(Year, Journal, N, Overall.N, Documents)
 
 abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
 abb$ID <- 1:nrow(abb)
-sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal")
+sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal") %>% 
+    select(-X) %>%
+    mutate(Documents = ifelse(Documents == 0, NA, Documents))
 
-title <- sm.scopus.merged %>% arrange(desc(Overall.N)) %>% distinct(Abbrev) %>% filter(!is.na(Abbrev))
+# Re-order the factor by Overall.N
+title <- sm.scopus.merged %>% arrange(desc(Overall.N)) %>% 
+    distinct(Abbrev) %>% filter(!is.na(Abbrev)) %>% distinct()
+
 title.order = title$Abbrev
-sm.scopus.merged$title2 <- factor(sm.scopus.merged$Abbrev, levels = (title.order))
-Overall.N <- distinct(sm.scopus.merged, title2) 
 
+sm.scopus.merged$Abbrev <- factor(sm.scopus.merged$Abbrev, levels = (title.order))
 
-
-hd.df <- sm.scopus.merged %>% select(Year, Abbrev, Journal, N, Overall.N, title2)
-
-
-scopus.plot.df <- sm.scopus.merged %>% select(Year, Abbrev, Journal, Documents,Overall.N)
-scopus.plot.df$Documents <- ifelse(scopus.plot.df$Documents == 0, NA, scopus.plot.df$Documents)
-scopus.plot.df <- scopus.plot.df[!is.na(scopus.plot.df$Documents), ]
-
-
-
-xpos = rep(2000, 79)
-ypos = rep(130, 79)
-
-lab <- paste("N=", title$Overall.N, sep="")
-Abbrev <- title$Abbrev
-
-ldata <- data.frame(xpos, ypos, lab, Abbrev)
-
-ggplot(hd.df,  aes(Year, N), group=1) + geom_line(colour="#e66101") +
+# Create labels for the facets
+Overall.N <- distinct(sm.scopus.merged, Abbrev) 
+lab <- paste("N=", Overall.N$Overall.N, sep="")
+xpos = rep(2002, 79)
+ypos = rep(215, 79)
+ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
+    rename(Abbrev = Overall.N.Abbrev) 
+    
+# Plotting function    
+ggplot(sm.scopus.merged,  aes(Year, N)) + geom_line(colour="#e66101") +
     facet_wrap(~ Abbrev) + 
-    geom_line(data = scopus.plot.df, aes(Year, Documents), colour="#5e3c99") + 
+    geom_line(data = sm.scopus.merged, aes(Year, Documents), group = 1,colour="#5e3c99") + 
     theme_bw() +
     theme(legend.position = "bottom", 
     panel.grid.minor = element_blank(), 
     axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
-    geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab), size =3)
-
-
-
-cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
-
-
-
-
-
-ggplot(sm.scopus.merged, aes(X, Documents)) + geom_point(aes(colour = Journal)) + 
-    facet_wrap(~Year) +
-    geom_smooth()
-
-
-cor(sm.scopus.merged$N, sm.scopus.merged$Documents, use ="complete.obs", method = "spearman")
-
-
-
-sm.df$top10 <- ifelse(is.na(sm.df$top10), "No", sm.df$top10)
-
-
-title <- sm.df %>% arrange(desc(Overall.N)) %>% distinct(title)
-title.order <- title$title
-sm.df$title2 <- factor(sm.df$title, levels = (title.order))
-Overall.N <- distinct(sm.df, title)  
-
-
-
-xpos = rep(12.5, 78)
-ypos = rep(130, 78)
-title2 <- unique(sm.df$title2)
-lab <- paste("N=", Overall.N$Overall.N, sep="")
-
-
-ldata <- data.frame(xpos, ypos, lab, title2)
-
-
-
-ggplot(sm.df, aes(year, N, group=1)) + geom_line(aes(colour = top10)) + 
-facet_wrap( ~ title2, ncol=7) +
-theme_bw() +
-theme(panel.grid.major = element_blank(), legend.position = "bottom", 
-panel.grid.minor = element_blank(), 
-axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
-scale_x_discrete(breaks=seq(1989, 2020, 8)) + 
-ylim(0, 150) + 
-geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab), size =3) +
-    scale_color_manual(values=cp[c(4,2)], 
-                       name = "Top-10 Journal") + 
-    ylab("") + 
-    xlab("")
+    geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab), size =3) + 
+    ylim(c(0,225)) +
+    scale_x_continuous(breaks=seq(1989, 2020, 8)) 
 
 ```
 
