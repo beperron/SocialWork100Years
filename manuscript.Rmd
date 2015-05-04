@@ -241,7 +241,7 @@ uncited.ts <- as.vector(na.omit(articles.df$Uncited.N))
 uncited.ts <- ts(uncited.ts, frequency = 16, start = c(1996,1))
 
 foreward <- auto.arima(uncited.ts)
-uncited.forecast <-data.frame(forecast(fit, 2))
+uncited.forecast <-data.frame(forecast(foreward, 2))
 forecast.estimated <- uncited.forecast$Point.Forecast
 forecast.years <- c(2012, 2013)
 
@@ -257,21 +257,52 @@ value <- c(backcast.estimated, forecast.estimated)
 uncited.df <- data.frame(cbind(Year, value))
 uncited.df$variable <- "Estimated"
 
+percent.df <- rbind(articles.df.melted, uncited.df)
+percent.df.cast <- reshape2::dcast(percent.df, Year  ~ variable, value.var = "value")
+percent.df.cast$estimate.code <- ifelse(is.na(percent.df.cast$Uncited.N), 
+    "arima.Estimated", ifelse(!is.na(percent.df.cast$Uncited.N), "Scopus.Estimated", percent.df.cast$Uncited.N))
+
+percent.df.cast$percent <- ifelse(!is.na(percent.df.cast$Uncited.N), percent.df.cast$Uncited.N/percent.df.cast$HD.N, ifelse(!is.na(percent.df.cast$Estimated), percent.df.cast$Estimated/percent.df.cast$HD.N, percent.df.cast$Uncited.N))
+
+percent.df.cast$NoCites <- ifelse(is.na(percent.df.cast$Uncited.N), percent.df.cast$Estimated, 
+                           ifelse(is.na(percent.df.cast$Estimated), percent.df.cast$Uncited.N, percent.df.cast$Uncited.N))
+
+percent.cast.a <- select(percent.df.cast, Year, HD.N, NoCites)
+percent.cast.b <- select(percent.df.cast, Year, estimate.code, percent)
+
+percent.melt.a <- reshape2::melt(percent.cast.a, id.vars="Year")
+percent.melt.b <- reshape2::melt(percent.cast.b, id.vars=c("Year", "estimate.code"))
 
 
-#articles.df.melted <- rbind(articles.df.melted, uncited.df)
+
+percent.melt.b <- rename(percent.melt.b, variable2 = variable, value2 = value)
+percent.melt.df <- full_join(percent.melt.a, percent.melt.b, by = "Year")
+
+percent.text <- select(percent.melt.df, Year, value, value2, variable) 
+percent.text <- percent.text %>% filter(variable != "HD.N")
+percent.text$value2 <- round(percent.text$value2, digits=3) *100 
+percent.text$value2 <- paste(percent.text$value2, "%", sep="")
+percent.text <- percent.text[c(1, 7, 11, 16, 19, 22, 24),]
+
+#percent.df.cast <- select(percent.df.cast, Year, estimate.code, percent) %>% filter(Year <= 2013)
+#colnames(percent.df.cast) <- c("Year", "variable", "value")
 
 
-cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 
-ggplot(na.omit(articles.df.melted),  aes(Year, value, colour = variable)) + 
+cp <- c("#5e3c99","#e66101")
+
+ggplot(na.omit(subset(percent.melt.df, subset=variable != "Scopus.N")), 
+    aes(Year, value, colour = variable)) + 
     geom_line() + 
-    geom_point() + 
-    scale_color_manual(values=cp) + 
-    geom_point(data = uncited.df, aes(Year, value, colour = variable)) + 
-    ylim(c(0, 2700))
+    geom_point() +
+    scale_color_manual(values=cp, labels = c("Number of Articles Published", "Number of Uncited Articles \n(Past 3 Years)")) +
+    geom_text(data = percent.text, aes(Year, value+40, label = value2), size=4, colour="black") + 
+    ylim(c(0, 2200)) + 
+    theme(legend.position="bottom") +
+    theme(legend.title=element_blank()) +
+    ylab("N") 
 
-```
+  ```
 
 
 ```{r plotArticleCount, eval=TRUE}
