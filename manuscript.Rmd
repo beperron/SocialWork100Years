@@ -139,8 +139,6 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
 ```{r plotSmallMultiples}
 # Remove 2014 & 2015 
 
-
-
 # Create an initial data frame from HD
 sm.df <- left_join(n.so, n.yr) %>%
     group_by(title, year) %>%
@@ -179,8 +177,10 @@ ypos = rep(215, 79)
 ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
     rename(Abbrev = Overall.N.Abbrev) 
     
+
+
 # Plotting function    
-ggplot(sm.scopus.merged,  aes(Year, N)) + geom_line(colour="#e66101") +
+plotSmallMultiples <-  ggplot(sm.scopus.merged,  aes(Year, N)) + geom_line(colour="#e66101") +
     facet_wrap(~ Abbrev) + 
     geom_line(data = sm.scopus.merged, aes(Year, Documents), group = 1,colour="#5e3c99", alpha=.60) + 
     theme_bw() +
@@ -191,16 +191,14 @@ ggplot(sm.scopus.merged,  aes(Year, N)) + geom_line(colour="#e66101") +
     ylim(c(0,225)) +
     scale_x_continuous(breaks=seq(1989, 2020, 8)) 
 
-
-
-
 ```
 
 
-```{r articleSummary}
-#---------------------------------
+```{r uncitedSummary}
+#=======================================
 # Create new data file 
-#---------------------------------
+#=======================================
+
 articles.df <- left_join(n.so, n.yr) %>%
     group_by(title, year) %>%
     summarize(N = n()) %>%
@@ -212,97 +210,97 @@ articles.df <- left_join(n.so, n.yr) %>%
 scopus.df <- read.csv("scopus.csv")
 articles.df <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) 
 
-
-#---------------------------------
-# Create new variables
-#---------------------------------
-
 articles.df<- articles.df %>% 
-    mutate(notCited = N - N * (X..Not.Cited/100))
-
-articles.df<- articles.df %>% group_by(Year) %>%
-    summarize(HD.N = sum(N, na.rm=TRUE), 
-              Scopus.N = sum(Documents, na.rm=TRUE),
-              Uncited.N = sum(notCited, na.rm=TRUE)) %>%
-    mutate(HD.N = ifelse(HD.N == 0, NA, HD.N), Scopus.N = ifelse(Scopus.N == 0, NA, Scopus.N))
-
-articles.df$Scopus.N[articles.df$Year > 2011] <- NA
-articles.df$Uncited.N[articles.df$Year > 2011] <- NA
-articles.df$Uncited.N <- ifelse(articles.df$Uncited.N == 0, NA, articles.df$Uncited.N)
-
-articles.df.melted <- articles.df %>% 
-    reshape2::melt(id.vars = "Year") 
-
-#--------------------------------------------
-#Create time series data to estimate uncited
-#--------------------------------------------
-    
-uncited.ts <- as.vector(na.omit(articles.df$Uncited.N))
-uncited.ts <- ts(uncited.ts, frequency = 16, start = c(1996,1))
-
-foreward <- auto.arima(uncited.ts)
-uncited.forecast <-data.frame(forecast(foreward, 2))
-forecast.estimated <- uncited.forecast$Point.Forecast
-forecast.years <- c(2012, 2013)
+    filter(Year <= 2013) %>%
+    mutate(propNotCited = X..Not.Cited/100) %>%
+    select(-X, -SJR, -SNIP, -Citations, -IPP, -X..Not.Cited, -Overall.N, -X..Review) %>%
+    rename(HD.N = N, scopus.N = Documents)
 
 
-backcast <- rev(uncited.ts)
-backcast <- auto.arima(backcast)
-uncited.backcast <- data.frame(forecast(backcast, 7))
-backcast.estimated <- rev(uncited.backcast$Point.Forecast)
-backcast.years <- c(1989:1995)
+#=======================================
+# Calculate number of uncited articles
+#=======================================
 
-Year <- c(backcast.years, forecast.years)
-value <- c(backcast.estimated, forecast.estimated)
-uncited.df <- data.frame(cbind(Year, value))
-uncited.df$variable <- "Estimated"
+#  First reduce the data file to 1996 to 2010. Data contained significant problems that brought the number of uncited values to almost 0.  Was not reliable.  
 
-percent.df <- rbind(articles.df.melted, uncited.df)
-percent.df.cast <- reshape2::dcast(percent.df, Year  ~ variable, value.var = "value")
-percent.df.cast$estimate.code <- ifelse(is.na(percent.df.cast$Uncited.N), 
-    "arima.Estimated", ifelse(!is.na(percent.df.cast$Uncited.N), "Scopus.Estimated", percent.df.cast$Uncited.N))
+df.96.10 <- filter(articles.df, Year >= 1996, Year <= 2010)
 
-percent.df.cast$percent <- ifelse(!is.na(percent.df.cast$Uncited.N), percent.df.cast$Uncited.N/percent.df.cast$HD.N, ifelse(!is.na(percent.df.cast$Estimated), percent.df.cast$Estimated/percent.df.cast$HD.N, percent.df.cast$Uncited.N))
+# If HD article count is missing, replace with Scopus count
+df.96.10$HD.N <- ifelse(is.na(df.96.10$HD.N), df.96.10$scopus.N, df.96.10$HD.N)
 
-percent.df.cast$NoCites <- ifelse(is.na(percent.df.cast$Uncited.N), percent.df.cast$Estimated, 
-                           ifelse(is.na(percent.df.cast$Estimated), percent.df.cast$Uncited.N, percent.df.cast$Uncited.N))
+# Some counts have 0 values.  Set these to NA and then omit
+df.96.10$HD.N <-ifelse(df.96.10$HD.N == 0, NA, df.96.10$HD.N) 
+df.96.10 <- df.96.10[!is.na(df.96.10$HD.N), ]
 
-percent.cast.a <- select(percent.df.cast, Year, HD.N, NoCites)
-percent.cast.b <- select(percent.df.cast, Year, estimate.code, percent)
+# If uncited proportion is missing, compute average for that particular journal
+# Replace missing value with the mean value
+df.96.10 <- df.96.10 %>% group_by(Journal) %>%
+        mutate(meanPropUncited = mean(propNotCited, na.rm=TRUE)) %>% ungroup() 
 
-percent.melt.a <- reshape2::melt(percent.cast.a, id.vars="Year")
-percent.melt.b <- reshape2::melt(percent.cast.b, id.vars=c("Year", "estimate.code"))
+df.96.10$propNotCited <- ifelse(is.na(df.96.10$propNotCited),
+     df.96.10$meanPropUncited, df.96.10$propNotCited)
+
+# If uncited proportion is missing because it was not in scopus, replace the missing
+# value with the overall mean uncited proportion
+
+overallPropUncited <- mean(df.96.10$propNotCited, na.rm=TRUE)
+
+df.96.10$propNotCited <- ifelse(is.na(df.96.10$propNotCited), overallPropUncited, df.96.10$propNotCited)
+
+# Calculate number of not cited 
+
+df.96.10 <- df.96.10 %>% mutate(countNotCited = HD.N - (HD.N * propNotCited))
+
+df.96.10.Summary <- df.96.10 %>% group_by(Year) %>%
+    summarize(Published = sum(HD.N), 
+              Uncited = sum(countNotCited))
+
+#============================================
+# Create a melted data frame for the plot
+#============================================
+
+df.95.11 <- select(articles.df, Year, HD.N) %>% 
+    filter(Year <= 1995 |Year >=2011) %>%
+    rename(published = HD.N) %>%
+    group_by(Year) %>%
+    summarize(Published = sum(published, na.rm=TRUE)) %>%
+    ungroup() %>%
+    mutate(Uncited = NA)
+
+uncited.df <- rbind(df.96.10.Summary, df.95.11) %>%
+    arrange(Year)
+uncited.df$percentage <- uncited.df$Uncited/uncited.df$Published*100    
+uncited.melted <- reshape2::melt(uncited.df[,c("Year", "Published", "Uncited")], id.vars = "Year")
 
 
+#=======================================
+# Create text annotations to plot 
+#=======================================
 
-percent.melt.b <- rename(percent.melt.b, variable2 = variable, value2 = value)
-percent.melt.df <- full_join(percent.melt.a, percent.melt.b, by = "Year")
+percent.df <- uncited.df
+percent.df$percentage <- round(percent.df$percentage, digits=1) 
+percent.df$percentLabel<- paste(percent.df$percentage, "%", sep="")
+percent.df <- na.omit(percent.df)
+percent.df <- percent.df[c(seq(1, 15, 3), 15),]
 
-percent.text <- select(percent.melt.df, Year, value, value2, variable) 
-percent.text <- percent.text %>% filter(variable != "HD.N")
-percent.text$value2 <- round(percent.text$value2, digits=3) *100 
-percent.text$value2 <- paste(percent.text$value2, "%", sep="")
-percent.text <- percent.text[c(1, 7, 11, 16, 19, 22, 24),]
+#=======================================
+# Create the plot 
+#=======================================
 
-#percent.df.cast <- select(percent.df.cast, Year, estimate.code, percent) %>% filter(Year <= 2013)
-#colnames(percent.df.cast) <- c("Year", "variable", "value")
+cp <- c("#5e3c99", "#e66101")
 
-
-
-cp <- c("#5e3c99","#e66101")
-
-ggplot(na.omit(subset(percent.melt.df, subset=variable != "Scopus.N")), 
-    aes(Year, value, colour = variable)) + 
-    geom_line() + 
-    geom_point() +
-    scale_color_manual(values=cp, labels = c("Number of Articles Published", "Number of Uncited Articles \n(Past 3 Years)")) +
-    geom_text(data = percent.text, aes(Year, value+40, label = value2), size=4, colour="black") + 
-    ylim(c(0, 2200)) + 
-    theme(legend.position="bottom") +
+ggplot(observed.df.melted, aes(Year, value, colour = variable)) + 
+    geom_line(alpha = .60) + 
+    geom_point(size =4) +
+    scale_color_manual(values=cp, labels = c("Number of Articles Published",
+         "Estimated Number of Uncited Articles")) +
     theme(legend.title=element_blank()) +
-    ylab("N") 
-
-  ```
+    theme(legend.position = "bottom") +
+    ylab("N") +
+    geom_text(data = percent.df, aes(Year, Uncited -70, label = percentLabel), size =4, colour = "black") +
+    scale_y_continuous(breaks = seq(0, 2250, 250), limits = c(0, 2250))
+    
+```
 
 
 ```{r plotArticleCount, eval=TRUE}
