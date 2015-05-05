@@ -225,10 +225,9 @@ articles.df<- articles.df %>%
 
 df.96.10 <- filter(articles.df, Year >= 1996, Year <= 2010)
 
-# If HD article count is missing, replace with Scopus count
-df.96.10$HD.N <- ifelse(is.na(df.96.10$HD.N), df.96.10$scopus.N, df.96.10$HD.N)
+# If HD article count is missing, replace with Scopus count 
 
-# Some counts have 0 values.  Set these to NA and then omit
+# Some counts have 0 values.  Set these to NA and then omit.
 df.96.10$HD.N <-ifelse(df.96.10$HD.N == 0, NA, df.96.10$HD.N) 
 df.96.10 <- df.96.10[!is.na(df.96.10$HD.N), ]
 
@@ -240,7 +239,7 @@ df.96.10 <- df.96.10 %>% group_by(Journal) %>%
 df.96.10$propNotCited <- ifelse(is.na(df.96.10$propNotCited),
      df.96.10$meanPropUncited, df.96.10$propNotCited)
 
-# If uncited proportion is missing because it was not in scopus, replace the missing
+# If uncited proportion is missing because it was not in Scopus, replace the missing
 # value with the overall mean uncited proportion
 
 overallPropUncited <- mean(df.96.10$propNotCited, na.rm=TRUE)
@@ -270,7 +269,10 @@ df.95.11 <- select(articles.df, Year, HD.N) %>%
 uncited.df <- rbind(df.96.10.Summary, df.95.11) %>%
     arrange(Year)
 uncited.df$percentage <- uncited.df$Uncited/uncited.df$Published*100    
-uncited.melted <- reshape2::melt(uncited.df[,c("Year", "Published", "Uncited")], id.vars = "Year")
+
+uncited.df <- left_join(uncited.df, journals.year, by = "Year")
+
+uncited.melted <- reshape2::melt(uncited.df[,c("Year", "Published", "Uncited", "N.Journals")], id.vars = c("Year", "N.Journals"))
 
 
 #=======================================
@@ -289,9 +291,9 @@ percent.df <- percent.df[c(seq(1, 15, 3), 15),]
 
 cp <- c("#5e3c99", "#e66101")
 
-ggplot(observed.df.melted, aes(Year, value, colour = variable)) + 
+ggplot(uncited.melted, aes(Year, value, colour = variable,)) + 
     geom_line(alpha = .60) + 
-    geom_point(size =4) +
+    geom_point(size = 4) +
     scale_color_manual(values=cp, labels = c("Number of Articles Published",
          "Estimated Number of Uncited Articles")) +
     theme(legend.title=element_blank()) +
