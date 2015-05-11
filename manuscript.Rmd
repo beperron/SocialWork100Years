@@ -248,7 +248,7 @@ df.96.10$propNotCited <- ifelse(is.na(df.96.10$propNotCited), overallPropUncited
 
 # Calculate number of not cited 
 
-df.96.10 <- df.96.10 %>% mutate(countNotCited = HD.N - (HD.N * propNotCited))
+df.96.10 <- df.96.10 %>% mutate(countNotCited = HD.N * propNotCited)
 
 df.96.10.Summary <- df.96.10 %>% group_by(Year) %>%
     summarize(Published = sum(HD.N), 
@@ -257,6 +257,8 @@ df.96.10.Summary <- df.96.10 %>% group_by(Year) %>%
 #============================================
 # Create a melted data frame for the plot
 #============================================
+
+# We need to include years before and after the scopus data.  
 
 df.95.11 <- select(articles.df, Year, HD.N) %>% 
     filter(Year <= 1995 |Year >=2011) %>%
@@ -268,12 +270,15 @@ df.95.11 <- select(articles.df, Year, HD.N) %>%
 
 uncited.df <- rbind(df.96.10.Summary, df.95.11) %>%
     arrange(Year)
+
+#============================================
+# Compute percentage variable and melt
+#============================================
+
 uncited.df$percentage <- uncited.df$Uncited/uncited.df$Published*100    
 
-uncited.df <- left_join(uncited.df, journals.year, by = "Year")
-
-uncited.melted <- reshape2::melt(uncited.df[,c("Year", "Published", "Uncited", "N.Journals")], id.vars = c("Year", "N.Journals"))
-
+uncited.melted <- reshape2::melt(uncited.df[,c("Year", "Published", "Uncited")], 
+     id.vars = c("Year"))
 
 #=======================================
 # Create text annotations to plot 
@@ -291,7 +296,7 @@ percent.df <- percent.df[c(seq(1, 15, 3), 15),]
 
 cp <- c("#5e3c99", "#e66101")
 
-ggplot(uncited.melted, aes(Year, value, colour = variable,)) + 
+plotArticles <- ggplot(uncited.melted, aes(Year, value, colour = variable,)) + 
     geom_line(alpha = .60) + 
     geom_point(size = 4) +
     scale_color_manual(values=cp, labels = c("Number of Articles Published",
@@ -304,63 +309,18 @@ ggplot(uncited.melted, aes(Year, value, colour = variable,)) +
     
 ```
 
+```{r}
+# Read Scopus database
+scopus.df <- read.csv("scopus.csv")
 
-```{r plotArticleCount, eval=TRUE}
-n.articles.year <- filter(full.df, attributes == "pubYear") 
-year.split <- split(n.articles.year, n.articles.year$record)
-year.count <- unlist(lapply(year.split, nrow))
-year.count <- year.count[order(names(year.count))]
-years <- names(year.count)
-
-articles.year.df <- data.frame(years, year.count)
-rownames(articles.year.df) <- NULL
-
-#Annotation data file
-articles.x <- as.factor(articles.year.df[c(1, 6, 12, 18, 25), 1]) 
-articles.y <- articles.year.df[c(1, 6, 12, 18, 25), 2] 
-articles.label <- as.character(articles.y)
-articles.placement <- articles.y-50
-
-
-plot.article.count <- ggplot(nsf, aes(as.factor(years), 
-    y = n.grads, group=1)) + 
-    geom_line(colour="red") + 
-    geom_point(colour="red") + 
-    #geom_point(colour="red") + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), 
-    title = element_text(size = 10), plot.title=element_text(size=10)) + 
-    xlab("Year") + 
-    ylab("Articles") + 
-    ggtitle("A. Number of Articles by Year") +
-    scale_x_discrete(breaks=c(seq(1989, 2013, 2))) +
-    ylim(c(0,2200)) + 
-    geom_line(data = articles.year.df, aes(as.factor(years), y = year.count), colour="steelblue") + 
-    #geom_text(data = nsf, aes(label = n.grads), vjust = 2, size = 2.75) +
-    geom_point(data = articles.year.df, aes(as.factor(years), y = articles.year.df$year.count), colour="steelblue") + 
-    annotate("text", factor(c(2002, 2005, 2008, 2012)), 
-    c(165, 225, 250, 190) + 150, label = c("238","323", "338", "280") , size = 3) + 
-    annotate("text", articles.x, articles.placement, label = articles.label, size=3)  
-
-
-sm.scopus.merged.3 <- sm.scopus.merged %>% group_by(Year) %>%
-    mutate(HD.N = sum(N)) 
-
-sm.scopus.merged.4 <- sm.scopus.merged %>% select(Year, Documents)
-
-    
-sm.scopus.merged.4 <- na.omit(sm.scopus.merged.4)
-sm.scopus.merged.4 <- sm.scopus.merged.4 %>% group_by(Year) %>% mutate(scopus.N = sum(Documents))
-
-ggplot(sm.scopus.merged.3, aes(Year, HD.N), group=1) + geom_line() +
-    geom_line(data =sm.scopus.merged.4, aes(Year, scopus.N), colour = "red") 
-    
-
-
-
+boxplot.scopus <- ggplot(subset(scopus.df, subset =Year <=2013 & Year >= 1999), aes(as.factor(Year), IPP)) +
+    geom_boxplot()
 
 ```
 
+
 ```{r plotJournalCount, eval=TRUE}
+
 n.journals.year <- filter(full.df, attributes == "journal") %>%
     select(articleID, record)
 
@@ -383,17 +343,7 @@ plot.journal.count <- ggplot(n.journals.year, aes(as.factor(record.y),
     scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 70)) 
 ```    
 
-```{r plotH-Index, eval=TRUE}
-final.list.index <- within(final.list.index, quartile <- as.integer(cut(h5Index, quantile(h5Index, probs=0:4/4, na.rm=TRUE), include.lowest=TRUE)))
 
-final.list.index <- within(final.list.index, years <- as.numeric(last) - as.numeric(first) +1)
-
-plotIndex <- ggplot(final.list.index, aes(x = n, y = h5Index )) + 
-    geom_point(aes(colour=factor(quartile), size = years), alpha=.80) +
-    geom_smooth() + 
-    scale_colour_manual(values=cp)  
-    
-```
 
 ```{r plotAuthorCount, eval=TRUE}
 year.df <- full.df %>%
@@ -440,24 +390,6 @@ plot.author.count <- ggplot(n_authors2, aes(x = year, group=1)) +
     xlab("Year") +
     ggtitle("Authors Per Article by Year") +
     labs(size = "Standard deviation") 
-```
-
-```{r authorNames}
-authorNames  <- filter(full.df, attributes == "author")
-
-authorNames.df <- authorNames
-authorNames.df$record <- sub("(?<=, [A-Z]).*$", "", authorNames.df$record, perl=TRUE)
-authorNames.df <- authorNames.df %>% group_by(record) %>% 
-    summarize(N = n()) %>%
-    arrange(desc(N))
-```{r gade, eval=TRUE}
-years <- c(1989:2015)
-programs <- rep(NA, 27)
-gade <- as.data.frame(cbind(as.character(years), programs))
-gade$programs <- as.numeric(gade$programs)
-gade[15, 2] <- 72
-gade[27, 2] <- 86
-colnames(gade) <- c("years", "programs")
 ```
 
 ```{r abstracts}
@@ -658,51 +590,6 @@ page.plot <- ggplot(pages.df, aes(years, Mean.Pages, size = Std.Pages, group = 1
     labs(size = "Standard deviation", colour = "Median")  +
     ggtitle("Article Length by Year")  
   
-```
-
-```{r ratios}
-years <- c(1989:2013)
-article.grad.ratio <- articles.year.df$year.count / nsf$n.grads
-
-ratio.df <- data.frame(cbind(years, article.grad.ratio))
-colnames(ratio.df) <- c("years", "ratio")
-ratio.df <- ratio.df[-(1:13), ]
-
-grad.ratio.df.melted <- reshape2::melt(ratio.df, id.vars="years")
-
-
-
-ratio.plot <- ggplot(grad.ratio.df.melted, aes(years, value, group= variable, 
-    color=variable)) + geom_line() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-    title = element_text(size = 10), 
-    legend.title=element_blank()) +
-    scale_colour_manual(values=cbPalette)  +
-    scale_x_continuous(breaks=c(seq(2002, 2013))) +
-    scale_y_continuous(limits = c(0,8)) +
-    ylab("Value") +
-    xlab("Year")
-
-```
-
-```{r eval=FALSE}
-colnames(n.journals.year) <- c("years", "journals")
-n_authors2 <- rename(n_authors2, years = ID, Avg.Authors = Average, Mdn.Authors = Median, Sd.Authors = Standard_Deviation)
-
-
-scholarly.df <- left_join(articles.year.df, n.journals.year, by = "years") 
-scholarly.df <- left_join(scholarly.df, n_authors2, by = "years")
-scholarly.df <- left_join(scholarly.df, nsf, by = "years")
-scholarly.df <- left_join(scholarly.df, pages.df, by = "years")
-scholarly.df[c(26, 27), ] <- rep(NA)
-scholarly.df[26, 1] <- 2014
-scholarly.df[27, 1] <- 2015
-
-scholarly.df <- mutate(scholarly.df, years = as.numeric(years)) %>%
-    rename(article.count = year.count, journal.count = year.count, program.growth = growth) 
-scholarly.df$gade <- rep(NA, nrow(scholarly.df))  
-scholarly.df$gade[15] <- 72
-scholarly.df$gade[27] <- 86
 ```
 
 ```{r appendix_A_intersection}
