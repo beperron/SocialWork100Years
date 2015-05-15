@@ -149,47 +149,63 @@ sm.df <- left_join(n.so, n.yr) %>%
     rename(Year = year, Journal= title) 
 
 # Read Scopus database
-scopus.df <- read.csv("scopus.csv")
+scopus.df <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus.csv")
 
 # Join HD with Scopus and join abbreviation names
 sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
     select(Year, Journal, N, Overall.N, Documents)
 
-abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
-abb$ID <- 1:nrow(abb)
-sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal") %>% 
-    select(-X) %>%
-    mutate(Documents = ifelse(Documents == 0, NA, Documents))
 
-# Re-order the factor by Overall.N
-title <- sm.scopus.merged %>% arrange(desc(Overall.N)) %>% 
-    distinct(Abbrev) %>% filter(!is.na(Abbrev)) %>% distinct()
+# sm.scopus.merged.table <- group_by(sm.scopus.merged, Journal) %>%
+#     summarize(DataBase.N = sum(N, na.rm=TRUE), Scopus.N = sum(Documents, na.rm=TRUE)) %>%
+#     arrange(desc(DatabBase.N))
+# 
+# data.frame(sm.scopus.merged.table)
 
-title.order = title$Abbrev
 
-sm.scopus.merged$Abbrev <- factor(sm.scopus.merged$Abbrev, levels = (title.order))
 
-# Create labels for the facets
-Overall.N <- distinct(sm.scopus.merged, Abbrev) 
-lab <- paste("N=", Overall.N$Overall.N, sep="")
-xpos = rep(2002, 79)
-ypos = rep(215, 79)
-ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
-    rename(Abbrev = Overall.N.Abbrev) 
-    
+
+
+# abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
+# abb$ID <- 1:nrow(abb)
+# sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal") %>% 
+#     select(-X) %>%
+#     mutate(Documents = ifelse(Documents == 0, NA, Documents))
+# 
+# # Re-order the factor by Overall.N
+# title <- sm.scopus.merged %>% arrange(desc(Overall.N)) %>% 
+#     distinct(Abbrev) %>% filter(!is.na(Abbrev)) %>% distinct()
+# 
+# title.order = title$Abbrev
+# 
+# sm.scopus.merged$Abbrev <- factor(sm.scopus.merged$Abbrev, levels = (title.order))
+# 
+# # Create labels for the facets
+# Overall.N <- distinct(sm.scopus.merged, Abbrev) 
+# lab <- paste("N=", Overall.N$Overall.N, sep="")
+# #xpos = rep(2002, 79)
+# #ypos = rep(215, 79)
+# xpos = rep(2025, 79)
+# ypos = rep(25, 79)
+# ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
+#     rename(Abbrev = Overall.N.Abbrev) 
+#     
 
 
 # Plotting function    
-plotSmallMultiples <-  ggplot(sm.scopus.merged,  aes(Year, N)) + geom_line(colour="#e66101") +
-    facet_wrap(~ Abbrev) + 
-    geom_line(data = sm.scopus.merged, aes(Year, Documents), group = 1,colour="#5e3c99", alpha=.60) + 
-    theme_bw() +
-    theme(legend.position = "bottom", 
-    panel.grid.minor = element_blank(), 
-    axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
-    geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab), size =3) + 
-    ylim(c(0,225)) +
-    scale_x_continuous(breaks=seq(1989, 2020, 8)) 
+# plotSmallMultiples <-  ggplot(sm.scopus.merged,  aes(Year, N)) + geom_line(colour="#e66101") +
+#     facet_wrap(~ Abbrev) + 
+#     geom_line(data = sm.scopus.merged, aes(Year, Documents), group = 1,colour="#5e3c99", alpha=.60) + 
+#     theme_bw() +
+#     theme(legend.position = "bottom", 
+#     panel.grid.minor = element_blank(), 
+#     axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
+#     geom_text(data = ldata, aes(x =xpos, y = ypos, label = lab), size =3) + 
+#     ylim(c(0,225)) +
+#     scale_x_continuous(breaks=seq(1989, 2015, 8)) + 
+#     expand_limits(x = 2050))
+
+
 
 ```
 
@@ -207,7 +223,7 @@ articles.df <- left_join(n.so, n.yr) %>%
     arrange(desc(Overall.N), title) %>%
     rename(Year = year, Journal= title) 
 
-scopus.df <- read.csv("scopus.csv")
+scopus.df <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus.csv")
 articles.df <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) 
 
 articles.df<- articles.df %>% 
@@ -311,7 +327,7 @@ plotArticles <- ggplot(uncited.melted, aes(Year, value, colour = variable,)) +
 
 ```{r}
 # Read Scopus database
-scopus.df <- read.csv("scopus.csv")
+scopus.df <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus.csv")
 
 boxplot.scopus <- ggplot(subset(scopus.df, subset =Year <=2013 & Year >= 1999), aes(as.factor(Year), IPP)) +
     geom_boxplot()
@@ -454,7 +470,7 @@ evidence.summary2 <- full_join(evidence.summary, abstractsYear.df,
 
 year.labs <- as.character(seq(1989,2013, 2))  
 
-ggplot(as.data.frame(xtabs(N~year+studyType, evidence.summary)), 
+stacked.plot <- ggplot(as.data.frame(xtabs(N~year+studyType, evidence.summary)), 
     aes(x = as.numeric(year), y = Freq, fill=studyType)) + 
     geom_area(alpha=.60, colour = "black", size = .2) + 
     scale_fill_manual(values=cp, 
@@ -473,7 +489,7 @@ ggplot(as.data.frame(xtabs(N~year+studyType, evidence.summary)),
 
 df <- evidence.summary2
 
-ggplot(na.omit(df), aes(year, studyProp, colour = studyType, 
+evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType, 
     group = studyType), na.rm=TRUE) + 
     geom_smooth(aes(fill=studyType), alpha = .60, colour = "dimgray") + facet_wrap(~studyType) + 
     scale_fill_manual(values = cp) +   
@@ -521,7 +537,7 @@ df1$journal <- factor(df1$journal, levels = j.order)
 
 
 
-ggplot(na.omit(df1), aes(x = N, y= journal, group = journal, colour = studyType)) + 
+journal.evidence.plot <- ggplot(na.omit(df1), aes(x = N, y= journal, group = journal, colour = studyType)) + 
     geom_segment(aes(yend = journal), xend=0, colour="grey50") +
     geom_point(size = 2.5) + 
     scale_color_manual(values = cp) + 
@@ -549,7 +565,7 @@ df2$journal <- factor(df2$journal, levels = j.order)
 df2  <- within(df2, quartile <- as.integer(cut(Overall.N.Strength, quantile(Overall.N.Strength, probs=0:4/4, na.rm=TRUE), include.lowest=TRUE)))
 
 
-ggplot(na.omit(df2), aes(x = Prop, y= journal, group = journal)) + 
+EBP.plot <- ggplot(na.omit(df2), aes(x = Prop, y= journal, group = journal)) + 
     geom_segment(aes(yend = journal), xend=0) +
     geom_point(aes(size = Overall.N.Strength)) + 
     theme_bw() +
@@ -670,8 +686,9 @@ We performed a variety of checks on the final database.  Because the size of the
 
 Table 1 provides a summary of the journal titles and corresponding article records collected from the databases.  This table includes the specific years each journal is represented in the current study, the number of corresponding article records, the journal's h-Index, and whether the journal was included on the list of social work disciplinary journals defined by Hodge and Lacasse (2011). Appendix A provides a summary of journals that were on the list by compiled by Hodge and Lacasse (2011) but not included in this study (N = `r length(hodge.swHistory.diff)`), in addition to the journals excluded from the study due to an article count $<=$ 20 (N = `r nrow(fewArticles)`).  It is important to note that the years of inclusion noted for each journals does not correspond to its full historical record.  Many journals have publications that both precede and proceed the 25-year timeframe of the current study.  Moreover, many journals are missing articles records due to delays and errors in indexing, which is a known and longstanding problem in social work research (HoldenXXXX). These issues are given further attention in the discussion section of the article. 
 
-As shown in Table 1, `r nrow(final.list.25)` journals were included in the current study.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` (median = `r options(digits=2); median(final.list.updated$study.time);`, sd =  `r options(digits=2); sd(final.list.updated$study.time)`). The overall h-Index for each journal.  The h-Index values represent the current h-Index of each journal, as opposed to the h-Index of the final study period, so these values should be interpreted cautiously.  The mean h-Index value is XXXX, (median = XXX; sd = XXX). A total of `r pretty(sum(articles.year.df$year.count))` article records were obtained across these journals.  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`). This figure shows consistent growth in the number of articles from 1989 to 2005.  Notable fluctuations in the number of articles was observed from 2005 to 2008, followed by growth until 2012. The decline from 2012 to 2013 should be interpreted cautiously, as this may be an artifact due to delays in indexing.  
-
+```{r}
+# As shown in Table 1, `r nrow(final.list.25)` journals were included in the current study.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` (median = `r options(digits=2); median(final.list.updated$study.time);`, sd =  `r options(digits=2); sd(final.list.updated$study.time)`). The overall h-Index for each journal.  The h-Index values represent the current h-Index of each journal, as opposed to the h-Index of the final study period, so these values should be interpreted cautiously.  The mean h-Index value is XXXX, (median = XXX; sd = XXX). A total of `r pretty(sum(articles.year.df$year.count))` article records were obtained across these journals.  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`). This figure shows consistent growth in the number of articles from 1989 to 2005.  Notable fluctuations in the number of articles was observed from 2005 to 2008, followed by growth until 2012. The decline from 2012 to 2013 should be interpreted cautiously, as this may be an artifact due to delays in indexing.  
+```
 Data from the National Science Foundation regarding the number of earned doctorates in social work and social welfare were added to further contextualize the publication trends.  These data reveal both growth and decline in the number of earned doctorates over the period of time for which data were available.  The number of earned doctorates exhibited a rise from 2003 to 2005, which corresponded to a rise in the number of article published during these years.  Between 2008 and 2012, the number of doctoral degrees exhibited a decline, but the number of published articles continued to rise.     
 
 A bubble plot was created to facilitate interpretation of these data (see Figure 2).  This involved creating a scatter plot, mapping each journal's total number of publications on the X axis and h-Index value on the Y axis.  Each journal was assigned a quartile rating for its h-Index, and those quartile values were mapped to four unique colors.  Finally, the number of years of representation in the study was mapped to the size of the point, or _bubble_.  Journals without an h-Index rating are not represented in this plot (N = XX).  A smoothed loess line and confidence interval were added to show the trend between the h-Index scores and number of articles published.  
@@ -687,13 +704,13 @@ The length of the articles showed some change over time, going from approximatel
 \newpage
 
 ```{r finalArticleListecho=FALSE, comment=NA}
-print.data.frame(final.list, row.names=FALSE)
+#print.data.frame(final.list, row.names=FALSE)
 ```
 
 \newpage
 
 ```{r}
-plotIndex
+#plotIndex
 ```
 
 \newpage
@@ -705,7 +722,7 @@ plot.journal.count
 \newpage
 
 ```{r}
-plot.article.count
+#plot.article.count
 ```
 
 
@@ -717,6 +734,26 @@ plot.author.count
 
 ```{r}
 page.plot
+```
+
+\newpage
+
+```{r}
+evidence.plot
+```
+\newpage
+
+```{r}
+stacked.plot
+```
+\newpage
+```{r fig.height=9.5}
+journal.evidence.plot
+```
+
+\newpage
+```{r fig.height=9.5}
+EBP.plot
 ```
 
 
