@@ -167,6 +167,7 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
      select(-X) %>%
      mutate(Documents = ifelse(Documents == 0, NA, Documents))
  
+ 
  # Re-order the factor by Overall.N
  title <- sm.scopus.merged %>% arrange(desc(Overall.N)) %>% 
      distinct(Abbrev) %>% filter(!is.na(Abbrev)) %>% distinct()
@@ -174,12 +175,17 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
  title.order = title$Abbrev
  
  sm.scopus.merged$Abbrev <- factor(sm.scopus.merged$Abbrev, levels = (title.order))
+ sm.scopus.merged <- group_by(sm.scopus.merged, Journal) %>%
+     mutate(Overall.Scopus = sum(Documents, na.rm=TRUE)) %>%
+     ungroup()
 # 
  # Create labels for the facets
  Overall.N <- distinct(sm.scopus.merged, Abbrev) 
- lab <- paste("N=", Overall.N$Overall.N, sep="")
- xpos = rep(2002, 79)
- ypos = rep(215, 79)
+ lab1 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.N), sep=""))
+ lab2 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.Scopus), sep=""))
+ lab <- paste(lab1, lab2, sep="\n")
+ xpos = rep(1999, 79)
+ ypos = rep(200, 79)
  ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
      rename(Abbrev = Overall.N.Abbrev) 
      
@@ -187,35 +193,61 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
  titles.reduced <- unique(sm.scopus.merged$Journal)
  titles.reduced.1 <- titles.reduced[1:40]
  titles.reduced.2 <- titles.reduced[41:length(titles.reduced)] 
+ cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
  
+ library(grid)
+ library(gridExtra)
 # Plotting function    
+# 
  plotSmallMultiples.1 <-  ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.1, ],  aes(Year, N)) +
      geom_line(colour="#e66101") +
-     geom_line(data = sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.1, ], aes(Year, Documents)) + 
+     geom_line(data = sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.1, ], aes(Year, Documents), colour = "#533c99", alpha = .80) + 
      facet_wrap(~ Abbrev) + 
      theme_bw() +
      theme(strip.text.x = element_text(size = 8)) + 
      theme(legend.position = "bottom", 
      panel.grid.minor = element_blank(), 
      axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
-     geom_text(data = ldata[1:40, ], aes(x =xpos, y = ypos, label = lab), size =3) +
+     geom_text(data = ldata[1:40, ], aes(x =xpos, y = ypos, label = lab), size =2.5) +
      ylim(c(0,225)) +
-     scale_x_continuous(breaks=seq(1989, 2015, 8)) 
+     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+     annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
+     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99")
 
-plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ],  aes(Year, N)) +
+
+
+
+
+plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ],  
+     aes(Year, N)) +
      geom_line(colour="#e66101") +
-     geom_line(data = sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ], aes(Year, Documents)) + 
+     geom_line(data = sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ], 
+     aes(Year, Documents), colour = "#533c99", alpha = .80) + 
      facet_wrap(~ Abbrev) + 
      theme_bw() +
      theme(strip.text.x = element_text(size = 8)) +  
      theme(legend.position = "bottom", 
      panel.grid.minor = element_blank(), 
      axis.text.x = element_text(angle=45, hjust=1, size =8)) + 
-     geom_text(data = ldata[41:79, ], aes(x =xpos, y = ypos, label = lab), size =3) +
+     geom_text(data = ldata[41:79, ], aes(x =xpos, y = ypos, label = lab), size =2.5) +
      ylim(c(0,225)) +
-     scale_x_continuous(breaks=seq(1989, 2015, 8)) 
+     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+     annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
+     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99")
  
- 
+x <- c(1:10)
+y <- c(1:10)
+
+
+df <- data.frame(x,y)
+pg <- ggplotGrob(plotSmallMultiples.1)
+
+
+pl <- gtable_filter(pg, 'panel', trim=F)$layout
+pg <- gtable_add_grob(pg, x.grob, t=max(pl$t), l=max(pl$l))
+
+grid.newpage()
+grid.draw(pg)
 
 ```
 
