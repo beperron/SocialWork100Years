@@ -136,7 +136,7 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
 ```
 
 
-```{r plotSmallMultiples, cache=TRUE}
+```{r plotSmallMultiples, cache=FALSE}
 # Remove 2014 & 2015 
 
 # Create an initial data frame from HD
@@ -150,16 +150,23 @@ sm.df <- left_join(n.so, n.yr) %>%
 
 # Read Scopus database
 scopus.df <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus.csv")
+scopus.df2 <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus_OldHarvest.csv")
+
+
+scopus.df$Year <- as.numeric(scopus.df$Year)
+scopus.df <- filter(scopus.df, Year <= 2013)
 
 # Join HD with Scopus and join abbreviation names
 sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
     select(Year, Journal, N, Overall.N, Documents)
 
 
+
+
  sm.scopus.merged.table <- group_by(sm.scopus.merged, Journal) %>%
      summarize(DataBase.N = sum(N, na.rm=TRUE), Scopus.N = sum(Documents, na.rm=TRUE)) %>%
      arrange(desc(DataBase.N))
- 
+
 
  abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
  abb$ID <- 1:nrow(abb)
@@ -188,8 +195,10 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
  ypos = rep(200, 79)
  ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
      rename(Abbrev = Overall.N.Abbrev) 
-     
-
+ 
+ ldata <- na.omit(ldata)
+ 
+ 
  titles.reduced <- unique(sm.scopus.merged$Journal)
  titles.reduced.1 <- titles.reduced[1:40]
  titles.reduced.2 <- titles.reduced[41:length(titles.reduced)] 
