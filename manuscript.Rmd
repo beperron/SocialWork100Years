@@ -364,6 +364,7 @@ plot.author.count <- ggplot(n_authors2.melted, aes(x = year, y = value, group=va
 
 
 ```{r pagePlot, eval=TRUE, cache=FALSE}
+cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 pages.tmp <- full.df %>% filter(attributes == "pages")
 years.tmp <- full.df %>% filter(attributes == "pubYear")
 pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>% 
@@ -373,16 +374,18 @@ pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>%
     group_by(years) %>%
     summarise(
         Median = median(pages, na.rm=TRUE), 
-        Mean.Pages = mean(pages, na.rm=TRUE),
+        Average = mean(pages, na.rm=TRUE),
         Std.Pages = sd(pages, na.rm=TRUE))
-cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 
 
 
-n_authors2$year <- c(1989:2013)
+pages.df$years <- c(1989:2013)
 
 pages.df.melted <- reshape2::melt(pages.df, id.vars = c("years", "Std.Pages"))
-pages.df2.melted <- filter(pages.df.melted, variable == "Mean.Pages")
+
+pages.df2.melted <- filter(pages.df.melted, variable == "Average")
+
+
 
 
 
@@ -465,7 +468,7 @@ evidence.summary2 <- full_join(evidence.summary, abstractsYear.df,
 year.labs <- as.character(seq(1989,2013, 4))  
 
 stacked.df <- as.data.frame(xtabs(N~year+studyType, evidence.summary))
-stacked.df$year
+
 
 stacked.plot <- ggplot(stacked.df, 
     aes(x = as.numeric(year), y = Freq, fill=studyType)) + 
@@ -483,10 +486,12 @@ stacked.plot <- ggplot(stacked.df,
     scale_y_continuous(breaks = seq(0,90, 10)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
 
-df <- evidence.summary2
+
 ```
 
 ```{r plotProportions, cache=FALSE}
+df <- evidence.summary2
+
 evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType, 
     group = studyType), na.rm=TRUE) + 
     geom_smooth(aes(fill=studyType), alpha = .40, colour = "dimgray") + facet_wrap(~studyType) + 
@@ -509,7 +514,6 @@ evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType,
 
 
 ```{r plotClevelandAbsolute}
-
 evidence.summary3 <- select(evidence.df, -abstract) %>% 
     group_by(journal, studyType) %>%
     summarize(N = n()) 
@@ -572,6 +576,33 @@ journal.evidence.plot <- arrangeGrob(journal.evidence.plot, main = textGrob("Ove
 ```
 
 ```{r plotClevelandRelative}
+
+
+target.journals <- df1.reduced 
+target.journals$journal <- gsub("\\s+\\d+", "", target.journals$journal)
+EBP.df <- left_join(target.journals, evidence.journals, by = c("journal", "studyType")) %>%
+    group_by(journal) %>%
+    slice(1) %>%
+    ungroup %>%
+    mutate(Proportion = N.sort/Overall.N) %>%
+    rename(Absolute = N.sort)
+
+
+EBP.df  <- within(EBP.df, quartile <- as.integer(cut(Overall.N, quantile(Overall.N, probs=0:4/4, na.rm=TRUE), include.lowest=TRUE)))
+
+
+
+ggplot(EBP.df, aes(Proportion, journal, size = Overall.N, colour=as.factor(quartile))) + 
+    theme_bw() + 
+    geom_point()
+
+
+View(df1.reduced)
+
+
+
+
+
 evidence.journals <- full_join(evidence.summary3, evidence.summaryOverall, by = "journal") %>%
     group_by(journal) %>%
     mutate(Overall.N.Strength = sum(N)) %>%
@@ -708,7 +739,6 @@ The loess trend line shows a moderate association between the h-Index and number
 
 Figure 3 provides a descriptive summary of the number of authors per article over time.  As indicated by the median, it was more common for articles to be sole-authored until 2006, at which time the median fluctuated between one and two authors, and then stabilizing in 2009 at 2 authors.  The steady increase in the standard deviation since 2000 indicates an increase in the number of authors for each article. The length of articles also increased over time, starting at roughly 12.5 pages in 1989 and increasing steadily over time and stabilizing around 15 pages in 2013.  The standard deviation remained relatively stable over the 25 year period, with all values falling between the range of XX and XX.  
 
-The length of the articles showed some change over time, going from approximately `r round(pages.df$Mean.Pages[pages.df$years == "1989"])` pages in 1989.  The length of the articles increased to about 15 pages and has remain at approximately this length since the early 2000's.  The standard deviation has remained fairly stable over the time period, ranging from `r options(digits=2); min(pages.df$Std.Pages)` to `r options(digits=2); max(pages.df$Std.Pages)`.  
 
 
 \newpage
