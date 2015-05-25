@@ -1,4 +1,4 @@
----
+--
 title: 'Examining a Quarter Century of Publishing Trends in Social Work Research:
   A Data Science Perspective'
 author: ''
@@ -667,13 +667,213 @@ http://www.nsf.gov/pubs/2015/nsf15544/nsf15544.htm
 
 http://www.nsf.gov/news/news_summ.jsp?cntn_id=123607&org=NSF&from=news
 
+
+Why is this study important:
+
+1.  Substantive contributions 
+Understand publication trends from a macro perspective.  This can:
+
+From an economic standpoint, the field of social work observed growth
+throughout the economic crisis and is expected to maintain growth.  The number
+of MSW programs also continues to grow.  While growth is observed in a variety
+of areas, it is important to consider the extent to which growth has occurred
+regarding overall scholarship.  
+
+From a methodological standpoint, this study makes a few unique and important
+contributions to the social work research.  Foremost, the study was designed
+and executed in a manner that meets the full standards of reproducible
+research.  The CTSPEDIA, an advocate of fully reproducible research, defines
+this type of research as, ``the practice of distributing, along with a research
+publication, all data, software source code, and tools required to reproduce
+the results discussed in the publication.  As such the RR [reproducible
+research] package not only describes the research and its results, but becomes
+a complete laboratory in which the research can be reproduced and extended."
+(NOTE ABOUT ORGMODE)
+
+Methods
+
+Include section on reproducible research.  
+
+
+Discussion
+
+## Growth of Social Work Research
+
+From the years 1989 to 2013, the field of social work research produced nearly
+35,000 journal articles. This doesn't include books or book chapters,
+editorials, book reviews, and other types scientific communications.  The
+growth increased steadily from XX to XX, and appears to be leveling off.
+Through this period of time, we observed XX unique titles appear while a number
+of other journals were lost. 
+
+The current study helps clarify the extent to which _team science_ is emerging
+in social work research.  This is an important issue to consider, as it has
+implications for training researchers, reviewing and understnanding tenure and
+promotion cases, and research infrastructure to facilitate collaborations
+(http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3321548/). According to Thomson
+Reuters, the average number of authors on papers included in the Science
+Citation Index increased by about 50% between 1990 and 2010
+(http://www.hopkinsmedicine.org/institute_basic_biomedical_sciences/news_events/articles_and_stories/employment/2013_01_middle_authors.html)
+In our research, a t least one-half of all published studies were authored by a
+single individual until 2009.  The standard deviation continues to increase,
+providing further evidence of continued team science growth in social work.
+How authorship is assessed is a very important consideration for the field,
+particularly with respect to tenure reviews.  It is not clear how reviewers of
+tenure cases are viewing team science contributions and _middle authors_.
+However, this is something that will have to be considered for the field. In
+the field of physics, the weighted average seniourity and average seniority
+measures both had a negative relationship with the impact, based on the number
+of citations the publication received, as well as a negative relationship
+between the number of authors and the number of citations.  http://myweb.fsu.edu/bstvilia/papers/AuthorTeamDiversityImpact.pdf
+(***NOTE TO BRYAN -- AS A QUICK STUDY, YOU AND I SHOULD BUST OUT A STUDY
+INVOLVING THIS.  WE CAN DO IT FOR JUST THE TOP JOURNALS IN SOCIAL WORK THAT ARE
+IN WOS.)
+
+http://dmm.biologists.org/content/7/3/311.full
+
+https://ccrod.cancer.gov/confluence/download/attachments/47284665/teamscience_fieldguide.pdf
+    
+
+One thing to consider is the extent to which social work research is being
+served by other journal outlets.  For example, social work researchers with
+primary research interests in areas of health, mental health, and substance use
+may publish in speciality journals outside of social work for a variety of
+reasons.  Thus, the amount that social work has grown should be cautious,
+keeping in mind this particular metric refers only to social work journals.
+The field may have grown more rapidly in other areas that are not reflected in
+the current research.  The functions that were constructed to _wrangle_ the
+abstracts are functional for records extracted from PubMed.  Since this data
+source contains author affiliations, it would be feasible to extract this
+information using a set of regular expressions. 
+
+According to the journal Nature, from the lat 1600s until about 1920, the rule
+was one author per paper.  The rules was ``breached in the 1920s, diminished in
+the 1950s, and largely abandoned by the 1980s'' (p.
+http://www.nature.com/nature/history/full/nature06243.html).  Social work
+research had a much different trajectory.  In social work research, the rule
+wasn't breached until 2009.  
+
+This has implications for tenure, and it is unclear how _team science_ is
+actually being considered in context of these reviews.  The field is arguably
+in a time of transition, form si
+
+Defining a _disciplinary_ social work journal was a complicated task.  Social
+work is inherently inter-disciplinary.  We based our definition of a social
+work journal using the list of Hodge and Lacasse (2011), who created a
+comprehensive list of journal titles.  This list was based on earlier attempts
+to identify all the disciplinary social work journals.  We supplemented our
+list by doing supplemental searches in all data sources for journals that used
+any of the following terms.  
+
+
+The length of the articles was examined, as it has implications for device
+formatting.  Clearly, the field of social work has a current average of 15
+typeset pages.  This consistency allows for targeted customization for mobile
+devices.  An article can be optimized and fairly standardized, which has
+important benefits for information retrieval and comprehension.  
+
+This article raised many opportunities that became obvious in this study.  In
+the current study, we worked in earnest to present as much of the analyses
+visually.  At the time of writing this article, the majority of social work
+journals do not have full color articles.  Indeed, this is a residual policy
+from when journals were exclusively in black-and-white and before electronic
+archiving.  Now, the majority of research is disseminated electronically, and
+even the most primitive computers connected to the Internet have color
+monitors.  
+
+Data quality -- is there anything to talk about on this topic???
+
+Team science -- is it good for social work research?  
+
+
+## Reproducible research
+
+Reproducible research is essential to ensuring the integrity of the scientific
+record.  Making research reproducible is a complicated process that does carry
+risks.  More specifically, it does involve taking extra time to prepare
+documentation, organize code, and prepare files to be made publicly available.
+This problem has already been given careful attention in other fields, which
+can be considered reasonable solutions for solution work research.  For
+example, this study utilized Rmarkdown as the tool for producing reproducible
+research.  Rmarkdown is ... [provide *short* description here -- tell reader
+minimum she/he needs to know].  
+
+Another practical consideration of reproducible research is curating the data,
+and making it available.  The availability can be challenging.  For example, 
+many social work studies involve sensitive data that ultimately requires very
+strict limitations on how and where the data are stored, along with
+restrictions on who can access the data.  [Describe the PS journal that helps
+address this issue ...]  This study involves proprietary data from EbscoHost
+and ProQuest, which prevents us from making all the data available.  However,
+we provide a minimum random extract of the data to ensure verification of our
+computer code.  Additionally, we have made all aspects of our computer code
+available that will allow researchers with access to EbscoHost and ProQuest to
+replicate our findings, as well as use the code to build upon this research. 
+
+We believe that social work journals should consider implementing policies that
+encourage reproducible research.  Making this best practice in publishing
+represents a straightforward way to improve the quality of social work
+research.  Along with a policy of reproducible research, the issue of how the
+journal responds to errors will also be necessary.  We certainly do not
+advocate that authors are expected to retract articles or face public shame in
+the context of random human error.  Some studies may involve generating
+thousands of lines of computer code -- and, a simple bug in the code can
+produce erroneous results.  Researchers who adhere to the principles of
+reproducible research are ultimately working in earnest to ensure they are
+producing the highest quality research possible.  Errors that are identified in
+the process represent an opportunity to further advance knowledge, which
+sometimes means correcting knowledge.  These situations simply reveal that the
+scientific method is actually working the way it is supposed to.  At present,
+we have to assume that all the social work research published to date is
+without error.  In absence of reproducible research, we can not fully assess
+the quality of research or replicate a study.   
+  
+
+Discussion point:  
+
+Another complication is the possible consequences that a researcher might experience
+when an error is discovered.  This is an important issue that the field needs
+to address.  
+
+
+
+very research report is subject to some form of human
+error.  It is important to consider some of the different types of error and
+how the field should respond.  
+
+
+(Conduct and analysis on reproducible research" and "replication" or
+"replicate")  
+
+
+(original citation from orgmode.org:
+http://orgmode.org/worg/org-contrib/babel/intro.html)   
+
+
+ conforms to all
+aspects of what is regarded as reproducible research by making available all
+the code produced in order to conduct the study.
+
+.  Methodological contributions
+
+
 # Methods
 
 ### Extraction of article records
 
-Our list of social work journals was guided by the work of Hodge and Lacasse (2011).  More specifically, Hodge and Lacasse (2011) identified 84 disciplinary social work journals based on a variety of sources, including _An Author’s Guide to Social Work Journals_ (NASW Press, 1997), Thyer’s (2005) more recent listing of social work periodicals, and Genamics JournalSeek (http://journalseek.net/). Hodge and Lacasse (2011) examined the mission and aims of each journal, and eliminated journals that were specific to another field or had an had an inter-disciplinary focus.  For the current study, our primary search query included all journal titles in this list.
+Our list of social work journals was guided by the work of Hodge and Lacasse
+(2011).  More specifically, Hodge and Lacasse (2011) identified 84 disciplinary
+social work journals based on a variety of sources, including _An Author’s
+Guide to Social Work Journals_ (NASW Press, 1997), Thyer’s (2005) more recent
+listing of social work periodicals, and Genamics JournalSeek
+(http://journalseek.net/). Hodge and Lacasse (2011) examined the mission and
+aims of each journal, and eliminated journals that were specific to another
+field or had an had an inter-disciplinary focus.  For the current study, our
+primary search query included all journal titles in this list.
 
-To help ensure comprehensive coverage of all possible core social work journals, we created a supplemental search query that extracted journal titles with any of the following terms:  
+To help ensure comprehensive coverage of all possible core social work
+journals, we created a supplemental search query that extracted journal titles
+with any of the following terms:  
 
 + "social work"
 + "social welfare"
@@ -683,23 +883,120 @@ To help ensure comprehensive coverage of all possible core social work journals,
 + "social development" 
 + "social environment"
 
-Using this search queries, we extract journal article recrods from three major databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and Social Work Abstracts.  Because of known gaps in indexing in databases (Holden, Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail, Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an additional 46 minor databases, including (but not limited to): ERIC, Sociological Abstracts and Worldwide Political Science Abstracts.  In every search, we used a filter in attempt to extract only article records that were classified as _journal articles_, thereby excluding other forms of scholarly communication that was not relevant to the current study (e.g., book reviews, editorials, obituaries, etc.).  We limited the timeframe to a 25 year period, from 1989 to 2013 (inclusive).  Articles published in years 2014 and 2015 were excluded because of delays in indexing.  Search results were exported in batches of article records based on the restrictions of the platform.  Article records were text files in a _generic bibliographic format_.  The article records contained various meta-data based on the database from which the article record was extracted.   Meta-data include (but are not limited to):  article title, journal title, publication year, author name(s), author affiliation(s), abstract, keywords, methodological classification, funding source, location of study, subject groups, digital object identifier (DOI), number of references, number of pages, etc.  These files were post-processed into a structured database using a set of scripts written in the R statistical programming language.  The initial search resulted in `r pretty(nrow(article.count.initial))` article records from `r journal.count.initial`.
+Using this search queries, we extract journal article recrods from three major
+databases on the EbscoHost platform:  PsycINFO, Social Service Abstracts, and
+Social Work Abstracts.  Because of known gaps in indexing in databases (Holden,
+Barker, Kuppens, Rosenberg & LeBreton, 2014; Holden, Barker, Covert-Vail,
+Rosenberg, & Cohen, 2009), we also searched ProQuest, which linked to an
+additional 46 minor databases, including (but not limited to): ERIC,
+Sociological Abstracts and Worldwide Political Science Abstracts.  In every
+search, we used a filter in attempt to extract only article records that were
+classified as _journal articles_, thereby excluding other forms of scholarly
+communication that was not relevant to the current study (e.g., book reviews,
+editorials, obituaries, etc.).  We limited the timeframe to a 25 year period,
+from 1989 to 2013 (inclusive).  Articles published in years 2014 and 2015 were
+excluded because of delays in indexing.  Search results were exported in
+batches of article records based on the restrictions of the platform.  Article
+records were text files in a _generic bibliographic format_.  The article
+records contained various meta-data based on the database from which the
+article record was extracted.   Meta-data include (but are not limited to):
+article title, journal title, publication year, author name(s), author
+affiliation(s), abstract, keywords, methodological classification, funding
+source, location of study, subject groups, digital object identifier (DOI),
+number of references, number of pages, etc.  These files were post-processed
+into a structured database using a set of scripts written in the R statistical
+programming language.  The initial search resulted in `r
+pretty(nrow(article.count.initial))` article records from `r
+journal.count.initial`.
 
-The search queries were purposefully specified to be overly inclusive to ensure full coverage of all possible social work journals contained in the major and minor databases.  Additionally, a visual inspection of the article records revealed problems in the original indexing of articles that requires subsequent data cleaning.  Thus, our data cleaning procedures focused separately on journal titles and article records.
+The search queries were purposefully specified to be overly inclusive to ensure
+full coverage of all possible social work journals contained in the major and
+minor databases.  Additionally, a visual inspection of the article records
+revealed problems in the original indexing of articles that requires subsequent
+data cleaning.  Thus, our data cleaning procedures focused separately on
+journal titles and article records.
 
 ### Data cleaning: Journal titles
 
-The first step of data cleaning involved fixing journal title names due to discrepant errors in indexing. For example, _Journal of Gay and Lesbian Social Services_ was indexed as a journal separate from _Journal of Gay & Lesbian Social Services_ (use of "and" vs. "&").  Other examples involved journals indexed with and without subtitles, or journals with and without the word "The" at the beginning of the title.  Additionally, some journals changed titles over their history.  For example, _Journal of Technnology in Human Services_ is formerly known as _Computers in Human Services_.  In these situations, the former titles were merged with the current titles.  
+The first step of data cleaning involved fixing journal title names due to
+discrepant errors in indexing. For example, _Journal of Gay and Lesbian Social
+Services_ was indexed as a journal separate from _Journal of Gay & Lesbian
+Social Services_ (use of "and" vs. "&").  Other examples involved journals
+indexed with and without subtitles, or journals with and without the word "The"
+at the beginning of the title.  Additionally, some journals changed titles over
+their history.  For example, _Journal of Technnology in Human Services_ is
+formerly known as _Computers in Human Services_.  In these situations, the
+former titles were merged with the current titles.  
 
-Many journals from allied health disciplines used one of the supplemental search terms in special editions, which were also included in the journal title.  Thus, many non-social work journals were captured in the extraction process.  To resolve this issue, we created a list of all journal titles that were not part of the core list defined by Hodge and Lacasse (2011).  Study authors reviewed these journal titles and discussed whether each candidate title should be retained or excluded.  When disagreements occurred, the study authors reviewed the mission and aims of the journals, names of editorial board members, and focus of the articles.  A consensus was reached on all journal titles to be excluded and retained.   After these procedures, the number of article records and journal titles was reduced to `r pretty(nrow(article.count.journalsCleaned))` and `r journal.count.journalsCleaned`.  
+Many journals from allied health disciplines used one of the supplemental
+search terms in special editions, which were also included in the journal
+title.  Thus, many non-social work journals were captured in the extraction
+process.  To resolve this issue, we created a list of all journal titles that
+were not part of the core list defined by Hodge and Lacasse (2011).  Study
+authors reviewed these journal titles and discussed whether each candidate
+title should be retained or excluded.  When disagreements occurred, the study
+authors reviewed the mission and aims of the journals, names of editorial board
+members, and focus of the articles.  A consensus was reached on all journal
+titles to be excluded and retained.   After these procedures, the number of
+article records and journal titles was reduced to `r
+pretty(nrow(article.count.journalsCleaned))` and `r
+journal.count.journalsCleaned`.  
 
 ### Data cleaning:  Article records
 
-Our search procedures involved the use of three major databased and 46 minor databases, which resulted in some duplication of article records.  Thus, a matching algorithm was constructed to identify and remove all duplicate article records. As previously noted, the filtering of only journal articles was not successful due to errors in the original indexing.  Thus, other scholarly communications were captured in the extractio process.  These other scholarly communications were readily identified due to specific patterns in the titles, such as the terms "Book Review," "From the Editor," and "Obituary."  Given the number of article records in the database, it was not feasbile to manually extract these recrods.  Instead, we created a separate database with representative examples of article records that we wanted to extract.  We also added representative examples of article records to be retained.  We then wrote a series of _regular expressions_ to extract the problematic article records.  Regular expressions are a sequence of characters that form search patterns, allowing extraction of records that match the specified pattern.  In other words, it is a more sophisticated implementation of the search function common to all major word processors.  We tested our regular expressions on the test database, achieving > 95% accuracy with regard to retaining and extracting article records.  These regular expressions were then applied to the full database.  We then excluded article records if they were missing essential meta-data, including author name(s), journal title, article title, and publication field.  As an additional requirement, we required all articles to be $\geq 3$ pages in length.   Finally, we eliminated all social work journals with total article counts of < 10 for the entire 25 year window (_Issues in Social Work Education_, _Maatskaplike Werk/Social Work_, _Pediatric Social Work_, and _Critical Social Work_).  These cleaning procedures resulted in a final database of `r pretty(articles.final)` articles and `r journals.final` journals.  
+Our search procedures involved the use of three major databased and 46 minor
+databases, which resulted in some duplication of article records.  Thus, a
+matching algorithm was constructed to identify and remove all duplicate article
+records. As previously noted, the filtering of only journal articles was not
+successful due to errors in the original indexing.  Thus, other scholarly
+communications were captured in the extractio process.  These other scholarly
+communications were readily identified due to specific patterns in the titles,
+such as the terms "Book Review," "From the Editor," and "Obituary."  Given the
+number of article records in the database, it was not feasbile to manually
+extract these recrods.  Instead, we created a separate database with
+representative examples of article records that we wanted to extract.  We also
+added representative examples of article records to be retained.  We then wrote
+a series of _regular expressions_ to extract the problematic article records.
+Regular expressions are a sequence of characters that form search patterns,
+allowing extraction of records that match the specified pattern.  In other
+words, it is a more sophisticated implementation of the search function common
+to all major word processors.  We tested our regular expressions on the test
+database, achieving > 95% accuracy with regard to retaining and extracting
+article records.  These regular expressions were then applied to the full
+database.  We then excluded article records if they were missing essential
+meta-data, including author name(s), journal title, article title, and
+publication field.  As an additional requirement, we required all articles to
+be $\geq 3$ pages in length.   Finally, we eliminated all social work journals
+with total article counts of < 10 for the entire 25 year window (_Issues in
+Social Work Education_, _Maatskaplike Werk/Social Work_, _Pediatric Social
+Work_, and _Critical Social Work_).  These cleaning procedures resulted in a
+final database of `r pretty(articles.final)` articles and `r journals.final`
+journals.  
 
 ### Data quality checks
 
-We performed a variety of checks on the final database.  Because the size of the database, it was not feasible to manually inspect all records.  Thus, we randomly sampled article records from the database and cross-checked the data we procured with the information listed with the journal's homepage.  We also inspected a scatter plot of the number of article records for each journal by the number of years the journal appeared within the 25 window timeframe.  Journals that exhibited significant deviation from the regression line were inspected to ensure that our cleaning procedures did not systematically exclude article records or retain other scholarly communications.  All observed discrepancies were verified as differences in journals actual publication output.  Finally, we also made checks of number of journal article records for various journals indexed in the _Web of Science_.  Although the counts were close -- i.e., within 10% -- similar indexing problems observed from our record extraction were also observed in the _Web of Science_ database, such as misclassification of book reviews as journal articles.  Thus, we are unable to quantify the actual amount of error in our database is due to problems in indexing.  At the same time, we are relying on the same source of data that social work researchers use to inform their work.  Too much cleaning and post-processing of the search results can give rise to validity issues because social work researchers are using an information source that contain the errors we have attempted to eliminate.  The issue of reliability and validity are given further attention in the discussion section of this study.  
+We performed a variety of checks on the final database.  Because the size of
+the database, it was not feasible to manually inspect all records.  Thus, we
+randomly sampled article records from the database and cross-checked the data
+we procured with the information listed with the journal's homepage.  We also
+inspected a scatter plot of the number of article records for each journal by
+the number of years the journal appeared within the 25 window timeframe.
+Journals that exhibited significant deviation from the regression line were
+inspected to ensure that our cleaning procedures did not systematically exclude
+article records or retain other scholarly communications.  All observed
+discrepancies were verified as differences in journals actual publication
+output.  Finally, we also made checks of number of journal article records for
+various journals indexed in the _Web of Science_.  Although the counts were
+close -- i.e., within 10% -- similar indexing problems observed from our record
+extraction were also observed in the _Web of Science_ database, such as
+misclassification of book reviews as journal articles.  Thus, we are unable to
+quantify the actual amount of error in our database is due to problems in
+indexing.  At the same time, we are relying on the same source of data that
+social work researchers use to inform their work.  Too much cleaning and
+post-processing of the search results can give rise to validity issues because
+social work researchers are using an information source that contain the errors
+we have attempted to eliminate.  The issue of reliability and validity are
+given further attention in the discussion section of this study.  
 
 ### Analyses
 
@@ -708,36 +1005,139 @@ We performed a variety of checks on the final database.  Because the size of the
 # As shown in Table 1, `r nrow(final.list.25)` journals were included in the current study.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` (median = `r options(digits=2); median(final.list.updated$study.time);`, sd =  `r options(digits=2); sd(final.list.updated$study.time)`). The overall h-Index for each journal.  The h-Index values represent the current h-Index of each journal, as opposed to the h-Index of the final study period, so these values should be interpreted cautiously.  The mean h-Index value is XXXX, (median = XXX; sd = XXX). A total of `r pretty(sum(articles.year.df$year.count))` article records were obtained across these journals.  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`). This figure shows consistent growth in the number of articles from 1989 to 2005.  Notable fluctuations in the number of articles was observed from 2005 to 2008, followed by growth until 2012. The decline from 2012 to 2013 should be interpreted cautiously, as this may be an artifact due to delays in indexing.  
 ```
 
+### Aggregated summary (Figure 1a. 1b. -- line charts) 
 
-
-### Journal summary
-
-Figure 1 uses a small multiples plot to summarize the number of article records
-for each year throughout the study period.  According to Tufte (xxxx), small multiples (also referred to as
-trellis and lattice charts) are the best design solution for visually enforcing
-comparisons of change.  In the current useage, each journal is summarized with its own line plot using two different lines to represent the number of article records contained in the SWHD (orange line) and Scopus (purple line).  The journals are sorted in descending order based on the overall number of article records in the SWHD.  Journal titles are also abbreviated, and the full spellings are available in Appendix A.  These line plots help show publication patterns for each journal.  
-
-The differences in publication counts are explained by a couple different reasons.  Scopus does not index journals prior to 1996, whereas the SWHD goes back to 1989.  Although the timeframe of the SWHD is longer than Scopus, the actual number of article records in the SWHD for many journals is lower than what is available in Scopus.  Scopus included editorials and book reviews in their article count, whereas these publications were specifically excluded from the SWHD.  Because Scopus data were available only in aggregate form, it was not possible to extract these data to make more refined comparisons.  In the construction of the SWHD, we also applied a series of cleaning procedures that further reduced the article count for many journals.  For example, we excluded article records that did not contain author names, an abstract or article title.  Again, because we were working only with aggregate data from Scopus, we were unable to apply the same cleaning procedures to the Scopus data.  And, finally, differences can also be attributed to gaps and errors in indexing in Scopus and all the databases used to construct the SWHD.  This is a known and longstanding problem with some social work journals (see Holden, Holden).  
-
-\newpage
-```{r fig.height=10, fig.width=7.5}
-plotSmallMultiples.1
-
-```
-
-\newpage
-```{r fig.height=10, fig.width=7.5}
-plotSmallMultiples.2
-
-```
+Figures 1a and 1b are line charts showing the number of unique journal
+titles and journal articles published each year during the study time frame.
+In 1989, XX unique journals published a XX articles.  The number of journal
+titles showed some variability from 1989 to 1996, followed by nine years of
+steady growth.  By 2005, the number of journal titles and journal articles
+being published was more than double than what was observed in 1989. The years
+2005 to 2013 exhibited some variability in the number of titles and articles
+published.  The maximum number of journal titles was observed in 2011 (n = XX)
+and dropped to XX by 2013.  The maximum number of journal articles published
+was in 2012, and this dropped to XX in 2013.  The cumulative number of journal
+articles published over the study time frame was XX,XXX.     
 
 
 
-A bubble plot was created to facilitate interpretation of these data (see Figure 2).  This involved creating a scatter plot, mapping each journal's total number of publications on the X axis and h-Index value on the Y axis.  Each journal was assigned a quartile rating for its h-Index, and those quartile values were mapped to four unique colors.  Finally, the number of years of representation in the study was mapped to the size of the point, or _bubble_.  Journals without an h-Index rating are not represented in this plot (N = XX).  A smoothed loess line and confidence interval were added to show the trend between the h-Index scores and number of articles published.  
 
-The loess trend line shows a moderate association between the h-Index and number of articles published.  However, a number of notable deviations are observed.  Eleven journals were in the highest h-Index quartile.  The _British Journal of Social Work_ had the highest h-Index value but ranked third with regard to the overall number of publications. XXXX, XXXX, and XXXX were also in the top quartile but had comparably fewer published articles and existed for less time than the other journals in the same quartile. _Families in Society_ had the most published articles, spanning the full 25-year study period, but was in the second h-Index quartile.  
 
-Figure 3 provides a descriptive summary of the number of authors per article over time.  As indicated by the median, it was more common for articles to be sole-authored until 2006, at which time the median fluctuated between one and two authors, and then stabilizing in 2009 at 2 authors.  The steady increase in the standard deviation since 2000 indicates an increase in the number of authors for each article. The length of articles also increased over time, starting at roughly 12.5 pages in 1989 and increasing steadily over time and stabilizing around 15 pages in 2013.  The standard deviation remained relatively stable over the 25 year period, with all values falling between the range of XX and XX.  
+### Dis-aggregated summary (Figure 2. Small multiples)
+ 
+Figure 2 is a small multiples plot, also referred to as a trellis or lattice
+chart, that dis-aggregates Figures 1a and 1b.  More specifically, the small
+multiples plot shows the number of articles published each year for each 
+journal throughout the study time frame (orange line).  We also included data from Scopus for
+comparative purposes (purple line).  The small multiples are sorted in descending
+order based on the total number of article records in the HD.  The presentation
+of the sort is by row, so the overall plot is read from left to right.
+Abbreviations are used in Figure 2, and the full journal name is presented in
+Appendix A.   
+
+The small multiples plot is particularly useful to show the variability in
+publishing for each journal.  In fact, according to Tufte (xxxx), small
+multiples are the best design solution for visually enforcing comparisons of
+change.  The plot shows that _Families in Society_, _Social Work_, and _British
+Journal of Social Work_ published the greatest number of articles throughout
+the study time frame.  However, the number of articles published by _Families
+in Society_ and _Social Work_ appear to be decreasing, while other journals
+show an increase -- e.g., _Research on Social Work Practice_, _International
+Social Work_, and _Journal of Human Behavior and the Social Environment_.   
+
+Data from Scopus was used to help show the overall coverage of the HD, in
+addition to revealing possible gaps in indexing.  The HD and Scopus plotted
+values do not show exact alignment for a couple reasons.  More specifically,
+the HD contains article records going back to 1989, whereas Scopus provides
+data starting from 1996.  Additionally, the overall journal coverage of HD is
+much greater than Scopus -- that is, Scopus provides data for only xx% of the
+journal titles contained in the HD.  
+
+The Scopus data that are available show a high degree of correspondence with
+the HD.  Small discrepancies between the Scopus and HD can be attributed to
+differences in indexing.  That is, the article record count of Scopus includes
+editorials and book reviews, whereas these were excluded from the HD.  In the
+construction of the HD, we applied a series of cleaning procedures (refer to
+Methods section) that further reduced the article count.  Because Scopus data
+were available only in aggregate form, it was not possible to extract these
+data to make more refined comparisons.  
+
+And, finally, the small multiples plot is especially useful for identifying
+potential gaps in indexing, which is a problem that has been previously
+identified with respect to social work journals (see Holden; Holden). For
+example, Scopus appears to be missing article records for the _Journal of
+Gerontological Social Work_ from XX to XX.  And, the HD is missing records for
+various journals including (but not limited to) the _Journal of Ethnic and
+Cultural Diversity in Social Work_, _Journal of Social Work Disability &
+Rehabilitation_.
+
+
+### Article attributes
+
+Figures 3a and 3b provide summaries of two important article attributes -- that
+is, the number of authors per article and the length of each article.
+Throughout the history of social work research, at least half of all social
+work articles were sole authored until 2008, as indicated by the median value
+in Figure 3a.  Since 2008, at least half of all articles had two authors.
+Throughout the study time frame, the number of authors has increased steadily,
+as shown by the increasing mean value and its standard deviation.  In 2013, the
+mean number of authors was approximately 2.25, with a standard deviation of
+1.4.  The length of the articles increased steadily from approximately 12 pages
+in 1989 to 15 pages in 2004.  The last three years of the study time frame
+shows a fairly stable publishing trend, with half of all articles being 15
+pages (Mean = XX, sd = XX).   
+
+### Abstract analysis
+
+The final set of analyses involved text analysis of the article abstracts to
+determine whether trends in publishing could be readily identified based on the
+frequencies of specific words contained in article abstracts.  In this analysis, we selected words that
+represented different _levels of evidence_ within the evidence-based practices
+framework.  EBP was selected as the focus of analysis, given that the topic
+area is a relatively new in social work, compared to other topics like child
+welfare and case management.  Moreover, because EBP has received considerable
+attention in various areas of social work research, it was expected that
+the different _levels of evidence_ would show should both absolute and
+relative changes in their occurrences. 
+
+To identify the terms    
+
+
+
+it is relatively new and has
+become part of social work terminology,  
+
+
+
+ that are common to the framework of
+evidence-based practices (EBP).  This topic area was selected because it is a
+more recent area of research relative to other social work topics (e.g., child
+welfare and case management).  
+
+
+The final part of the study involved a topical analysis by using regular
+expressions to identify articles using keywords based on different levels of
+evidence.  We specified four sets of keywords relating to meta-analysis,
+systematic reviews, randomized controlled trials, and quasi-experimental
+studies.  We refer to these as _sets_ of keywords because we used a number of
+different variations on the spelling and related terminology.  For example, RCT
+involved a search specification that such as "randomized control trial,"
+"randomized controlled trial," and "RCT".  The complete definitions of these
+are provided in the index.  
+
+Figure 4 is a stacked line chart showing the number of each type of article
+throughout the study timeframe.  This figure shows increased numbers of all
+study types.  It is important to consider this growth relative to the overall
+growth of the field of social work.  Thus, in Figure 5, we plotted the
+proportion of each keyword class relative to the overall number of articles for
+that given year.  This shows an increase -- albeit a small increase -- in the
+proportion of journals, providing evidence of growth relative to the overall
+field.  Slightly more than 1% of all articles published contained a phrase
+equivalent to randomized control trial.   
+
+
+
+
 
 
 
@@ -759,6 +1159,18 @@ Figure 3 provides a descriptive summary of the number of authors per article ove
 grid.arrange(plot.journal.count, plot.article.count, ncol=2)
 
 ```
+\newpage
+```{r fig.height=10, fig.width=7.5}
+plotSmallMultiples.1
+
+```
+
+\newpage
+```{r fig.height=10, fig.width=7.5}
+plotSmallMultiples.2
+
+```
+
 
 \newpage
 
