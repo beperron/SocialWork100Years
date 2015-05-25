@@ -1100,44 +1100,33 @@ attention in various areas of social work research, it was expected that
 the different _levels of evidence_ would show should both absolute and
 relative changes in their occurrences. 
 
-To identify the terms    
+In this analysis, we focused on four different _levels of evidence_:
+Meta-analysis, systematic reviews, randomized controlled trials (RCTs), and
+quasi-experimental designs.  To identify these key words in the article
+abstracts, we created a set of regular expressions of common spellings and
+synonyms for each type of evidence (see Appendix B).  Regular expressions, also
+referred to as regex and regexp, are sequences of characters that define
+specific patterns in text documents and work much like the _find_ functions
+common to word processors.  The regular expressions used to define the _levels
+of evidence_ are presented in Appendix B and the study's source code.   
 
+A stacked line chart was used to show absolute change in the number of
+occurrences for each level of evidence in article abstracts.  The line chart
+shows increased numbers of occurrences for each level of evidence, with the
+greatest amount of growth starting in year 2008.  The presence of systematic
+reviews and meta-analyses did not have a sustained presence in  the literature
+until approximately 1995.  In fact, the first occurrence of the key word
+_systematic review_ did not appear until 1997 (cite). 
 
+To show relative change, we plotted the proportion of overall articles
+published that contained the target key words for each year.  In 1989, RCTs and
+Quasi-experimental studies were observed in approximately 1/2% of published
+articles.  By 2013, the percentage of RCTs tripled and the percentage of
+quasi-experimental doubled.  Meta-analyses appeared in 1989 and grew to almost
+1/2% by 2013.  Systematic reviews first appeared in 1997, then again in 2003,
+and grew to approximately 1% in 2013.   
 
-it is relatively new and has
-become part of social work terminology,  
-
-
-
- that are common to the framework of
-evidence-based practices (EBP).  This topic area was selected because it is a
-more recent area of research relative to other social work topics (e.g., child
-welfare and case management).  
-
-
-The final part of the study involved a topical analysis by using regular
-expressions to identify articles using keywords based on different levels of
-evidence.  We specified four sets of keywords relating to meta-analysis,
-systematic reviews, randomized controlled trials, and quasi-experimental
-studies.  We refer to these as _sets_ of keywords because we used a number of
-different variations on the spelling and related terminology.  For example, RCT
-involved a search specification that such as "randomized control trial,"
-"randomized controlled trial," and "RCT".  The complete definitions of these
-are provided in the index.  
-
-Figure 4 is a stacked line chart showing the number of each type of article
-throughout the study timeframe.  This figure shows increased numbers of all
-study types.  It is important to consider this growth relative to the overall
-growth of the field of social work.  Thus, in Figure 5, we plotted the
-proportion of each keyword class relative to the overall number of articles for
-that given year.  This shows an increase -- albeit a small increase -- in the
-proportion of journals, providing evidence of growth relative to the overall
-field.  Slightly more than 1% of all articles published contained a phrase
-equivalent to randomized control trial.   
-
-
-
-
+**Pareto chart**
 
 
 
