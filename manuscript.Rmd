@@ -509,7 +509,7 @@ evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType,
              linetype = "solid") +
     scale_x_continuous(breaks = seq(1989, 2014, 4)) + 
      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    scale_y_continuous(breaks = seq(0, .03, .005)) 
+    scale_y_continuous(breaks = seq(0, .03, .005))
 ``` 
 
 
@@ -533,9 +533,6 @@ df <-  select(evidence.journalsOverall, studyType, N, Overall.N.Strength) %>%
     rename(N.sort = Overall.N.Strength)
 
 df1 <- df
-
-
-
 
 df1.summarized <- df1 %>% group_by(journal) %>% 
     summarize(EBP.counts = sum(N)) %>% 
@@ -572,10 +569,60 @@ journal.evidence.plot <- ggplot(df1.reduced,
     scale_shape_manual(values=c(24, 23, 21, 25))
 
 journal.evidence.plot <- arrangeGrob(journal.evidence.plot, main = textGrob("Overall N", gp=gpar(cex=.7, font=2), vjust = 2, hjust = 1.25))
+```
 
+
+```{r plotPareto}
+pareto.df <- df1 %>% group_by(journal) %>% 
+    summarize(EBP.counts = sum(N)) %>% 
+    arrange(desc(EBP.counts)) %>%
+    ungroup() %>%
+    mutate(overallCount = sum(EBP.counts, na.rm=TRUE)) %>%
+    mutate(percentTotal = (EBP.counts/overallCount) *100) %>%
+    mutate(cumSum = cumsum(percentTotal)) %>%
+    slice(1:16)
+    
+df1.reduced <- na.omit(df1[df1$journal %in% pareto.df$journal, ])
+df1.reduced <- ungroup(df1.reduced)
+df1.reduced <- full_join(df1.reduced, pareto.df, by = "journal")
+
+
+#df1.reduced <- df1.reduced %>% mutate(journal = paste(journal, N.sort, sep = "  "))
+
+j.order <- unique(df1.reduced$journal[order(df1.reduced$N.sort, decreasing = FALSE)]) 
+
+df1.reduced$journal <- factor(df1.reduced$journal, levels = j.order)
+
+
+df1.unique <- group_by(df1.reduced, journal) %>% slice(1)
+df1.unique$journal <- factor(df1.unique$journal, levels = j.order)
+
+journal.evidence.plot <- ggplot(na.omit(df1.reduced), aes(x = journal, y = N)) + 
+    geom_bar(aes(fill = studyType), stat = "identity") +
+    coord_flip() +
+    theme_bw() + 
+    geom_text(data = df1.unique, aes(y = EBP.counts+7, x = journal, label = EBP.counts), size = 3) +
+    labs(x = "Journal", y = "N") +
+    ylim(c(0, 150)) +
+    scale_fill_manual(values = cp) 
 ```
 
 ```{r plotClevelandRelative}
+
+proportionsEBP.df <- df1.reduced %>% 
+    group_by(journal) %>% 
+    slice(1) %>%
+     mutate(Journal = as.character(journal)) %>%
+    ungroup() %>%
+    select(-studyType, -N, -N.sort, -journal, -overallCount, -percentTotal, -cumSum) 
+   
+proportionEBP2.df <- full_join(proportionsEBP.df, sm.scopus.merged.table, by = "Journal")  %>% 
+    mutate(journalProp = EBP.counts / DataBase.N) %>%
+    arrange(desc(journalProp)) 
+
+
+
+
 
 
 target.journals <- df1.reduced 
