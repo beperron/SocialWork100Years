@@ -1,9 +1,11 @@
---
+---
 title: 'Examining a Quarter Century of Publishing Trends in Social Work Research:
   A Data Science Perspective'
 author: ''
+date: "May 26, 2015"
 output: pdf_document
 ---
+
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
 
@@ -96,6 +98,8 @@ fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
+
+
 ```{r tableArticleSummary, eval=TRUE, cache=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
@@ -133,6 +137,63 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
     select(-attributes, -record)
 
 
+```
+```{r}
+
+cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
+
+
+#=======================================
+# Journals
+#=======================================
+library(gridExtra)
+
+n.journals.year <- filter(full.df, attributes == "journal") %>%
+    select(articleID, record)
+
+n.year <- filter(full.df, attributes == "pubYear") %>%
+    select(articleID, record)
+
+n.journals.year <- left_join(n.journals.year, n.year, by = "articleID", copy=TRUE) %>%
+    group_by(record.y) %>%
+    summarise(Journal.count = n_distinct(record.x)) %>%
+    mutate(record.y = as.numeric(record.y))
+
+plot.journal.count <- ggplot(n.journals.year, aes(record.y, 
+    y = Journal.count, group=1)) + 
+    theme_bw() + 
+    geom_line(colour=cp[4], size = 1, alpha = .80) +
+    theme(axis.text.x = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) + 
+    xlab("Year") + 
+    ylab("Number of Unique Journal Titles") + 
+    scale_y_continuous(breaks = c(seq(0, 100, 5)), limits = c(20, 70)) +
+    scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
+
+#=======================================
+# Articles
+#=======================================
+
+articles.df <- left_join(n.so, n.yr) %>%
+    group_by(year) %>%
+    summarize(N = n()) %>%
+    mutate(year = as.numeric(year), CumSum = cumsum(N)) %>%
+    ungroup() %>%
+    arrange(desc(N), year) %>%
+    rename(Year = year) 
+
+
+plot.article.count <- ggplot(articles.df, aes(Year, N, group =1)) + 
+    theme_bw() + 
+    geom_line(colour=cp[2], size = 1, alpha=.80) +
+    theme(axis.text.x = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) + 
+    xlab("Year") + 
+    ylab("Number of Articles Published") + 
+    scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+    scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
 ```
 
 
@@ -239,73 +300,9 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
      scale_x_continuous(breaks=seq(1989, 2015, 8)) +
      annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
      annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99")
- 
-
-# x1.grob <- ggplotGrob(plotSmallMultiples.1)
-# x2.grob <- ggplotGrob(ggplot(cars, aes(speed, dist)) + geom_point())
-# 
-# library(gtable)
-# plot1 <- gtable_filter(x1.grob, 'panel', trim=F)$layout
-# pg <- gtable_add_grob(x1.grob, x2.grob, t = max(plot1$t), l = max(plot1$l))
-# grid.newpage()
-# grid.draw(pg)
 ```
 
 
-
-```{r plotJournalArticle, cache=FALSE}
-#=======================================
-# Journals
-#=======================================
-library(gridExtra)
-
-n.journals.year <- filter(full.df, attributes == "journal") %>%
-    select(articleID, record)
-
-n.year <- filter(full.df, attributes == "pubYear") %>%
-    select(articleID, record)
-
-n.journals.year <- left_join(n.journals.year, n.year, by = "articleID", copy=TRUE) %>%
-    group_by(record.y) %>%
-    summarise(Journal.count = n_distinct(record.x)) %>%
-    mutate(record.y = as.numeric(record.y))
-
-plot.journal.count <- ggplot(n.journals.year, aes(record.y, 
-    y = Journal.count, group=1)) + 
-    theme_bw() + 
-    geom_line(colour=cp[4], size = 1) +
-    theme(axis.text.x = element_text(size=8), 
-    title = element_text(size = 10), plot.title=element_text(size=10)) + 
-    xlab("Year") + 
-    ylab("Number of Journals") + 
-    scale_y_continuous(breaks = c(seq(0, 100, 5)), limits = c(20, 70)) +
-    scale_x_continuous(breaks=seq(1989, 2015, 8)) +
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
-
-#=======================================
-# Articles
-#=======================================
-
-articles.df <- left_join(n.so, n.yr) %>%
-    group_by(year) %>%
-    summarize(N = n()) %>%
-    mutate(year = as.numeric(year), CumSum = cumsum(N)) %>%
-    ungroup() %>%
-    arrange(desc(N), year) %>%
-    rename(Year = year) 
-
-
-plot.article.count <- ggplot(articles.df, aes(Year, N, group =1)) + 
-    theme_bw() + 
-    geom_line(colour=cp[2], size = 1) +
-    theme(axis.text.x = element_text(size=8), 
-    title = element_text(size = 10), plot.title=element_text(size=10)) + 
-    xlab("Year") + 
-    ylab("Number of Articles") + 
-    scale_x_continuous(breaks=seq(1989, 2015, 8)) +
-    scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
-```    
 
 
 
@@ -348,17 +345,20 @@ n_authors3.melted <- filter(n_authors2.melted, variable == "Average")
 plot.author.count <- ggplot(n_authors2.melted, aes(x = year, y = value, group=variable, colour = variable)) + 
     theme_bw() + 
     geom_line() +
-    geom_point(data = n_authors3.melted, aes(size = Standard_Deviation), colour = "#e66101") + 
+    geom_point(data = n_authors3.melted, aes(size = Standard_Deviation), colour = "#e66101", alpha=.60) + 
     #theme(axis.text.x = element_text(angle = 45, hjust = 1), 
     #title = element_text(size = 10)) +  
     scale_x_continuous(breaks=c(seq(1989, 2013, 4))) +
     scale_y_continuous(limits = c(.75,2.5)) +
     ylab("Number of Authors") +
-    xlab("Year") +
-    labs(size = "Standard deviation") +
-    labs(colour = "") + 
+    xlab("") +
+    labs(size = "SD") +
+    labs(colour = NULL) + 
     scale_colour_manual(values = c("#fdb864", "#e66101")) +
-   theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
+    theme(axis.title.x = element_text(vjust=-0.5), 
+          axis.title.y = element_text(vjust=.75), 
+          legend.position = "bottom") + 
+       theme(title = element_text(size = 10)) 
 
 ```
 
@@ -385,23 +385,19 @@ pages.df.melted <- reshape2::melt(pages.df, id.vars = c("years", "Std.Pages"))
 
 pages.df2.melted <- filter(pages.df.melted, variable == "Average")
 
-
-
-
-
-
 page.plot <- ggplot(pages.df.melted, aes(x = years, y = value, group=variable, colour = variable)) + 
     geom_line() +
-    geom_point(data = pages.df2.melted, aes(size = Std.Pages), colour = "#5e3c99") + 
+    geom_point(data = pages.df2.melted, aes(size = Std.Pages), colour = "#5e3c99", alpha = .60) + 
     theme_bw() + 
     theme(title = element_text(size = 10)) +  
     scale_x_continuous(breaks=c(seq(1989, 2013, 4))) +
     ylab("Number of Pages") +
-    xlab("Year") +
-    labs(size = "Standard deviation") +
-    labs(colour = "") + 
+    xlab("") +
+    labs(size = "SD") +
+     labs(colour = NULL) +   
     scale_colour_manual(values = c("#b2abd2", "#5e3c99"))  +
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75), 
+          legend.position = "bottom")
 
 ```
 
@@ -525,45 +521,11 @@ df <-  select(evidence.journalsOverall, studyType, N, Overall.N.Strength) %>%
 
 df1 <- df
 
-df1.summarized <- df1 %>% group_by(journal) %>% 
-    summarize(EBP.counts = sum(N)) %>% 
-    arrange(desc(EBP.counts)) %>%
-    slice(1:15) 
 
-df1.reduced <- na.omit(df1[df1$journal %in% df1.summarized$journal, ])
-df1.reduced <- ungroup(df1.reduced)
-
-df1.reduced <- df1.reduced %>% mutate(journal = paste(journal, N.sort, sep = "  "))
-
-#df1$studyType <- factor(df1$studyType)
-j.order <- unique(df1.reduced$journal[order(df1.reduced$N.sort, decreasing = FALSE)]) 
-df1.reduced$journal <- factor(df1.reduced$journal, levels = j.order)
-
-Text1 <- textGrob("Overall N")
-library(gridExtra)
-
-
-journal.evidence.plot <- ggplot(df1.reduced, 
-    aes(x = N, y= journal, group = journal, colour = studyType, shape= studyType)) + 
-    geom_segment(aes(yend = journal), xend=0, colour="grey90") +
-    geom_point(size = 2) + 
-    scale_color_manual(values = cp) + 
-    theme_bw() +
-    #facet_grid(.~studyType) + 
-    theme(panel.grid.major.y = element_blank(), legend.position = c(.75, .5), 
-    legend.title = element_blank(), legend.text = element_text(size = 8)) + 
-    xlim(0, 600) + 
-    ylab(NULL) +  
-    theme(axis.text.x = element_text(hjust = 1, size = 8), axis.ticks = element_blank()) + 
-    theme(axis.text.y = element_text(size = 8) ) + 
-    scale_x_continuous(breaks = seq(0, 60, 10)) +
-    scale_shape_manual(values=c(24, 23, 21, 25))
-
-journal.evidence.plot <- arrangeGrob(journal.evidence.plot, main = textGrob("Overall N", gp=gpar(cex=.7, font=2), vjust = 2, hjust = 1.25))
 ```
 
 
-```{r plotPareto}
+```{r plotEBPstackedBar}
 pareto.df <- df1 %>% group_by(journal) %>% 
     summarize(EBP.counts = sum(N)) %>% 
     arrange(desc(EBP.counts)) %>%
@@ -591,18 +553,17 @@ df1.unique <- group_by(df1.reduced, Abbrev) %>% slice(1)
 df1.unique$journal <- factor(df1.unique$Abbrev, levels = j.order)
 
 journal.evidence.plot <- ggplot(na.omit(df1.reduced), aes(x = Abbrev, y = N)) + 
-    geom_bar(aes(fill = studyType), stat = "identity") +
+    geom_bar(aes(fill = studyType), stat = "identity", alpha=.60) +
     coord_flip() +
     theme_bw() + 
     geom_text(data = df1.unique, aes(y = EBP.counts+7, x = Abbrev, label = EBP.counts), size = 3) +
     labs(x = "Journal", y = "N") +
     ylim(c(0, 150)) +
     scale_fill_manual(values = cp) +
-    theme(legend.position = c(.65,.7), panel.grid.major.y = element_blank(), 
-          legend.title=element_blank())
+    theme(legend.position = c(.65,.7),  legend.title=element_blank(), legend.background = element_rect(fill="transparent"))
 ```
 
-```{r plotClevelandRelative}
+```{r plotEBPproportion}
 
 proportionsEBP.df <- df1.reduced %>% 
     group_by(journal) %>% 
@@ -622,23 +583,19 @@ options(digits=3)
 proportionEBP3.df$journalProp <- round(proportionEBP3.df$journalProp, digits = 2)
 propPlot <- ggplot(proportionEBP3.df, aes(journalProp, Abbrev)) +
     theme_bw() + 
-    geom_point() +
-    geom_segment(aes(yend = Abbrev, xend = 0)) + 
+    geom_point(colour="grey40") +
+    geom_segment(aes(yend = Abbrev, xend = 0), colour = "grey40") + 
     theme(axis.text.y = element_blank(), axis.ticks = element_blank(), 
           legend.position = "none", 
           panel.grid.minor = element_blank(), 
-          panel.grid.major.y = element_blank()) + 
-    ylab("") + 
+            panel.margin = unit(0,"null")) + 
+    ylab(NULL) +
     xlab("Proportion") +
-    geom_text(aes(x = journalProp + .05, y = Abbrev, label = journalProp), size = 3) +
-    xlim(c(0, .5))
+    geom_text(aes(x = journalProp + .07, y = Abbrev, label = journalProp), size = 3) +
+    xlim(c(0, .5))  
 
 ```
 
-```{r}
-grid.arrange(journal.evidence.plot, propPlot, 
-        ncol=2, nrow=1, widths=c(2, 1), heights=c(1.4, 4))
-```
 
 ```{r appendix_A_intersection}
 unique.swHistory <- filter(full.df, attributes == "journal") %>%
@@ -1170,23 +1127,14 @@ plotSmallMultiples.2
 ```
 
 
-\newpage
-
-```{r}
-#plot.article.count
-```
 
 
 \newpage
 
-```{r}
-plot.author.count
-```
-
-\newpage
 
 ```{r}
-page.plot
+
+grid.arrange(plot.author.count, page.plot, ncol = 2)
 ```
 
 \newpage
@@ -1199,14 +1147,12 @@ evidence.plot
 ```{r}
 stacked.plot
 ```
-\newpage
-```{r}
-journal.evidence.plot
-```
+
 
 \newpage
 ```{r}
-EBP.plot
+grid.arrange(journal.evidence.plot, propPlot, 
+        ncol=2, nrow=1, widths=c(2, 1), heights=c(1.4, 4))
 ```
 
 
