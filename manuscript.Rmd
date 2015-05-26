@@ -4,6 +4,11 @@ title: 'Examining a Quarter Century of Publishing Trends in Social Work Research
 author: ''
 date: "May 26, 2015"
 output: pdf_document
+header-includes:
+- \usepackage{indentfirst}
+- \usepackage{setspace}
+- \doublespacing
+- \setlength{\parindent}{4em}
 ---
 
 
@@ -133,7 +138,6 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
     select(-attributes, -record)
 ```
 
-
 ```{r  plot01_JournalsArticles, cache=TRUE}
 cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 
@@ -189,7 +193,6 @@ plot.article.count <- ggplot(articles.df, aes(Year, N, group =1)) +
     scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
 ```
-
 
 ```{r plot02_SmallMultiples, cache=TRUE}
 # Remove 2014 & 2015 
@@ -296,11 +299,13 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
      annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99")
 ```
 
+```{r plot03_AuthorPages, eval=TRUE, cache=FALSE}
+
+#----------------------------
+#Authors
+#----------------------------
 
 
-
-
-```{r plotAuthorCount, eval=TRUE, cache=FALSE}
 year.df <- full.df %>%
     filter(attributes == "pubYear") %>%
     select(id = articleID, pubYear = record)
@@ -357,11 +362,12 @@ plot.author.count <- ggplot(n_authors2.melted, aes(x = year, y = value, group=va
     title = element_text(size = 10), plot.title=element_text(size=10)) +
     theme(legend.text = element_text(size = 8), legend.title = element_text(face="plain"))
 
+#----------------------------
+#Pages
+#----------------------------
 
-```
 
 
-```{r pagePlot, eval=TRUE, cache=FALSE}
 cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 pages.tmp <- full.df %>% filter(attributes == "pages")
 years.tmp <- full.df %>% filter(attributes == "pubYear")
@@ -402,7 +408,7 @@ page.plot <- ggplot(pages.df.melted, aes(x = years, y = value, group=variable, c
 
 ```
 
-```{r plotStacked, cache=FALSE}
+```{r plot04_EBPstacked, cache=FALSE}
 abstract.df <- filter(full.df, attributes == "abstract")
 year.df <- filter(full.df, attributes == "pubYear")
 journal.df <- filter(full.df, attributes == "journal")
@@ -431,7 +437,7 @@ quasi.df$studyType <- rep("quasi", nrow(quasi.df))
 evidence.df <- rbind(meta.df, rct.df, 
      quasi.df) 
 
-evidence.df$studyType <- factor(evidence.df$studyType, labels= c("Meta-analysis,\nSys Rev", "Quasi-experimental", "RCT"))
+evidence.df$studyType <- factor(evidence.df$studyType, labels= c("Meta-analysis,\nSystematic Review", "Quasi-experimental", "RCT"))
 
 evidence.df$studyType <- factor(evidence.df$studyType, 
     levels(evidence.df$studyType)[c(1,3,2)])
@@ -480,7 +486,7 @@ stacked.plot <- ggplot(stacked.df,
     theme(legend.text = element_text(size = 8))
 ```
 
-```{r plotProportions, cache=FALSE}
+```{r plot05_ProportionsLine, cache=FALSE}
 df <- evidence.summary2
 
 evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType, 
@@ -506,8 +512,7 @@ evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType,
     theme(legend.text = element_text(size = 8))
 ``` 
 
-
-```{r plotClevelandAbsolute}
+```{r plot06_EBPjournal, cache=FALSE}
 evidence.summary3 <- select(evidence.df, -abstract) %>% 
     group_by(journal, studyType) %>%
     summarize(N = n()) 
@@ -525,14 +530,6 @@ evidence.journalsOverall <- evidence.journals %>% group_by(journal) %>%
 
 df <-  select(evidence.journalsOverall, studyType, N, Overall.N.Strength) %>%
     rename(N.sort = Overall.N.Strength)
-
-
-
-
-```
-
-
-```{r plotEBPstackedBar}
 
 df1 <- df
 pareto.df <- df1 %>% group_by(journal) %>% 
@@ -576,7 +573,7 @@ journal.evidence.plot <- ggplot(na.omit(df1.reduced), aes(x = Abbrev, y = N)) +
     theme(legend.text = element_text(size = 8))
 ```
 
-```{r plotEBPproportion}
+```{r plot07_EBPproportion, cache=FALSE}
 
 proportionsEBP.df <- df1.reduced %>% 
     group_by(journal) %>% 
@@ -609,7 +606,6 @@ propPlot <- ggplot(proportionEBP3.df, aes(journalProp, Abbrev)) +
     theme(axis.text.x = element_text(size=8),  
     title = element_text(size = 8), plot.title=element_text(size=8)) +
     theme(legend.text = element_text(size = 8))
-
 ```
 
 
