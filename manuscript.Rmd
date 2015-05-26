@@ -98,9 +98,7 @@ fewArticles.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
-
-
-```{r tableArticleSummary, eval=TRUE, cache=TRUE}
+```{r summarySetUp, eval=TRUE, cache=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
@@ -120,8 +118,6 @@ articles.final <- length(which(full.df$attributes == "article"))
 journals.final <- filter(full.df, attributes == "journal") %>% 
     summarise(Unique = n_distinct(record))
 
-
-
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     mutate(Hodge.list = ifelse(record %in% hodge == TRUE, 1, 0)) %>%
@@ -135,13 +131,11 @@ n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>%
 
 n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
     select(-attributes, -record)
-
-
 ```
-```{r}
 
+
+```{r  plot01_JournalsArticles, cache=TRUE}
 cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
-
 
 #=======================================
 # Journals
@@ -166,7 +160,7 @@ plot.journal.count <- ggplot(n.journals.year, aes(record.y,
     theme(axis.text.x = element_text(size=8), 
     title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
-    ylab("Number of Unique Journal Titles") + 
+    ylab("Journals") + 
     scale_y_continuous(breaks = c(seq(0, 100, 5)), limits = c(20, 70)) +
     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
@@ -190,14 +184,14 @@ plot.article.count <- ggplot(articles.df, aes(Year, N, group =1)) +
     theme(axis.text.x = element_text(size=8), 
     title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
-    ylab("Number of Articles Published") + 
+    ylab("Articles") + 
     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
     scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
 ```
 
 
-```{r plotSmallMultiples, cache=FALSE}
+```{r plot02_SmallMultiples, cache=TRUE}
 # Remove 2014 & 2015 
 
 # Create an initial data frame from HD
@@ -352,13 +346,17 @@ plot.author.count <- ggplot(n_authors2.melted, aes(x = year, y = value, group=va
     scale_y_continuous(limits = c(.75,2.5)) +
     ylab("Number of Authors") +
     xlab("") +
-    labs(size = "SD") +
+    labs(size = "SD = ") +
     labs(colour = NULL) + 
     scale_colour_manual(values = c("#fdb864", "#e66101")) +
     theme(axis.title.x = element_text(vjust=-0.5), 
           axis.title.y = element_text(vjust=.75), 
           legend.position = "bottom") + 
-       theme(title = element_text(size = 10)) 
+       theme(title = element_text(size = 10)) +
+    theme(axis.text.x = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) +
+    theme(legend.text = element_text(size = 8), legend.title = element_text(face="plain"))
+
 
 ```
 
@@ -393,11 +391,14 @@ page.plot <- ggplot(pages.df.melted, aes(x = years, y = value, group=variable, c
     scale_x_continuous(breaks=c(seq(1989, 2013, 4))) +
     ylab("Number of Pages") +
     xlab("") +
-    labs(size = "SD") +
+    labs(size = "SD = ") +
      labs(colour = NULL) +   
     scale_colour_manual(values = c("#b2abd2", "#5e3c99"))  +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75), 
-          legend.position = "bottom")
+          legend.position = "bottom") +
+    theme(axis.text.x = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) +
+    theme(legend.text = element_text(size = 8), legend.title = element_text(face="plain"))
 
 ```
 
@@ -430,7 +431,7 @@ quasi.df$studyType <- rep("quasi", nrow(quasi.df))
 evidence.df <- rbind(meta.df, rct.df, 
      quasi.df) 
 
-evidence.df$studyType <- factor(evidence.df$studyType, labels= c("Meta-analysis", "Quasi-experimental", "RCT"))
+evidence.df$studyType <- factor(evidence.df$studyType, labels= c("Meta-analysis,\nSys Rev", "Quasi-experimental", "RCT"))
 
 evidence.df$studyType <- factor(evidence.df$studyType, 
     levels(evidence.df$studyType)[c(1,3,2)])
@@ -473,7 +474,10 @@ stacked.plot <- ggplot(stacked.df,
     xlab("Year") + 
     labs(fill = "") +
     scale_y_continuous(breaks = seq(0,90, 10)) +
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) +
+    theme(axis.text.x = element_text(size=8), axis.text.y = element_text(size =8),
+    title = element_text(size = 10), plot.title=element_text(size=10)) +
+    theme(legend.text = element_text(size = 8))
 ```
 
 ```{r plotProportions, cache=FALSE}
@@ -496,7 +500,10 @@ evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType,
              linetype = "solid") +
     scale_x_continuous(breaks = seq(1989, 2014, 4)) + 
      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-    scale_y_continuous(breaks = seq(0, .03, .005))
+    scale_y_continuous(breaks = seq(0, .03, .005)) +
+    theme(axis.text.x = element_text(size=8), axis.text.y = element_text(size =8),
+    title = element_text(size = 8), plot.title=element_text(size=8)) +
+    theme(legend.text = element_text(size = 8))
 ``` 
 
 
@@ -519,13 +526,15 @@ evidence.journalsOverall <- evidence.journals %>% group_by(journal) %>%
 df <-  select(evidence.journalsOverall, studyType, N, Overall.N.Strength) %>%
     rename(N.sort = Overall.N.Strength)
 
-df1 <- df
+
 
 
 ```
 
 
 ```{r plotEBPstackedBar}
+
+df1 <- df
 pareto.df <- df1 %>% group_by(journal) %>% 
     summarize(EBP.counts = sum(N)) %>% 
     arrange(desc(EBP.counts)) %>%
@@ -556,11 +565,15 @@ journal.evidence.plot <- ggplot(na.omit(df1.reduced), aes(x = Abbrev, y = N)) +
     geom_bar(aes(fill = studyType), stat = "identity", alpha=.60) +
     coord_flip() +
     theme_bw() + 
-    geom_text(data = df1.unique, aes(y = EBP.counts+7, x = Abbrev, label = EBP.counts), size = 3) +
+    geom_text(data = df1.unique, aes(y = EBP.counts+7, x = Abbrev, label = EBP.counts), size = 2.5) +
     labs(x = "Journal", y = "N") +
     ylim(c(0, 150)) +
     scale_fill_manual(values = cp) +
-    theme(legend.position = c(.65,.7),  legend.title=element_blank(), legend.background = element_rect(fill="transparent"))
+    theme(legend.position = c(.65,.7),  legend.title=element_blank(), 
+          legend.background = element_rect(fill="transparent")) +
+    theme(axis.text.x = element_text(size=8), axis.text.y = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) +
+    theme(legend.text = element_text(size = 8))
 ```
 
 ```{r plotEBPproportion}
@@ -591,8 +604,11 @@ propPlot <- ggplot(proportionEBP3.df, aes(journalProp, Abbrev)) +
             panel.margin = unit(0,"null")) + 
     ylab(NULL) +
     xlab("Proportion") +
-    geom_text(aes(x = journalProp + .07, y = Abbrev, label = journalProp), size = 3) +
-    xlim(c(0, .5))  
+    geom_text(aes(x = journalProp + .07, y = Abbrev, label = journalProp), size = 2.5) +
+    xlim(c(0, .5))  +
+    theme(axis.text.x = element_text(size=8),  
+    title = element_text(size = 8), plot.title=element_text(size=8)) +
+    theme(legend.text = element_text(size = 8))
 
 ```
 
