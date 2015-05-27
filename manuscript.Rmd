@@ -875,8 +875,8 @@ identified, producing a final target list of XX journals.
 
 After the target list of social work journal titles was finalized, we attempted
 to identify all article records from these journals using three major databases
-on the EbscoHost platform (PscyINFO, Social Science Abstracts, and Social Work
-Abstracts) and 46 minor databases on Proquest (e.g., ERIC, Sociological
+on the EbscoHost platform (PsycINFO, Social Science Abstracts, and Social Work
+Abstracts) and 46 minor databases on ProQuest (e.g., ERIC, Sociological
 Abstracts, Worldwide Political Science Abstracts).  Using the ``publication
 source`` fields of the search interface, we searched for article records that
 contained the names of each social work journal.  Searches were limited to a
@@ -947,16 +947,14 @@ all other data analysis.  R was an ideal analytic tool because it is
 open-source and has a suite of related tools for producing reproducible
 research.  More specifically, all the source code is written using Rmarkdown --
 an open-source system that integrates data management, data analysis, and the
-written report.  The source code and data extracts is also curated at openICPSR
+written report.  The source code and data extracts are also curated at openICPSR
 of the Inter-university Consotrium for Political and Social Research of the
 University of Michigan.  The source code is also available from the first
 author's GitHub repository, where the code will be maintained and updated to
 support future research projects. It should be noted that the full data files
 cannot be made publicly available because these are considered proprietary data
 of the database services.  However, to ensure full compliance with the best
-practices of reproducible research (cite King), we have [BRYAN -- DESCRIBE HERE
-HOW THE PS JOURNAL HANDLES THIS ISSUE ... ASSUME THE EDITOR IS ON-BOARD WITH
-THIS APPROACH].
+practices of reproducible research (cite King), we have provided the journal editor with the following conditions under which we would release the data: (1) the requester must be affilitated with an insitution that provides access to both the EbscoHost and ProQuest platforms along with the databases used in this study or (2) hold a personal subscription to each platform and the databases utilized here.  This is designed to meet the standards of maximum allowable data transparency while respecting the proprietary nature of the data.
 
 # Results
 ```{r}
