@@ -619,227 +619,13 @@ hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
 
 ```
 
-### Data Revolution
-
-It is estimated that 90% of all the data in human history has been generated in the past two years, and the amount of data continues to grow by roughly 2.5 quintillion bytes every day [(IBM, nd-a)](http://www-01.ibm.com/software/data/bigdata/what-is-big-data.html).  We have unprecedented opportunities for deriving actionable insights from these data to advance the human condition.  The significance continues to gain the attention of national and international organizations.  For example, the Independent Expert Advisory Group (IEAG) of the United Nations prepared a report entitled, _A World That Counts:  Mobilising the Data Revolution for Sustainable Development_ [(IEAG, 2014)](http://www.undatarevolution.org/report/).  The IEAG (2014) argues that "Data are the lifeblood of decision-making and the raw material for accountability.  Without high-quality data providing the right information on the right things at the right time; designing, monitoring and evaluating effective policies becomes almost impossible" (p. 2).  The United States federal government established an open data initiative, motivated by the awareness that data can have the greatest impact when it is "accessible, discoverable, and usable" [(www.data.gov)](www.data.gov).  Data from all levels of government that is made completely open can lead to "cost savings, efficiency, fuel for business, improved civic services, informed policy, performance planning, research and scientific discoveries, transparency and accountability, and increased public participation in the democratic dialogue" (www.data.gov).  At the time of preparing this article, over 124,000 data sets were freely available through www.data.gov among a diverse set of topic areas:  agriculture, business, climate, consumers, ecosystems, education, energy, finance, health, local government, manufacturing, ocean studies, public safety, and science and research.  
-
-In 2012, the NIH established the Big Data to Knowledge (BD2K) initiative, recognizing the potential of data to advance our understanding of human health and disease.  This initiative was designed to support four broad goals:  1) to facilitate use of biomedical digital assets by making them discoverable, accessible, and citable; 2) to conduct research and develop methods, software and tools to analyze biomedical big data; 3) to enhance training in the development of use and tools necessary for biomedical big data science; and 4) to support a data ecosystem that accelerates discovery as part of the digital enterprise (NIH).  At roughly the same time, the National Science Foundation (NSF) created new initiatives to harness the potential of the data revolution, arguing that "data are motivating a profound transformation in the culture and conduct of scientific research in every field of science and engineering ... American scientists must rise to the challenges and seize the opportunities afforded by this new, data-driven revolution" (Suresh, XXX).  The programs of the NSF are organized around capacity building and innovative applications.  Capacity building activities focus on developing fundamental theories, techniques, methodologies and technologies that are broadly applicable to big data problems.  Innovative applications relate to specific domains advancing innovative ideas that provide solutions “with potential for a broader impact on data science and its applications.” 
-
-### Data Science and Social Work
-
-We are indeed living in a data revolution.  The relevance to social work research is clear — we have the opportunity to study human behavior and other social phenomena in real time, with vastly improved reliability in our measurements, and at scale.  Data comes from a wide range of sources, including (but not limited to) social media interactions, electronic medical records, audio and video recordings, click stream data, transaction data, web logs, embedded sensors, and GPS.  New tools allow blending of data sets, unique ways to analyze data, and methods of visualizations that can produce insights limited only by one's imagination.  As stated by the NIH, "lack of appropriate tools, poor data accessibility, and insufficient training, are major impediments to rapid translational impact" in this new era of data.  It is essential that the field of social work fully embraces the data revolution and considers the extent to which the existing research infrastructure and training is preparing both social work researchers and providers to be effective and efficient in a data rich world.  The potential of the data revolution is reflected in the current _Grand Challenge_ entitled, “Harness technology for social good.”  However, we believe that the data revolution goes beyond this single _Grand Challenge_ as it provides the opportunity to be informative in all areas of social work research.  
-
-Data science serves as a useful framework for broadening the existing research infrastructure and training opportunities within social work.  Data science is similar to traditional academic research, as it includes the key roles of substantive expertise and traditional research methodologies.  Much of the theoretical basis comes from the field of statistics (Zumel & Mount, 2014), but the famous statistician William Cleveland argued that it is an interdisciplinary field that is much larger than statistics (Cleveland, XXX).  A major difference is that data science draws heavily from knowledge in the areas of computer science, software engineering, and information technology.  Unlike traditional academic research, data science is particularly well suited for tackling the _3 V’s_ of big data:  _volume_, _variety_, and _velocity_.  More specifically, in data-rich environments, researchers encounter an amount or volume of data that often exceeds the capacity of traditional database systems.  Data also come in a variety of formats, ranging from highly structured data contained in relational databases to massive stores of unstructured text-data culled from social media.  Many data opportunities go beyond the traditional approach of downloading a dataset and analyzing it with an off-the-shelf statistical package like SPSS, Stata, or SAS.  Now, data can be accessed in real time through application program interfaces (API), which brings along the challenge of _velocity_ — that is, data can be transmitted at a rate that grossly exceeds the computing power of desktop computers.  These are practical challenges that need to be addressed in order to maximize the potential of these new data.   
-
-Another feature that distinguishes data science from traditional academic research is the focus on generating _actionable insights_ from data rather than theory building and hypothesis testing. In fact, data science is more interested in deriving useful insights from correlational patterns as opposed to uncovering causal mechanisms.  The focus is on the development of data products (Davenport, XXX), as opposed to reporting analysis.  Data products are tools or services that generate actionable insights from the data itself, including (but not limited to) automated reports or dashboards, recommendation systems, prediction algorithms, decision tools, and interactive visualizations that help people with non-technical background make sense of complex data.  Data science also values the philosophy of _openness_ or open science.  Thus, much effort is devoted to creating sustainable systems that make data as widely and freely accessible as possible, and developing and promoting the use of open source tools for managing and analyzing data.  The concept of reproducible research is a _rule_ rather than the _exception_.  This involves making both data and statistical code available alongside research reports.  This helps ensure the quality of the research, in addition to allowing researchers to make advances without having duplicate work that has already been done.  Data science is by no means incompatible with traditional academic research.  We believe that the tools, research strategies, and principles of data science are complementary to traditional ways of knowledge building in social work, offering many unique opportunities to improve the quality, efficiency, and impact of this area of research.  
-
-### Overview of Current Study 
-
-In the current study, we seek to utilize the opportunities of the data revolution and data science by applying a range of tools and strategies to construct an historical base of social work research.  In doing so we take on two of the 3 Vs of big data: volume due the amount of data collected and variety in terms of the multiple sources of that data.  The data are article records harvested from existing bibliographic databases hosted on ProQuest and EbscoHost.  Article records are already widely used in various bibliometric studies, particularly those that are intended to reveal publication networks within scientific communities.  It does so by creating links between co-authors, and then visually representing the edges and vertices of the network.  This is also done with article citation histories, to show influence over time.  In this study, we were interested in the various article meta-data that are common to many scientific article records.  For example, a single article record in psycINFO can have as many as XX pieces of meta-data including:  dates, journal titles, article titles, author names, author affiliations, full text abstracts, keywords, subject classification, methodology, location, populations, page numbers, and source of funding.  This is a rather large amount of information about a single paper, at least compared to the amount of information contained in article records before the availability of electronic storage and access.  Large collections of article records may contain potentially interesting trends in the research, assuming the selection of the article records were conducted in a way that allowed meaningful inferences to be derived. 
-
-In the current study, we sought to capture every journal article record published in every social work journals over the in past quarter century (1989-2013) and to explore the various meta-data to uncover potentially interesting trends in the social work scholarship.  For example, we can reasonably infer estimates of the _size_  of social work scholarship by counting the number of unique article records.  And, growth of the field can be inferred by examining the number of article records over time.  Similarly, we examine the extent to which _team science_ has become part of the research practice, as this has implications for training of social work researchers.  We also use location meta-data to understand the extent to which different areas of the world have and have not been the focus of social work research.  Finally, we used topic modeling to extract topic areas that define the focus of social work research.  The execution of this research was grounded in the tools and values of data science.  Thus, all data were managed and analyzed using the open source software, R.  We also used an open source authoring system that integrates the statistical analysis with the text of the manuscript.  Along with this manuscript, the authors will also release the actual data and statistical code, thereby meeting the requirements of _reproducible research_, as defined by King ().  To our knowledge, this is the first time fully reproducible research (as defined by King, XXXX), has been published in a social work journal.    
-
-Davenport: http://blogs.wsj.com/cio/2014/06/25/so-you-want-to-build-a-data-product/
-
-http://www.nsf.gov/pubs/2015/nsf15544/nsf15544.htm
-
-http://www.nsf.gov/news/news_summ.jsp?cntn_id=123607&org=NSF&from=news
-
-
-Why is this study important:
-
-1.  Substantive contributions 
-Understand publication trends from a macro perspective.  This can:
-
-From an economic standpoint, the field of social work observed growth
-throughout the economic crisis and is expected to maintain growth.  The number
-of MSW programs also continues to grow.  While growth is observed in a variety
-of areas, it is important to consider the extent to which growth has occurred
-regarding overall scholarship.  
-
-From a methodological standpoint, this study makes a few unique and important
-contributions to the social work research.  Foremost, the study was designed
-and executed in a manner that meets the full standards of reproducible
-research.  The CTSPEDIA, an advocate of fully reproducible research, defines
-this type of research as, ``the practice of distributing, along with a research
-publication, all data, software source code, and tools required to reproduce
-the results discussed in the publication.  As such the RR [reproducible
-research] package not only describes the research and its results, but becomes
-a complete laboratory in which the research can be reproduced and extended."
-(NOTE ABOUT ORGMODE)
-
-Methods
-
-Include section on reproducible research.  
-
-
-Discussion
-
-## Growth of Social Work Research
-
-From the years 1989 to 2013, the field of social work research produced nearly
-35,000 journal articles. This doesn't include books or book chapters,
-editorials, book reviews, and other types scientific communications.  The
-growth increased steadily from XX to XX, and appears to be leveling off.
-Through this period of time, we observed XX unique titles appear while a number
-of other journals were lost. 
-
-The current study helps clarify the extent to which _team science_ is emerging
-in social work research.  This is an important issue to consider, as it has
-implications for training researchers, reviewing and understnanding tenure and
-promotion cases, and research infrastructure to facilitate collaborations
-(http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3321548/). According to Thomson
-Reuters, the average number of authors on papers included in the Science
-Citation Index increased by about 50% between 1990 and 2010
-(http://www.hopkinsmedicine.org/institute_basic_biomedical_sciences/news_events/articles_and_stories/employment/2013_01_middle_authors.html)
-In our research, a t least one-half of all published studies were authored by a
-single individual until 2009.  The standard deviation continues to increase,
-providing further evidence of continued team science growth in social work.
-How authorship is assessed is a very important consideration for the field,
-particularly with respect to tenure reviews.  It is not clear how reviewers of
-tenure cases are viewing team science contributions and _middle authors_.
-However, this is something that will have to be considered for the field. In
-the field of physics, the weighted average seniourity and average seniority
-measures both had a negative relationship with the impact, based on the number
-of citations the publication received, as well as a negative relationship
-between the number of authors and the number of citations.  http://myweb.fsu.edu/bstvilia/papers/AuthorTeamDiversityImpact.pdf
-(***NOTE TO BRYAN -- AS A QUICK STUDY, YOU AND I SHOULD BUST OUT A STUDY
-INVOLVING THIS.  WE CAN DO IT FOR JUST THE TOP JOURNALS IN SOCIAL WORK THAT ARE
-IN WOS.)
-
-http://dmm.biologists.org/content/7/3/311.full
-
-https://ccrod.cancer.gov/confluence/download/attachments/47284665/teamscience_fieldguide.pdf
-    
-
-One thing to consider is the extent to which social work research is being
-served by other journal outlets.  For example, social work researchers with
-primary research interests in areas of health, mental health, and substance use
-may publish in speciality journals outside of social work for a variety of
-reasons.  Thus, the amount that social work has grown should be cautious,
-keeping in mind this particular metric refers only to social work journals.
-The field may have grown more rapidly in other areas that are not reflected in
-the current research.  The functions that were constructed to _wrangle_ the
-abstracts are functional for records extracted from PubMed.  Since this data
-source contains author affiliations, it would be feasible to extract this
-information using a set of regular expressions. 
-
-According to the journal Nature, from the lat 1600s until about 1920, the rule
-was one author per paper.  The rules was ``breached in the 1920s, diminished in
-the 1950s, and largely abandoned by the 1980s'' (p.
-http://www.nature.com/nature/history/full/nature06243.html).  Social work
-research had a much different trajectory.  In social work research, the rule
-wasn't breached until 2009.  
-
-This has implications for tenure, and it is unclear how _team science_ is
-actually being considered in context of these reviews.  The field is arguably
-in a time of transition, form si
-
-Defining a _disciplinary_ social work journal was a complicated task.  Social
-work is inherently inter-disciplinary.  We based our definition of a social
-work journal using the list of Hodge and Lacasse (2011), who created a
-comprehensive list of journal titles.  This list was based on earlier attempts
-to identify all the disciplinary social work journals.  We supplemented our
-list by doing supplemental searches in all data sources for journals that used
-any of the following terms.  
-
-
-The length of the articles was examined, as it has implications for device
-formatting.  Clearly, the field of social work has a current average of 15
-typeset pages.  This consistency allows for targeted customization for mobile
-devices.  An article can be optimized and fairly standardized, which has
-important benefits for information retrieval and comprehension.  
-
-This article raised many opportunities that became obvious in this study.  In
-the current study, we worked in earnest to present as much of the analyses
-visually.  At the time of writing this article, the majority of social work
-journals do not have full color articles.  Indeed, this is a residual policy
-from when journals were exclusively in black-and-white and before electronic
-archiving.  Now, the majority of research is disseminated electronically, and
-even the most primitive computers connected to the Internet have color
-monitors.  
-
-Data quality -- is there anything to talk about on this topic???
-
-Team science -- is it good for social work research?  
-
-
-## Reproducible research
-
-Reproducible research is essential to ensuring the integrity of the scientific
-record.  Making research reproducible is a complicated process that does carry
-risks.  More specifically, it does involve taking extra time to prepare
-documentation, organize code, and prepare files to be made publicly available.
-This problem has already been given careful attention in other fields, which
-can be considered reasonable solutions for solution work research.  For
-example, this study utilized Rmarkdown as the tool for producing reproducible
-research.  Rmarkdown is ... [provide *short* description here -- tell reader
-minimum she/he needs to know].  
-
-Another practical consideration of reproducible research is curating the data,
-and making it available.  The availability can be challenging.  For example, 
-many social work studies involve sensitive data that ultimately requires very
-strict limitations on how and where the data are stored, along with
-restrictions on who can access the data.  [Describe the PS journal that helps
-address this issue ...]  This study involves proprietary data from EbscoHost
-and ProQuest, which prevents us from making all the data available.  However,
-we provide a minimum random extract of the data to ensure verification of our
-computer code.  Additionally, we have made all aspects of our computer code
-available that will allow researchers with access to EbscoHost and ProQuest to
-replicate our findings, as well as use the code to build upon this research. 
-
-We believe that social work journals should consider implementing policies that
-encourage reproducible research.  Making this best practice in publishing
-represents a straightforward way to improve the quality of social work
-research.  Along with a policy of reproducible research, the issue of how the
-journal responds to errors will also be necessary.  We certainly do not
-advocate that authors are expected to retract articles or face public shame in
-the context of random human error.  Some studies may involve generating
-thousands of lines of computer code -- and, a simple bug in the code can
-produce erroneous results.  Researchers who adhere to the principles of
-reproducible research are ultimately working in earnest to ensure they are
-producing the highest quality research possible.  Errors that are identified in
-the process represent an opportunity to further advance knowledge, which
-sometimes means correcting knowledge.  These situations simply reveal that the
-scientific method is actually working the way it is supposed to.  At present,
-we have to assume that all the social work research published to date is
-without error.  In absence of reproducible research, we can not fully assess
-the quality of research or replicate a study.   
-  
-
-Discussion point:  
-
-Another complication is the possible consequences that a researcher might experience
-when an error is discovered.  This is an important issue that the field needs
-to address.  
-
-
-
-very research report is subject to some form of human
-error.  It is important to consider some of the different types of error and
-how the field should respond.  
-
-
-(Conduct and analysis on reproducible research" and "replication" or
-"replicate")  
-
-
-(original citation from orgmode.org:
-http://orgmode.org/worg/org-contrib/babel/intro.html)   
-
-
- conforms to all
-aspects of what is regarded as reproducible research by making available all
-the code produced in order to conduct the study.
-
-.  Methodological contributions
 
 
 # Methods
 
-## Social work journal titles
+## Identification of social work journals 
  
-The primary unit of analysis for this study was bibliographic records of social
+The primary unit of analysis for this study was the bibliographic records of social
 work journal articles (hereafter referred to as ``article records``).  The
 first step in the extraction process involved constructing a comprehensive list
 of social work journal titles.  We used the work of Hodge and Lacasse (2011) as
@@ -852,20 +638,18 @@ mission and aims of each journal, and eliminated journals that were specific to
 another field or had an inter-disciplinary focus.  All social work journals
 identified by Hodge and Lacasse (2011) were included on our base list.  
 
-To ensure comprehensive coverage, we also conducted a search of the Internet
-and other bibliographic databases to identify other journals that may be
-considered a disciplinary social work journal. The search terms included: 
+To ensure comprehensive coverage, we supplemented our search by searching the Internet and bibliogpraphic databases that contained any of the following terms: 
  
-     + "social work" 
-     + "social welfare" 
-     + "social casework" 
-     + "social service"
-     + "human  service" 
-     + "social development" 
-     + "social environment"
+ + "social work" 
+ + "social welfare" 
+ + "social casework" 
+ + "social service"
+ + "human  service" 
+ + "social development" 
+ + "social environment"
 
-Journal titles that were identified in the supplemental search were reviewed
-by the study team. When disagreements occurred, the authors reviewed the
+Journal titles that were identified with any of these terms were reviewed
+by the study team to determine whether they should be included in the study. When disagreements occurred, the authors reviewed the
 mission and aims of the journals, names of editorial board members, and content
 of representative articles.  A consensus was reached on all journal titles to
 be excluded and retained.  In this process, an additional XX journal were
@@ -873,10 +657,9 @@ identified, producing a final target list of XX journals.
 
 ## Extraction of article records
 
-After the target list of social work journal titles was finalized, we attempted
-to identify all article records from these journals using three major databases
+After finalizing the target list of social work journals, we extracted article records from three major databases
 on the EbscoHost platform (PsycINFO, Social Science Abstracts, and Social Work
-Abstracts) and 46 minor databases on ProQuest (e.g., ERIC, Sociological
+Abstracts) and xx minor databases on ProQuest (e.g., ERIC, Sociological
 Abstracts, Worldwide Political Science Abstracts).  Using the ``publication
 source`` fields of the search interface, we searched for article records that
 contained the names of each social work journal.  Searches were limited to a
@@ -913,8 +696,7 @@ merged with their current titles and analyzed as a single journal in this
 study. The source code provides complete details of all the procedures to
 resolve discrepancies and historical titles.  
 
-In addition to the foregoing discrepancies, we also found other problems among
-the extracted set of article records.  For example, the filtering of article
+In addition to the foregoing date quality problem, a variety of other problems were identified and resolved.    For example, the filtering of article
 records did not successfully exclude all other types of documents (e.g.,
 editorials, book reviews, and obituaries).  Thus, we used a set of text
 matching procedures called _regular expressions_ to identify other documents
@@ -927,23 +709,26 @@ social work journals with total article counts of < 10 for the entire 25 year
 window (_Issues in Social Work Education_, _Pediatric Social Work_, and
 _Critical Social Work_). 
  
-## Data quality checks
 
-We performed a variety of checks on the final database.  Because the size of
-the final database, it was not feasible to manually inspect all records.  Thus,
-we randomly sampled article records from the database and cross-checked journal
-meta-data with information listed on the journal's web page.  To help build
-confidence in the comprehensiveness of the constructed database, we obtained
-aggregate publication data from Scopus and made systematic comparisons with the
-database constructed for this project.  Scopus data was selected because it is
+## Analytic strategy
+
+We conducted a series of descriptive analyses using various types of analyses and meta-data to demonstrate the utility of the database. Our first set of analyses focused on describing the overall _amount_ and _growth_ of social work research by summarizing the number of unique journal titles and articles published each year throughout the 25-year time frame.  We then disaggregated these data by examining the number of articles published by each journal.  We also performed an additional check on the quality of the data by making systematic comparisons with aggregate publication data from Scopus. Scopus data was selected because it is
 the single largest abstract and citation database of scientific journals and
 was not linked to either the EbscoHost or ProQuest databases in the record
-extraction process.  The systematic comparisons are  
+extraction process.  
+
+After describing the _amount_ and _growth_ of social work research, we conducted
+a series of analyses to test the utility of using meta=data to reveal
+publication trends.  As an indicator of the growth of _team science_ we
+summarize counts of the number of authors per article over time.  And, in light 
+of the shift from print to electronic articles, we examined whether the length 
+of articles have changed during this 25-year time frame. Finally, we demonstrate the use of full-text abstracts as the basis for topical trend analysis.  For purposes of demonstration, we use the concept of "evidence-based practices" (and related concepts) to show changes in topics and areas of foci in the social work research.  
+
 
 ## Reproducible research
 
 In addition to post-processing original article records, R was also used for
-all other data analysis.  R was an ideal analytic tool because it is
+all other data analysis.  R is an ideal analytic tool because it is
 open-source and has a suite of related tools for producing reproducible
 research.  More specifically, all the source code is written using Rmarkdown --
 an open-source system that integrates data management, data analysis, and the
