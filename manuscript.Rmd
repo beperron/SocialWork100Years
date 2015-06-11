@@ -620,6 +620,18 @@ hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
 ```
 
 
+The advancement of social work as a profession is largely dependent upon its underlying knowledge base.  This knowledge base is built on a very large body of research that is primarily contained in social work journals and indexed in a variety of databases. As in other disciplines, the majority of the publication process, including the indexing of articles, has been handled by for-profit academic publishers.  While these publishers provide important services to the field, a number of unintended consequences have emerged. 
+
+A very serious consequence that has received considerable attention is the expensive subscription fees associated with accessing the research produced by the field.  Universities face increased difficulties paying these fees while academic publishers are posting "higher profits than nearly any sector of commerce" (Schmitt, 2014).  In the absence of an academic affiliation, it is nearly impossible for individual social workers and social work agencies to have access to this research.  Open-access publishing has received attention as a potentially viable model to address this problem of subscription fees, but the model itself does not appear to have gained any traction. In fact, movement in the opposite direction has been observed.  For example, the _Journal of the Society for Social Work and Research_ (JSSWR) was established as an open-access journal in 2010, but converted to a subscription-based journal in 2014.      
+
+Another consequence of this publication model that has received almost no attention is the absence of standardized systems and processes for organizing the research.  More specifically, every academic database provider uses different technologies for managing a subset of social work research defined by their contract.  Thus, we see variability in the user interfaces, query languages, and file structures. Effectively searching the literature necessitates an investment in identifying the various databases that house social work research, and then learning the different methods for querying and managing the search results in each.
+
+Database aggregators (e.g., ProQuest and EbscoHost) and bibliography managers (e.g., EndNote and RefWorks) have helped address these problems.  However, comprehensive searches ultimately require the use of both database aggregators and stand-alone databases.  Even when search results are saved in a bibliography manager, a considerable amount of human intervention is required to ensure the meta-data are complete and in a standardized format.  From this perspective, it is not surprising that substantial errors have been identified in reference lists of social work journals (e.g., Spivey & Wilkis, 2004; Mitchell-Williams, Skipper, Alexander, & Wilkis, 2015).
+
+Addressing the organizational problems of the social work research has benefits beyond simply making information retrieval more efficient and less prone to error.  For example, article meta-data can facilitate the assessment of scientific progress, identification of major scientific contributors, measurement of scientific output, journal impact, and measurement of productivity (e.g., xxxx).  A more complete source of meta-data can vastly improve this line of research, given that the quality of any given trend analysis is dependent upon the quality of its underlying data source.  It is also a necessary step for the development of decision support and recommender systems that can ultimately help social workers more effectively and efficiently address their information needs.  
+
+The purpose of this study was to better understand the current organizational structure of the social work research by gathering together, cleaning, structuring, and analyzing all available meta-data for social work journal articles within a 25-year period (1989-2013).  This required the development of specialized software that we make available in an open source format.  Consistent with the philosophy of reproducible research, we also make all of our computer code for analyzing the data in an open format.
+
 
 # Methods
 
@@ -630,7 +642,7 @@ work journal articles (hereafter referred to as ``article records``).  The
 first step in the extraction process involved constructing a comprehensive list
 of social work journal titles.  We used the work of Hodge and Lacasse (2011) as
 our base list.  Hodge and Lacasse (2011) compiled a list of 84 unique social
-work journal titles using a variety of sources, includingt the book _An
+work journal titles using a variety of sources, including the book _An
 Author’s Guide to Social Work Journals_ (NASW Press, 1997), Thyer’s (2005) more
 recent listing of social work periodicals, and the website _Genamics
 JournalSeek_ (http://journalseek.net/). Hodge and Lacasse (2011) examined the
@@ -638,18 +650,18 @@ mission and aims of each journal, and eliminated journals that were specific to
 another field or had an inter-disciplinary focus.  All social work journals
 identified by Hodge and Lacasse (2011) were included on our base list.  
 
-To ensure comprehensive coverage, we supplemented our search by searching the Internet and bibliogpraphic databases that contained any of the following terms: 
+To ensure comprehensive coverage, we supplemented our base list by searching the Internet and bibliogpraphic databases for journal titles that contained any of the following terms: 
  
  + "social work" 
  + "social welfare" 
  + "social casework" 
  + "social service"
- + "human  service" 
+ + "human service" 
  + "social development" 
  + "social environment"
 
 Journal titles that were identified with any of these terms were reviewed
-by the study team to determine whether they should be included in the study. When disagreements occurred, the authors reviewed the
+by the study team to determine whether they should be included in the study as a disciplenary social work journal. When disagreements occurred, the authors reviewed the
 mission and aims of the journals, names of editorial board members, and content
 of representative articles.  A consensus was reached on all journal titles to
 be excluded and retained.  In this process, an additional XX journal were
@@ -659,7 +671,7 @@ identified, producing a final target list of XX journals.
 
 After finalizing the target list of social work journals, we extracted article records from three major databases
 on the EbscoHost platform (PsycINFO, Social Science Abstracts, and Social Work
-Abstracts) and xx minor databases on ProQuest (e.g., ERIC, Sociological
+Abstracts) and xx additional databases on ProQuest (e.g., ERIC, Sociological
 Abstracts, Worldwide Political Science Abstracts).  Using the ``publication
 source`` fields of the search interface, we searched for article records that
 contained the names of each social work journal.  Searches were limited to a
@@ -687,7 +699,7 @@ structured database with computer scripts authored specifically for this study
 using the programming language R. Post-processing of the files involved
 addressing numerous problems that occurred during the original indexing of the
 article records.  For example, journal titles that included the word ``and''
-sometimes used an amersand (&). Other examples included inconsistent use of the
+sometimes used an ampersand (&). Other examples included inconsistent use of the
 word ``The'' at the beginning of the title, or the inconsistent use of
 subtitles.  It should be noted that some journals changed titles over their
 publication history.  For example,  _Journal of Technology in Human Services_
@@ -712,13 +724,11 @@ _Critical Social Work_).
 
 ## Analytic strategy
 
-We conducted a series of descriptive analyses using various types of analyses and meta-data to demonstrate the utility of the database. Our first set of analyses focused on describing the overall _amount_ and _growth_ of social work research by summarizing the number of unique journal titles and articles published each year throughout the 25-year time frame.  We then disaggregated these data by examining the number of articles published by each journal.  We also performed an additional check on the quality of the data by making systematic comparisons with aggregate publication data from Scopus. Scopus data was selected because it is
-the single largest abstract and citation database of scientific journals and
-was not linked to either the EbscoHost or ProQuest databases in the record
+We conducted a series of descriptive analyses using various types of meta-data to demonstrate the utility of the database. Our first set of analyses focused on describing the overall _amount_ and _growth_ of social work research by summarizing the number of unique journal titles and articles published each year throughout the 25-year time frame.  We then disaggregated these data by examining the number of articles published by each journal.  We also performed an additional check on the quality of the data by making systematic comparisons with aggregate publication data from Scopus. Scopus data was selected because it is the single largest abstract and citation database of scientific journals and was not linked to either the EbscoHost or ProQuest databases in the record
 extraction process.  
 
 After describing the _amount_ and _growth_ of social work research, we conducted
-a series of analyses to test the utility of using meta=data to reveal
+a series of analyses to test the utility of using meta-data to reveal
 publication trends.  As an indicator of the growth of _team science_ we
 summarize counts of the number of authors per article over time.  And, in light 
 of the shift from print to electronic articles, we examined whether the length 
@@ -733,13 +743,13 @@ open-source and has a suite of related tools for producing reproducible
 research.  More specifically, all the source code is written using Rmarkdown --
 an open-source system that integrates data management, data analysis, and the
 written report.  The source code and data extracts are also curated at openICPSR
-of the Inter-university Consotrium for Political and Social Research of the
+of the Inter-university Consortium for Political and Social Research of the
 University of Michigan.  The source code is also available from the first
 author's GitHub repository, where the code will be maintained and updated to
 support future research projects. It should be noted that the full data files
 cannot be made publicly available because these are considered proprietary data
 of the database services.  However, to ensure full compliance with the best
-practices of reproducible research (cite King), we have provided the journal editor with the following conditions under which we would release the data: (1) the requester must be affilitated with an insitution that provides access to both the EbscoHost and ProQuest platforms along with the databases used in this study or (2) hold a personal subscription to each platform and the databases utilized here.  This is designed to meet the standards of maximum allowable data transparency while respecting the proprietary nature of the data.
+practices of reproducible research (cite King), we have provided the journal editor with the following conditions under which we would release the data: (1) the requester must be affiliated with an institution that provides access to both the EbscoHost and ProQuest platforms along with the databases used in this study or (2) hold a personal subscription to each platform and the databases utilized here.  This is designed to meet an ethic of maximum allowable data transparency while respecting the proprietary nature of the data.
 
 # Results
 ```{r}
