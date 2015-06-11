@@ -727,26 +727,32 @@ of articles have changed during this 25-year time frame. Finally, we demonstrate
 
 ## Reproducible research
 
-In addition to post-processing original article records, R was also used for
-all other data analysis.  R is an ideal analytic tool because it is
-open-source and has a suite of related tools for producing reproducible
-research.  More specifically, all the source code is written using Rmarkdown --
-an open-source system that integrates data management, data analysis, and the
-written report.  The source code and data extracts are also curated at openICPSR
-of the Inter-university Consotrium for Political and Social Research of the
-University of Michigan.  The source code is also available from the first
-author's GitHub repository, where the code will be maintained and updated to
-support future research projects. It should be noted that the full data files
-cannot be made publicly available because these are considered proprietary data
-of the database services.  However, to ensure full compliance with the best
-practices of reproducible research (cite King), we have provided the journal editor with the following conditions under which we would release the data: (1) the requester must be affilitated with an insitution that provides access to both the EbscoHost and ProQuest platforms along with the databases used in this study or (2) hold a personal subscription to each platform and the databases utilized here.  This is designed to meet the standards of maximum allowable data transparency while respecting the proprietary nature of the data.
+In addition to post-processing original article records, R was also used for all
+other data analysis.  R is an ideal analytic tool because it is open-source and
+has a suite of related tools for producing reproducible research.  More
+specifically, all the source code is written using Rmarkdown -- an open-source
+system that integrates data management, data analysis, and the written report. 
+The source code and data extracts are also curated at openICPSR of the
+Inter-university Consotrium for Political and Social Research of the University
+of Michigan.  The source code is also available from the first author's GitHub
+repository, where the code will be maintained and updated to support future
+research projects. It should be noted that the full data files cannot be made
+publicly available because these are considered proprietary data of the database
+services.  However, to ensure full compliance with the best practices of
+reproducible research (cite King), we have provided the journal editor with the
+following conditions under which we would release the data: (1) the requester
+must be affilitated with an insitution that provides access to both the
+EbscoHost and ProQuest platforms along with the databases used in this study or
+(2) hold a personal subscription to each platform and the databases utilized
+here.  This is designed to meet the standards of maximum allowable data
+transparency while respecting the proprietary nature of the data.
 
 # Results
-```{r}
-# As shown in Table 1, `r nrow(final.list.25)` journals were included in the current study.  The mean number of years of inclusion is `r options(digits=2); mean(final.list.updated$study.time)` (median = `r options(digits=2); median(final.list.updated$study.time);`, sd =  `r options(digits=2); sd(final.list.updated$study.time)`). The overall h-Index for each journal.  The h-Index values represent the current h-Index of each journal, as opposed to the h-Index of the final study period, so these values should be interpreted cautiously.  The mean h-Index value is XXXX, (median = XXX; sd = XXX). A total of `r pretty(sum(articles.year.df$year.count))` article records were obtained across these journals.  The average number of articles per journal was `r options(digits=2); pretty(mean(articles.year.df$year.count))` (median = `r options(digits=2); pretty(median(articles.year.df$year.count))`, sd = `r options(digits=2); pretty(sd(articles.year.df$year.count))`). This figure shows consistent growth in the number of articles from 1989 to 2005.  Notable fluctuations in the number of articles was observed from 2005 to 2008, followed by growth until 2012. The decline from 2012 to 2013 should be interpreted cautiously, as this may be an artifact due to delays in indexing.  
-```
 
-### Aggregated summary (Figure 1a. 1b. -- line charts) 
+
+We collected a total of 3X,XXX article records from XX different databases.  Extensive cleaning procedures were applied to exclude documents that were not filtered in the original retrieval process.  More specifically, as described in the Methods section, we filtered documents to include only journals, while excluding editorials, book reviews, table of contents, and other documents that are not considered journal articles.  This reduced the total number of unique article records in the database to xx,xxxx.  
+
+## Size and growth of social work
 
 Figures 1a and 1b are line charts showing the number of unique journal
 titles and journal articles published each year during the study time frame.
@@ -760,21 +766,17 @@ and dropped to XX by 2013.  The maximum number of journal articles published
 was in 2012, and this dropped to XX in 2013.  The cumulative number of journal
 articles published over the study time frame was XX,XXX.     
 
-
-
-
-
 ### Dis-aggregated summary (Figure 2. Small multiples)
  
-Figure 2 is a small multiples plot, also referred to as a trellis or lattice
-chart, that dis-aggregates Figures 1a and 1b.  More specifically, the small
-multiples plot shows the number of articles published each year for each 
-journal throughout the study time frame (orange line).  We also included data from Scopus for
-comparative purposes (purple line).  The small multiples are sorted in descending
-order based on the total number of article records in the HD.  The presentation
-of the sort is by row, so the overall plot is read from left to right.
-Abbreviations are used in Figure 2, and the full journal name is presented in
-Appendix A.   
+Figure 2 is a small multiples plot, also referred to as a trellis or lattice 
+chart, that dis-aggregates Figures 1a and 1b.  More specifically, the small 
+multiples plot shows the number of articles published each year for each journal
+throughout the study time frame (orange line).  We also included data from
+Scopus for comparative purposes (purple line).  The small multiples are sorted
+in descending order based on the total number of article records in the HD.  The
+sorting was done by row, so the overall plot so the overall plot is read from
+left to right. Abbreviations are used in Figure 2, and the full journal name is
+presented in Appendix A.
 
 The small multiples plot is particularly useful to show the variability in
 publishing for each journal.  In fact, according to Tufte (xxxx), small
