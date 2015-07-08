@@ -3,7 +3,7 @@ title: 'Examining a Quarter Century of Publishing Trends in Social Work Research
   A Data Science Perspective'
 author: ''
 date: "May 26, 2015"
-output: pdf_document
+output: html_document
 header-includes:
 - \usepackage{indentfirst}
 - \usepackage{setspace}
@@ -193,6 +193,35 @@ plot.article.count <- ggplot(articles.df, aes(Year, N, group =1)) +
     scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
 ```
+
+```{r}
+articles.df$YearRecode <- c(nrow(articles.df):1)
+ggplot(articles.df, aes(Year, N)) +  
+  geom_smooth(method="lm") + 
+  geom_line() +
+  geom_point()
+
+options(digits = 4)
+x <- lm(N ~ YearRecode, data = articles.df)
+summary(x)
+
+articlesN <- rev(articles.df$N)
+articlesN <- ts(articlesN, frequency=1, start = 1989, end = 2013)
+diff(articlesN)/articlesN[-nrow(articlesN),]*100
+
+
+curr <- articles.df$N[-1]
+prev <- articles.df$N[1:(length(articles.df$N)-1)]
+articles.df <- arrange(articles.df, Year)
+articles.df$monChange <- c(0, (100 *  (curr-prev) / prev)) 
+articles.df <- mutate(articles.df, positiveNegative = as.factor(ifelse(articles.df$monChange >= 0, "Positive", "Negative")))
+
+
+ggplot(articles.df, aes(Year, monChange, fill = positiveNegative)) + geom_bar(stat="identity") 
+mean(articles.df$monChange[2:25])
+
+```
+
 
 ```{r plot02_SmallMultiples, cache=TRUE}
 # Remove 2014 & 2015 
