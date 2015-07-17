@@ -178,7 +178,7 @@ articles.df <- left_join(n.so, n.yr) %>%
     summarize(N = n()) %>%
     mutate(year = as.numeric(year), CumSum = cumsum(N)) %>%
     ungroup() %>%
-    arrange(desc(N), year) %>%
+    arrange(year) %>%
     rename(Year = year) 
 
 
@@ -192,9 +192,55 @@ plot.article.count <- ggplot(articles.df, aes(Year, N, group =1)) +
     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
     scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))
+
+exp.07 <- c(737, rep(NA, 24)) 
+for(i in 2:25){
+    exp.07[i] <- exp.07[i-1] + exp.07[i-1]*.05
+}
+
+exp.175 <- c(737, rep(NA, 24))
+for(i in 2:25){
+       exp.175[i] <- exp.175[i-1] + exp.175[i-1]*.175
+    }
+
+articles.df$exp.175 <- exp.175
+articles.df$exp.07  <- exp.07
+
+ggplot(articles.df, aes(Year, CumSum, group =1)) + 
+    theme_bw() + 
+    geom_point(colour=cp[2], size = 3, alpha=.80) +
+    theme(axis.text.x = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10)) + 
+    xlab("Year") + 
+    ylab("Articles") + 
+    scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+    #scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) + 
+    geom_line(aes(Year, exp.07), colour = cp[4]) +
+    geom_line(aes(Year, exp.175), colour = cp[3]) +
+    geom_smooth(method = "lm", colour = cp[1])
+
+
+
+
+   
+
+tail(articles.df)
+
+
+head(articles.df)
+
+exp.175 <- c(737, rep(NA, 24))
+
+for(i in 2:25){
+       exp.175[i] <- exp.175[i-1] + exp.175[i-1]*.175
+ }
+
+articles.df$exp.175 <- exp.175
+
 ```
 
-```{r}
+```{r, eval=FALSE}
 articles.df$YearRecode <- c(nrow(articles.df):1)
 ggplot(articles.df, aes(Year, N)) +  
   geom_smooth(method="lm") + 
@@ -647,19 +693,6 @@ hodge.swHistory.intersect <- intersect(hodge, unique.swHistory$record)
 hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
 
 ```
-
-
-The advancement of social work as a profession is largely dependent upon its underlying knowledge base.  This knowledge base is built on a very large body of research that is primarily contained in social work journals and indexed in a variety of databases. As in other disciplines, the majority of the publication process, including the indexing of articles, has been handled by for-profit academic publishers.  While these publishers provide important services to the field, a number of unintended consequences have emerged. 
-
-A very serious consequence that has received considerable attention is the expensive subscription fees associated with accessing the research produced by the field.  Universities face increased difficulties paying these fees while academic publishers are posting "higher profits than nearly any sector of commerce" (Schmitt, 2014).  In the absence of an academic affiliation, it is nearly impossible for individual social workers and social work agencies to have access to this research.  Open-access publishing has received attention as a potentially viable model to address this problem of subscription fees, but the model itself does not appear to have gained any traction. In fact, movement in the opposite direction has been observed.  For example, the _Journal of the Society for Social Work and Research_ (JSSWR) was established as an open-access journal in 2010, but converted to a subscription-based journal in 2014.      
-
-Another consequence of this publication model that has received almost no attention is the absence of standardized systems and processes for organizing the research.  More specifically, every academic database provider uses different technologies for managing a subset of social work research defined by their contract.  Thus, we see variability in the user interfaces, query languages, and file structures. Effectively searching the literature necessitates an investment in identifying the various databases that house social work research, and then learning the different methods for querying and managing the search results in each.
-
-Database aggregators (e.g., ProQuest and EbscoHost) and bibliography managers (e.g., EndNote and RefWorks) have helped address these problems.  However, comprehensive searches ultimately require the use of both database aggregators and stand-alone databases.  Even when search results are saved in a bibliography manager, a considerable amount of human intervention is required to ensure the meta-data are complete and in a standardized format.  From this perspective, it is not surprising that substantial errors have been identified in reference lists of social work journals (e.g., Spivey & Wilkis, 2004; Mitchell-Williams, Skipper, Alexander, & Wilkis, 2015).
-
-Addressing the organizational problems of the social work research has benefits beyond simply making information retrieval more efficient and less prone to error.  For example, article meta-data can facilitate the assessment of scientific progress, identification of major scientific contributors, measurement of scientific output, journal impact, and measurement of productivity (e.g., xxxx).  A more complete source of meta-data can vastly improve this line of research, given that the quality of any given trend analysis is dependent upon the quality of its underlying data source.  It is also a necessary step for the development of decision support and recommender systems that can ultimately help social workers more effectively and efficiently address their information needs.  
-
-The purpose of this study was to better understand the current organizational structure of the social work research by gathering together, cleaning, structuring, and analyzing all available meta-data for social work journal articles within a 25-year period (1989-2013).  This required the development of specialized software that we make available in an open source format.  Consistent with the philosophy of reproducible research, we also make all of our computer code for analyzing the data in an open format.
 
 
 # Methods
