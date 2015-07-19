@@ -598,6 +598,82 @@ evidence.plot <- ggplot(na.omit(df), aes(year, studyProp, colour = studyType,
     theme(legend.text = element_text(size = 8))
 ``` 
 
+```{r CAGR comparison}
+
+CAGR <- function(start, finish, periods){
+  # Function to compute the CAGR given simple returns
+  #
+  # args:
+  #  start = starting value
+  #  finish = ending cumulative value
+  #  periods = number of time periods over which value was accumulated
+  #
+  # Returns the Compound Annual Growth Rate
+    cagr <- round(((finish/start)^(1 /periods) - 1)*100, digits=2)    
+  return(cagr)
+}
+
+setwd("C:/Users/beperron/Git/SocialWorkResearch/Data")
+sangam <- read.csv("sangam.csv")
+
+sangam.cumsum <-sangam %>%
+  group_by(field) %>%
+  mutate(CumSum=cumsum(count))
+
+cagr <- sangam.cumsum %>%
+  filter(year==1989 | year==1998)%>%
+  group_by(field)%>%
+  mutate(cagr=CAGR(start=min(CumSum), finish=max(CumSum), periods=9)) %>%
+  select(field, cagr)
+
+cagr<-unique(cagr)
+
+############## Generate comparable social work CAGR, 1989-1998 #################
+
+sw.cagr <- articles.df %>%
+  filter(Year<1999 & Year>1988)%>%
+  mutate(CumSum=cumsum(N)) %>%
+  mutate(field = "socialWork")
+
+sw.cagr <- sw.cagr %>%
+  mutate(cagr=CAGR(start=min(CumSum), finish=max(CumSum), periods=9))%>%
+  select(field, cagr)
+
+sw.cagr<-unique(sw.cagr)
+
+cagr<-rbind(cagr, sw.cagr)
+
+cagr$field<-as.character(cagr$field)
+cagr$field<-reorder(cagr$field, cagr$cagr)
+
+#############PLOT##################
+
+plot.cagr.ss <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + 
+  theme_bw() + 
+  geom_bar(width=0.8, stat='identity') +
+  theme(axis.text.x = element_text(size=8), 
+        title = element_text(size = 10), plot.title=element_text(size=10)) + 
+  xlab("Field") + 
+  ylab("Cumulative annual growth rate (%)") + 
+  ggtitle("Cumulative annual growth rates for article production across the social sciences, 1989-1998") +
+  theme(plot.title = element_text(size = rel(1.5))) +
+  scale_y_continuous(breaks = c(seq(0, 40, 5)), limits=c(0, 40)) +
+  theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75))+
+  scale_fill_manual(values=c("#b2abd2", "#b2abd2", "#fdb863", "#b2abd2", "#b2abd2", "#b2abd2", "#b2abd2"))+
+  theme(legend.position="none") +
+  scale_x_discrete(labels=c("Psychology","Economics","Social Work","Sociology","Political Science", "History", "Anthropology")) +
+  geom_hline(yintercept=seq(0, 40, 15), col="white", lwd=0.6) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(panel.border = element_blank(), axis.line = element_line())
+
+plot.cagr.ss
+
+
+
+```
+
+
+
 ```{r plot06_EBPjournal, cache=FALSE}
 evidence.summary3 <- select(evidence.df, -abstract) %>% 
     group_by(journal, studyType) %>%
