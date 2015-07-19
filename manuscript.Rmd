@@ -203,41 +203,31 @@ for(i in 2:25){
        exp.175[i] <- exp.175[i-1] + exp.175[i-1]*.175
     }
 
+
+exp.171 <- c(737, rep(NA, 24))
+for(i in 2:25){
+       exp.171[i] <- exp.171[i-1] + exp.171[i-1]*.171
+    }
+
+
 articles.df$exp.175 <- exp.175
 articles.df$exp.07  <- exp.07
+articles.df$exp.171 <- exp.171
 
-ggplot(articles.df, aes(Year, CumSum, group =1)) + 
+ggplot(articles.df, aes(Year, exp.171, group =1)) + 
     theme_bw() + 
     geom_point(colour=cp[2], size = 3, alpha=.80) +
+    geom_line(colour=cp[2]) + 
     theme(axis.text.x = element_text(size=8), 
     title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
     ylab("Articles") + 
     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
     #scale_y_continuous(breaks = c(seq(0, 2200, 250)), limits= c(500, 2100)) +
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) + 
-    geom_line(aes(Year, exp.07), colour = cp[4]) +
-    geom_line(aes(Year, exp.175), colour = cp[3]) +
-    geom_smooth(method = "lm", colour = cp[1])
-
-
-
-
-   
-
-tail(articles.df)
-
-
-head(articles.df)
-
-exp.175 <- c(737, rep(NA, 24))
-
-for(i in 2:25){
-       exp.175[i] <- exp.175[i-1] + exp.175[i-1]*.175
- }
-
-articles.df$exp.175 <- exp.175
-
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) +
+    geom_line(aes(Year, CumSum), colour = cp[3]) +
+    geom_point(aes(Year, CumSum), colour = cp[3]) 
+ 
 ```
 
 ```{r, eval=FALSE}
@@ -392,6 +382,27 @@ authors.df <- full.df %>%
 n_authors <- authors.df %>%
     group_by(id) %>%
     summarise(n=n())
+
+n_authors_grouped <- n_authors %>%
+    mutate(n = ifelse(n >= 4, 4, n)) %>%
+    group_by(pubYear) %>%
+    mutate(n.year = n()) %>%
+    group_by(pubYear, n) %>%
+    summarize(N =  n()) %>%
+    group_by(pubYear) %>%
+    mutate(N.year.overall = sum(N)) %>%
+    mutate(N.percent = (N/N.year.overall)*100)
+
+
+
+ggplot(n_authors_grouped, aes(pubYear, N.percent, group = n, colour = as.factor(n))) + geom_line(size = 1.5) + 
+    scale_colour_manual(values = cp) +
+    labs(colour = "Number of Authors") + 
+    ylim(c(0,100)) + 
+    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75), 
+          legend.position = "bottom") +
+    theme(axis.text.x = element_text(size=8), 
+    title = element_text(size = 10), plot.title=element_text(size=10))
 
 n_authors <- n_authors%>% 
     left_join(year.df) %>%
