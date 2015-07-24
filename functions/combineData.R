@@ -10,7 +10,7 @@ combineData.f <- function(){
     full.df <- rbind(ebscoBWR.df, proQuestBWR.df)
 
 
-    year.25 <- as.character(c(2014, 2015))
+    year.25 <- as.character(c(1920:1988, 2014, 2015))
 
     temp.df <- filter(full.df, attributes == "pubYear")
 
