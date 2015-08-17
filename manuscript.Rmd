@@ -136,6 +136,8 @@ n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>%
 
 n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
     select(-attributes, -record)
+
+unique.titles
 ```
 
 ```{r Figure 1a - Journals, cache=TRUE}
@@ -188,20 +190,40 @@ points <- c(29, n.journals.year$Journal.count[c(17,25)], max(n.journals.year$exp
 annotate.df <- data.frame(years, points)
 
 cols = c("Observed Growth" = cp[1], "Estimated 3.2% CAGR" = cp[4], "Estimated 5% CAGR" = cp[3])
-(plot.journal.count <- ggplot(n.journals.year, aes(record.y, 
+
+
+figure2 <- ggplot(n.journals.year, aes(record.y, 
     y = Journal.count)) + 
     theme_bw() + 
     theme(axis.text.x = element_text(size=8), 
     title = element_text(size = 10), plot.title=element_text(size=10)) + 
     xlab("Year") + 
     ylab("Journals") + 
-    scale_y_continuous(breaks = c(seq(0, 100, 5)), limits = c(20, 95)) +
-    scale_x_continuous(breaks=seq(1989, 2015, 4)) +
+    scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 95)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) + 
-    geom_line(aes(x = record.y, y = exp.05, colour = "Estimated 5% CAGR"), data = n.journals.year, colour = cp[2], alpha = .80) +
-    geom_line(aes(x = record.y, y = exp.04, colour = "Estimated 4% CAGR"), data = n.journals.year,  colour = cp[2], alpha = .80)+
-    geom_line(aes(x = record.y, y = exp.03, colour = "Estimated 3% CAGR"), data = n.journals.year,  colour = cp[2], alpha = .80) + 
-    geom_line(aes(colour = "Observed Growth"), colour = cp[4], size = 1.5) 
+    geom_line(aes(x = record.y, y = exp.05, colour = "Estimated 5% CAGR"),
+        data = n.journals.year,   colour = cp[2], alpha = .80) +
+    geom_line(aes(x = record.y, y = exp.04, colour = "Estimated 4% CAGR"), 
+        data = n.journals.year,  colour = cp[2], alpha = .80) +
+    geom_line(aes(colour = "Observed Growth"), colour = cp[4], size = 1.5) + 
+    stat_smooth(method = "lm", se = FALSE, colour = cp[3]) +
+    annotate("text", x = 2016.5, y = 60, label = "Observed growth", size = 5) +
+    annotate("text", x = 2016.5, y = 70, label = "Linear growth\n (slope=1.9)", size = 5) + 
+    annotate("text", x = 2016, y = 76, label = "4% CAGR", size = 5) + 
+    annotate("text", x = 2015.5, y = 95, label = "5% CAGR", size = 5) +
+    scale_x_continuous(limits = c(1989, 2020), breaks = c(1989, 1993, 1997, 2001, 2005, 2009, 2013)) +
+    ggtitle("Figure 2. Observed Versus Estimated Growth of Journals (1989-2013)") + 
+   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          panel.border = element_blank(), axis.line = element_line(), 
+          axis.text.x = element_text(size = 16), 
+          axis.text.y = element_text(size = 16), 
+          axis.title.x = element_text(size = 16), 
+          axis.title.y = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 19))
+
+
+
+
 ```
 
 ```{r Figure 1b - Journals}
@@ -212,7 +234,7 @@ annualChange.dichotomous <- ifelse(annualChange.numeric < 0, "Decrease", "Increa
 annualChange.df <- data.frame(annualChange.numeric, annualChange.dichotomous)
 annualChange.df$year <- c(1989:2013)
 
-ggplot(annualChange.df, aes(year, annualChange.numeric, fill =annualChange.dichotomous)) + 
+figure3 <- ggplot(annualChange.df, aes(year, annualChange.numeric, fill =annualChange.dichotomous)) + 
     theme_bw() + 
     geom_bar(stat="identity") +
     scale_fill_manual(values = cp[c(3,1)], limits = c("Increase", "Decrease")) + 
@@ -223,9 +245,16 @@ ggplot(annualChange.df, aes(year, annualChange.numeric, fill =annualChange.dicho
     scale_y_continuous(breaks = seq(-10, 15, 5)) + 
     geom_hline(yintercept=seq(-5, 15, 5), col="white", lwd=0.4) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          panel.border = element_blank(), axis.line = element_line()) + 
+          panel.border = element_blank(), axis.line = element_line(), 
+          axis.text.x = element_text(size = 16), 
+          axis.text.y = element_text(size = 16), 
+          axis.title.x = element_text(size = 16), 
+          axis.title.y = element_text(size = 16)) + 
     geom_hline(yintercept=0, col="gray", lwd=0.6, alpha =.8) +
-    ggtitle("Annual Percentage Change in the Number of Social Work Journals (1989 - 2013")
+    ggtitle("Figure 3. Annual Percentage Change in the Number Journals (1989 - 2013)") +
+    theme(plot.title = element_text(size = 19))
+
+ggsave("figure3.png", figure3, dpi=250)
 ```
 
 
@@ -326,7 +355,8 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
      ylim(c(0,225)) +
      scale_x_continuous(breaks=seq(1989, 2015, 8)) +
      annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
-     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99")
+     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99") +
+     ggtitle("Figure 1. Number of Article Records by Journal (1989 - 2013)")
 
 plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ],  
      aes(Year, N)) +
@@ -343,7 +373,8 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
      ylim(c(0,225)) +
      scale_x_continuous(breaks=seq(1989, 2015, 8)) +
      annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
-     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99")
+     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99") +
+     ggtitle("Figure 1 (cont.). Number of Article Records by Journal (1989 - 2013)")
 ```
 
 ```{r plot03_AuthorPages, eval=TRUE, cache=FALSE}
@@ -537,9 +568,9 @@ cagr$field<-reorder(cagr$field, cagr$cagr)
 CAGR <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + theme_bw() + 
     geom_bar(width=0.8, stat='identity') + theme(axis.text.x = element_text(size=8),
         title = element_text(size = 10), plot.title=element_text(size=10)) + 
-    ylab("Cumulative annual growth rate (%)") + 
+    ylab("Compound annual growth rate (%)") + 
     xlab("") + 
-    ggtitle("Cumulative annual growth rates for \nnumber of published articles (1989 - 1998)") + 
+    ggtitle("Figure 4. Compound annual growth rates for \nnumber of published articles (1989 - 1998)") + 
     theme(plot.title = element_text(size = rel(1.5))) + scale_y_continuous(breaks =
         c(seq(0, 40,  15)), limits=c(0, 40)) + theme(axis.title.x =
         element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) + 
@@ -552,7 +583,7 @@ CAGR <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + theme_bw() +
         axis.text.y = element_text(size = 15),
         axis.text.x = element_text(size = 15),
         axis.title.y = element_text(size = 15), 
-        title = element_text(size = 16)
+        title = element_text(size = 13)
         ) + 
     geom_text(aes(label =cagr ), vjust = -.5) 
 
