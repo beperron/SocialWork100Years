@@ -179,6 +179,11 @@ cleaningJournals.f <- function(){
                 full.df$record == "Journal of Practice Teaching in Social Work and Health", #Old title
                "Journal of Practice Teaching in Social Work & Health",   #New title
                 full.df$record)
+    
+    full.df$record <- ifelse(full.df$record==
+                               "Human Services in the Rural Environment",
+                               "Contemporary Rural Social Work",
+                                full.df$record)
 
     # Journals were originally merged after suffixes were eliminated (after the
     # colon).  Thus, Practice: Social Work in Action  (new title) was shortened to
