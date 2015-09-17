@@ -13,7 +13,7 @@ output: html_document
 
 ```{r LoadDatabase}
 rm(list=ls())
-load("HistoricalDatabase.R")
+load("HistoricalDatabase.RData")
 
 head(full.df)
 dim(full.df)
