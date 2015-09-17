@@ -24,8 +24,7 @@ cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 # Clear workspace
 rm(list=ls())
 
-# Read BWR functions for Mac OS
-source("/Users/beperron/Git/BibWrangleR/functions/proquestBWR.R")
+library(BibWrangleR)
 
 # Set the path where original raw data are stored
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
@@ -35,16 +34,13 @@ path <- "/Users/beperron/Git/SocialWorkResearch/Data/ProQuest"
 
 # Wrangle the data with the BWR function suite
 
-proQuestBWR.f(csv=FALSE, path=path)
+proQuestBWR.df <- proQuestBWR.f(csv=FALSE, path=path)
 save(proQuestBWR.df, file = "ProQuest.R")
 ```
 
 ```{r objectMakerEbscoHost,warning=FALSE, message=FALSE, eval=FALSE, results='hide', cache=TRUE}
 # Clear workspace
 rm(list=ls())
-
-# Read BWR functions for Mac OS
-source("/Users/beperron/Git/BibWrangleR/functions/ebscoBWR.R")
 
 # Set the path where original raw data are stored
 setwd("/Users/beperron/Git/SocialWorkResearch/Data")
@@ -54,7 +50,7 @@ path <- "/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL"
 
 # Wrangle the data with the BWR function suite
 
-ebscoBWR.f(csv=FALSE, path=path)
+ebscoBWR.df <- ebscoBWR.f(csv=FALSE, path=path)
 save(ebscoBWR.df, file = "ebscoFULL.R")
 ```
 
@@ -69,15 +65,6 @@ library(dplyr)
 library(gridExtra)
 ```
 
-```{r BGVinitialization, eval=FALSE}
-rm(list=ls())  
-load("/Users/SSW/Documents/GitHub/SocialWork100Years/socialWorkHistory.Rdata")
-
-# Load required packages
-library(ggplot2)
-library(dplyr)
-library(gridExtra)
-```
 
 ```{r cleaningFunctions, comment=NA, echo=FALSE, eval=TRUE, cache=TRUE}
 # Read data files
@@ -91,7 +78,7 @@ source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticlesRevised.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/fewArticles.R")
+source("/Users/beperron/Git/SocialWorkResearch/functions/requireAuthorJournalTitleYear.R")
 source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
 
 combineData.f()
@@ -99,7 +86,7 @@ cleaningJournals.f()
 shortArticles.f()
 titleMatching.f()
 otherDocuments.f()
-fewArticles.f()
+requireAuthorJournalTitleYear.f()
 #save.image(file = "socialWorkHistory.Rdata")
 ```
 
