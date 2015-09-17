@@ -19,9 +19,9 @@ combineData.f <- function(){
 
     full.df <- full.df[!(full.df$articleID %in% year.removeID), ]
     full.df <<- full.df
-    article.count.initial <<- filter(full.df, attributes == "article") 
+    #article.count.initial <<- filter(full.df, attributes == "article") 
     journal.count <- filter(full.df, attributes == "journal")
-    journal.count.initial <<- length(unique(journal.count$record))
+    #journal.count.initial <<- length(unique(journal.count$record))
 }
     
     

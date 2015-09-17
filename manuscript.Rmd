@@ -4,15 +4,25 @@ title: 'Examining a Quarter Century of Publishing Trends in Social Work Research
 author: ''
 date: "May 26, 2015"
 output: html_document
-header-includes:
-- \usepackage{indentfirst}
-- \usepackage{setspace}
-- \doublespacing
-- \setlength{\parindent}{4em}
 ---
 
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
+
+
+
+```{r LoadDatabase}
+rm(list=ls())
+load("HistoricalDatabase.R")
+
+head(full.df)
+dim(full.df)
+```
+
+
+
+
+
 
 ```{r colorThemes}
 # http://colorbrewer2.org/?type=diverging&scheme=PuOr&n=4
@@ -20,77 +30,10 @@ header-includes:
 cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 ```
 
-```{r objectMakerProQuest, warning=FALSE, message=FALSE, eval=FALSE, results='hide', cache=TRUE}
-# Clear workspace
-rm(list=ls())
-
-library(BibWrangleR)
-
-# Set the path where original raw data are stored
-setwd("/Users/beperron/Git/SocialWorkResearch/Data")
-
-# Set the working directory to store files created by BWR functions
-path <- "/Users/beperron/Git/SocialWorkResearch/Data/ProQuest"
-
-# Wrangle the data with the BWR function suite
-
-proQuestBWR.df <- proQuestBWR.f(csv=FALSE, path=path)
-save(proQuestBWR.df, file = "ProQuest.R")
-```
-
-```{r objectMakerEbscoHost,warning=FALSE, message=FALSE, eval=FALSE, results='hide', cache=TRUE}
-# Clear workspace
-rm(list=ls())
-
-# Set the path where original raw data are stored
-setwd("/Users/beperron/Git/SocialWorkResearch/Data")
-
-# Set the working directory to store files created by BWR functions
-path <- "/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL"
-
-# Wrangle the data with the BWR function suite
-
-ebscoBWR.df <- ebscoBWR.f(csv=FALSE, path=path)
-save(ebscoBWR.df, file = "ebscoFULL.R")
-```
-
-```{r BEPinitialization, eval=TRUE}
-rm(list=ls())  
-
-#load("/Users/beperron/Git/SocialWorkResearch/socialWorkHistory.Rdata")
-
-#Load required packages
-library(ggplot2)
-library(dplyr)
-library(gridExtra)
-```
 
 
-```{r cleaningFunctions, comment=NA, echo=FALSE, eval=TRUE, cache=TRUE}
-# Read data files
-options(stringsAsFactors = FALSE)
-load("/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL.R")
-load("/Users/beperron/Git/SocialWorkResearch/Data/proQuest.R")
-hodge <- readLines("/Users/beperron/Git/SocialWorkResearch/search_specifications/hodge.txt", n = -1)
 
-source("/Users/beperron/Git/SocialWorkResearch/functions/combineData.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/cleaningJournals.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/shortArticlesRevised.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/titleMatching.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/otherDocuments.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/requireAuthorJournalTitleYear.R")
-source("/Users/beperron/Git/SocialWorkResearch/functions/pretty.R")
-
-combineData.f()
-cleaningJournals.f()
-shortArticles.f()
-titleMatching.f()
-otherDocuments.f()
-requireAuthorJournalTitleYear.f()
-#save.image(file = "socialWorkHistory.Rdata")
-```
-
-```{r summarySetUp, eval=TRUE, cache=TRUE}
+```{r summarySetUp, eval=FALSE, cache=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
     group_by(record) %>%
     summarise(N = n())
@@ -127,7 +70,7 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
 unique.titles
 ```
 
-```{r Figure 1a - Journals, cache=TRUE}
+```{r Figure 1a - Journals, cache=TRUE, eval=FALSE}
 cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 
 #=======================================
@@ -213,7 +156,7 @@ figure2 <- ggplot(n.journals.year, aes(record.y,
 
 ```
 
-```{r Figure 1b - Journals}
+```{r Figure 1b - Journals, eval=FALSE}
 curr <- n.journals.year$Journal.count[-1]
 prev <- n.journals.year$Journal.count[1:(length(n.journals.year$Journal.count)-1)]
 annualChange.numeric <- c(0, (100 * (curr-prev)/ prev))
@@ -246,18 +189,7 @@ ggsave("figure3.png", figure3, dpi=250)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-```{r plot02_SmallMultiples, cache=TRUE}
+```{r plot02_SmallMultiples, eval=FALSE}
 # Remove 2014 & 2015 
 
 # Create an initial data frame from HD
@@ -364,7 +296,7 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
      ggtitle("Figure 1 (cont.). Number of Article Records by Journal (1989 - 2013)")
 ```
 
-```{r plot03_AuthorPages, eval=TRUE, cache=FALSE}
+```{r plot03_AuthorPages, eval=FALSE, cache=FALSE}
 
 #----------------------------
 #Authors
@@ -453,7 +385,7 @@ ggplot(n_authors_grouped, aes(pubYear, N.percent, group = n, colour = as.factor(
 
 ```
 
-
+```{r eval=FALSE}
 #----------------------------
 #Pages
 #----------------------------
@@ -502,7 +434,7 @@ page.plot <- ggplot(pages.df.melted, aes(x = years, y = value, group=variable, c
 
 
 
-```{r CAGR comparison}
+```{r CAGR comparison, eval=FALSE}
 
 CAGR <- function(start, finish, periods){
   # Function to compute the CAGR given simple returns
@@ -580,7 +512,7 @@ CAGR <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + theme_bw() +
 
 
 
-```{r appendix_A_intersection}
+```{r appendix_A_intersection, eval=FALSE}
 unique.swHistory <- filter(full.df, attributes == "journal") %>%
     distinct(record)
 
@@ -596,30 +528,26 @@ hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
 
 \newpage
 
-```{r finalArticleListecho=FALSE, comment=NA}
+```{r finalArticleListecho=FALSE, comment=NA, eval=FALSE}
 #print.data.frame(final.list, row.names=FALSE)
 ```
 
 \newpage
 
-```{r}
-#plotIndex
-```
 
-\newpage
 
-```{r}
+```{r, eval=FALSE}
 grid.arrange(plot.journal.count, plot.article.count, ncol=2)
 
 ```
 \newpage
-```{r fig.height=10, fig.width=7.5}
+```{r fig.height=10, fig.width=7.5, eval=FALSE}
 plotSmallMultiples.1
 
 ```
 
 \newpage
-```{r fig.height=10, fig.width=7.5}
+```{r fig.height=10, fig.width=7.5, eval=FALSE}
 plotSmallMultiples.2
 
 ```
@@ -630,25 +558,25 @@ plotSmallMultiples.2
 \newpage
 
 
-```{r}
+```{r eval=FALSE}
 
 grid.arrange(plot.author.count, page.plot, ncol = 2)
 ```
 
 \newpage
 
-```{r}
+```{r eval=FALSE}
 evidence.plot
 ```
 \newpage
 
-```{r}
+```{r eval=FALSE}
 stacked.plot
 ```
 
 
 \newpage
-```{r}
+```{r eval=FALSE}
 grid.arrange(journal.evidence.plot, propPlot, 
         ncol=2, nrow=1, widths=c(2, 1), heights=c(1.4, 4))
 ```
@@ -660,7 +588,7 @@ grid.arrange(journal.evidence.plot, propPlot,
 
 Articles on Hodge and Lacasse (2011) but not in the current study.  
 
-```{r appendix_Print, eval=TRUE}
+```{r appendix_Print, eval=FALSE}
 print(sort(hodge.swHistory.diff))
 print(fewArticles)
 ```

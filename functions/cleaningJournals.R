@@ -240,8 +240,8 @@ cleaningJournals.f <- function(){
     full.df <- full.df[!(full.df$articleID %in% ebsco.remove),]
     full.df <<- full.df
 
-    article.count.journalsCleaned <<- filter(full.df, attributes == "article")
+    #article.count.journalsCleaned <<- filter(full.df, attributes == "article")
     journal.count <- filter(full.df, attributes == "journal")
-    journal.count.journalsCleaned <<- length(unique(journal.count$record))
+    #journal.count.journalsCleaned <<- length(unique(journal.count$record))
 
 }
