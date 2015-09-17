@@ -34,7 +34,7 @@ path <- "/Users/beperron/Git/SocialWorkResearch/Data/ProQuest"
 
 # Wrangle the data with the BWR function suite
 
-proQuestBWR.f(csv=FALSE, path=path)
+proQuestBWR.df <- proQuestBWR.f(csv=FALSE, path=path)
 save(proQuestBWR.df, file = "ProQuest.R")
 ```
 
@@ -50,7 +50,7 @@ path <- "/Users/beperron/Git/SocialWorkResearch/Data/ebscoFULL"
 
 # Wrangle the data with the BWR function suite
 
-ebscoBWR.f(csv=FALSE, path=path)
+ebscoBWR.df <- ebscoBWR.f(csv=FALSE, path=path)
 save(ebscoBWR.df, file = "ebscoFULL.R")
 ```
 
