@@ -22,7 +22,7 @@ otherDocuments.f()
 requireAuthorJournalTitleYear.f()
 
 # Save historical database as R file
-save(full.df, file = "HistoricalDatabase.R")
+save(full.df, file = "HistoricalDatabase.RData")
 
-#save(ebscoBWR.df, file = "EbscoDatabase.R")
-#save(proQuest.df, file = "ProQuest.R")
+#save(ebscoBWR.df, file = "EbscoDatabase.RData")
+#save(proQuest.df, file = "ProQuest.RData")
