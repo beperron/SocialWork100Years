@@ -9,74 +9,68 @@ output: html_document
 
 `r knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, comment=NA)`
 
-
-
-```{r LoadDatabase}
+```{r Initialization}
 rm(list=ls())
-load("HistoricalDatabase.RData")
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+source("./Functions/pretty.R")
 
-head(full.df)
-dim(full.df)
-```
+# Load data files
+load("./Data/HistoricalDatabase.RData")
+hodge.df <- readLines("./Data/hodge.txt", n = -1)
+scopus.df <- read.csv("./Data/scopus.csv")
+abb.df <- read.csv("./Data/master.csv")
+sangam.df <- read.csv("./Data/sangam.csv")
 
-
-
-
-
-
-```{r colorThemes}
+# Create colour palette for consistent plotting
 # http://colorbrewer2.org/?type=diverging&scheme=PuOr&n=4
-
 cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 ```
 
 
-
-
-```{r summarySetUp, eval=FALSE, cache=TRUE}
+```{r summarySetUp, eval=TRUE}
 unique.titles <- filter(full.df, attributes == "journal") %>%
-    group_by(record) %>%
-    summarise(N = n())
+  group_by(record) %>%
+  summarise(N = n())
 
 articles.titleMatching <- length(which(full.df$attributes == "article"))
 
 journals.titleMatching <- filter(full.df, attributes == "journal") %>%
-    summarise(Unique = n_distinct(record))
+  summarise(Unique = n_distinct(record))
 
 articles.otherDocuments <- length(which(full.df$attributes == "article"))
 
 journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
-    summarise(Unique = n_distinct(record))
+  summarise(Unique = n_distinct(record))
 
 articles.final <- length(which(full.df$attributes == "article"))
 
 journals.final <- filter(full.df, attributes == "journal") %>% 
-    summarise(Unique = n_distinct(record))
+  summarise(Unique = n_distinct(record))
 
 unique.titles <- filter(full.df, attributes == "journal") %>%
-    group_by(record) %>%
-    mutate(Hodge.list = ifelse(record %in% hodge == TRUE, 1, 0)) %>%
-    summarise(N = n(), Hodge.list = max(Hodge.list)) %>%
-    mutate(Hodge = ifelse(Hodge.list == 1, "Y", "N"))
+  group_by(record) %>%
+  mutate(Hodge.list = ifelse(record %in% hodge == TRUE, 1, 0)) %>%
+  summarise(N = n(), Hodge.list = max(Hodge.list)) %>%
+  mutate(Hodge = ifelse(Hodge.list == 1, "Y", "N"))
 
 n.so.yr <- filter(full.df, attributes == "journal" | attributes == "pubYear")
 
 n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>% 
-    select(-attributes, -record)
+  select(-attributes, -record)
 
 n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
-    select(-attributes, -record)
+  select(-attributes, -record)
 
 unique.titles
 ```
 
-```{r Figure 1a - Journals, cache=TRUE, eval=FALSE}
-cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
+```{r Figure 1a - Journals, eval=FALSE}
 
 #=======================================
 # Journals
 #=======================================
-library(gridExtra)
 
 n.journals.year <- filter(full.df, attributes == "journal") %>%
     select(articleID, record)
@@ -106,9 +100,6 @@ for(i in 2:25){
 }
 
 
-
-
-
 n.journals.year$exp.05 <- exp.05
 n.journals.year$exp.04 <- exp.04
 n.journals.year$exp.03 <- exp.03
@@ -123,7 +114,11 @@ cols = c("Observed Growth" = cp[1], "Estimated 3.2% CAGR" = cp[4], "Estimated 5%
 
 
 figure2 <- ggplot(n.journals.year, aes(record.y, 
-    y = Journal.count)) + 
+    y = Journal.count)) + geom_line()
+    
+    
+    
+    
     theme_bw() + 
     theme(axis.text.x = element_text(size=8), 
     title = element_text(size = 10), plot.title=element_text(size=10)) + 
@@ -202,8 +197,7 @@ sm.df <- left_join(n.so, n.yr) %>%
     rename(Year = year, Journal= title) 
 
 # Read Scopus database
-scopus.df <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus.csv")
-scopus.df2 <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus_OldHarvest.csv")
+#scopus.df2 <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus_OldHar#vest.csv")
 
 
 scopus.df$Year <- as.numeric(scopus.df$Year)
@@ -221,7 +215,6 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
      arrange(desc(DataBase.N))
 
 
- abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
  abb$ID <- 1:nrow(abb)
  sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal") %>% 
      select(-X) %>%
@@ -296,7 +289,7 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
      ggtitle("Figure 1 (cont.). Number of Article Records by Journal (1989 - 2013)")
 ```
 
-```{r plot03_AuthorPages, eval=FALSE, cache=FALSE}
+```{r plot03_AuthorPages, eval=FALSE}
 
 #----------------------------
 #Authors
@@ -449,8 +442,7 @@ CAGR <- function(start, finish, periods){
   return(cagr)
 }
 
-setwd("/Users/beperron/Git/SocialWorkResearch/Data")
-sangam <- read.csv("sangam.csv")
+
 
 sangam.cumsum <-sangam %>%
   group_by(field) %>%
