@@ -4,6 +4,7 @@
 rm(list=ls())
 
 library(BibWrangleR)
+#library(dplyr)
 
 # Wrangle the data files
 proQuestBWR.df <- proQuestBWR.f(csv=FALSE, path='./Data/proQuest')
@@ -14,6 +15,7 @@ ebscoBWR.df <- ebscoBWR.f(csv=FALSE, path='./Data/ebscoFULL')
 sapply(list.files(pattern="[.]R$", path="./functions", full.names=TRUE), source)
 
 # Apply cleaning functions
+library(dplyr)
 combineData.f()
 cleaningJournals.f()
 shortArticles.f()
@@ -22,7 +24,7 @@ otherDocuments.f()
 requireAuthorJournalTitleYear.f()
 
 # Save historical database as R file
-save(full.df, file = "HistoricalDatabase.RData")
+save(full.df, file = "./Data/HistoricalDatabase.RData")
 
 #save(ebscoBWR.df, file = "EbscoDatabase.RData")
 #save(proQuest.df, file = "ProQuest.RData")
