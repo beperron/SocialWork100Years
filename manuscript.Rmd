@@ -30,44 +30,40 @@ cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
 
 
 ```{r summarySetUp, eval=TRUE}
-unique.titles <- filter(full.df, attributes == "journal") %>%
-  group_by(record) %>%
-  summarise(N = n())
 
-articles.titleMatching <- length(which(full.df$attributes == "article"))
+#=======================================
+# Descriptives
+#=======================================
 
-journals.titleMatching <- filter(full.df, attributes == "journal") %>%
+numberArticles <- length(which(full.df$attributes == "article"))
+
+numberJournals <- filter(full.df, attributes == "journal") %>%
   summarise(Unique = n_distinct(record))
 
-articles.otherDocuments <- length(which(full.df$attributes == "article"))
+unique.swHistory <- filter(full.df, attributes == "journal") %>%
+    distinct(record)
 
-journals.otherDocuments <- filter(full.df, attributes == "journal") %>% 
-  summarise(Unique = n_distinct(record))
+hodge.swHistory.intersect <- intersect(hodge.df, unique.swHistory$record)
 
-articles.final <- length(which(full.df$attributes == "article"))
+hodge.swHistory.diff <- setdiff(hodge.df, unique.swHistory$record)
 
-journals.final <- filter(full.df, attributes == "journal") %>% 
-  summarise(Unique = n_distinct(record))
 
-unique.titles <- filter(full.df, attributes == "journal") %>%
-  group_by(record) %>%
-  mutate(Hodge.list = ifelse(record %in% hodge == TRUE, 1, 0)) %>%
-  summarise(N = n(), Hodge.list = max(Hodge.list)) %>%
-  mutate(Hodge = ifelse(Hodge.list == 1, "Y", "N"))
-
-n.so.yr <- filter(full.df, attributes == "journal" | attributes == "pubYear")
-
-n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>% 
-  select(-attributes, -record)
-
-n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
-  select(-attributes, -record)
-
-unique.titles
 ```
 
-```{r Figure 1a - Journals, eval=FALSE}
 
+```{r Table 1 Journal Summary, eval=TRUE }
+#=======================================
+# Table 1. Journal summary 
+#=======================================
+# Integrate min - max years for each journal
+unique.titles <- filter(full.df, attributes == "journal") %>%
+  group_by(record) %>%
+  mutate(Hodge = ifelse(record %in% hodge.df == TRUE, "Y", "N")) %>%
+  summarise(N = n(), Hodge.list = max(Hodge)) 
+
+```
+
+```{r Figure 2 Journal Growth, eval = TRUE}
 #=======================================
 # Journals
 #=======================================
@@ -141,13 +137,12 @@ figure2 <- ggplot(n.journals.year, aes(record.y,
           axis.title.x = element_text(size = 16), 
           axis.title.y = element_text(size = 16)) +
     theme(plot.title = element_text(size = 19))
-
-
-
-
 ```
 
-```{r Figure 1b - Journals, eval=FALSE}
+
+
+
+```{r Figure 3 Annual Change, eval=FALSE}
 curr <- n.journals.year$Journal.count[-1]
 prev <- n.journals.year$Journal.count[1:(length(n.journals.year$Journal.count)-1)]
 annualChange.numeric <- c(0, (100 * (curr-prev)/ prev))
@@ -182,6 +177,14 @@ figure3 <- ggplot(annualChange.df, aes(year, annualChange.numeric, fill =annualC
 
 ```{r plot02_SmallMultiples, eval=FALSE}
 # Remove 2014 & 2015 
+n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>% 
+  select(-attributes, -record)
+
+n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
+  select(-attributes, -record)
+
+
+
 
 # Create an initial data frame from HD
 sm.df <- left_join(n.so, n.yr) %>%
@@ -285,145 +288,8 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
      ggtitle("Figure 1 (cont.). Number of Article Records by Journal (1989 - 2013)")
 ```
 
-```{r plot03_AuthorPages, eval=FALSE}
 
-#----------------------------
-#Authors
-#----------------------------
-
-
-year.df <- full.df %>%
-    filter(attributes == "pubYear") %>%
-    select(id = articleID, pubYear = record)
-
-authors.df <- full.df %>%
-    filter(attributes == "author") %>%
-    select(id = articleID, author = record)
-
-n_authors <- authors.df %>%
-    group_by(id) %>%
-    summarise(n=n())
-
-
-
-n_authors <- n_authors%>% 
-    left_join(year.df) %>%
-    group_by(pubYear) %>%
-    mutate(n = as.numeric(n)) %>%
-    summarise(median.n = median(n),
-        average.n = mean(n),
-        min.n = min(n),
-        max.n = max(n),
-        std.dev  = sd(n) )
-
-n_authors2 <- n_authors%>% 
-   select(median.n, average.n, std.dev) %>%
-   rename(Median = median.n, Average = average.n, Standard_Deviation =std.dev)
-
-
-n_authors2$year <- c(1989:2013)
-
-
-cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
-
-n_authors2.melted <- reshape2::melt(n_authors2, id.vars = c("year", "Standard_Deviation"))
-n_authors3.melted <- filter(n_authors2.melted, variable == "Average")
-
-plot.author.count <- ggplot(n_authors2.melted, aes(x = year, y = value, group=variable, colour = variable)) + 
-    theme_bw() + 
-    geom_line() +
-    geom_point(data = n_authors3.melted, aes(size = Standard_Deviation), colour = "#e66101", alpha=.60) + 
-    #theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-    #title = element_text(size = 10)) +  
-    scale_x_continuous(breaks=c(seq(1989, 2013, 4))) +
-    scale_y_continuous(limits = c(.75,2.5)) +
-    ylab("Number of Authors") +
-    xlab("") +
-    labs(size = "SD = ") +
-    labs(colour = NULL) + 
-    scale_colour_manual(values = c("#fdb864", "#e66101")) +
-    theme(axis.title.x = element_text(vjust=-0.5), 
-          axis.title.y = element_text(vjust=.75), 
-          legend.position = "bottom") + 
-       theme(title = element_text(size = 10)) +
-    theme(axis.text.x = element_text(size=8), 
-    title = element_text(size = 10), plot.title=element_text(size=10)) +
-    theme(legend.text = element_text(size = 8), legend.title = element_text(face="plain"))
-
-
-n_authors_grouped <- n_authors %>%
-    mutate(n = ifelse(n >= 4, 4, n)) %>%
-    group_by(pubYear) %>%
-    mutate(n.year = n()) %>%
-    group_by(pubYear, n) %>%
-    summarize(N =  n()) %>%
-    group_by(pubYear) %>%
-    mutate(N.year.overall = sum(N)) %>%
-    mutate(N.percent = (N/N.year.overall)*100)
-
-
-
-ggplot(n_authors_grouped, aes(pubYear, N.percent, group = n, colour = as.factor(n))) + geom_line(size = 1.5) + 
-    scale_colour_manual(values = cp) +
-    labs(colour = "Number of Authors") + 
-    ylim(c(0,100)) + 
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75), 
-          legend.position = "bottom") +
-    theme(axis.text.x = element_text(size=8), 
-    title = element_text(size = 10), plot.title=element_text(size=10))
-
-```
-
-```{r eval=FALSE}
-#----------------------------
-#Pages
-#----------------------------
-
-
-
-cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
-pages.tmp <- full.df %>% filter(attributes == "pages")
-years.tmp <- full.df %>% filter(attributes == "pubYear")
-pages.df <- left_join(pages.tmp, years.tmp, by = "articleID") %>% 
-    select(record.y, record.x) %>%
-    rename(years = record.y, pages = record.x) %>%
-    mutate(pages = as.numeric(pages), years = as.numeric(years)) %>%
-    group_by(years) %>%
-    summarise(
-        Median = median(pages, na.rm=TRUE), 
-        Average = mean(pages, na.rm=TRUE),
-        Std.Pages = sd(pages, na.rm=TRUE))
-
-
-
-pages.df$years <- c(1989:2013)
-
-pages.df.melted <- reshape2::melt(pages.df, id.vars = c("years", "Std.Pages"))
-
-pages.df2.melted <- filter(pages.df.melted, variable == "Average")
-
-page.plot <- ggplot(pages.df.melted, aes(x = years, y = value, group=variable, colour = variable)) + 
-    geom_line() +
-    geom_point(data = pages.df2.melted, aes(size = Std.Pages), colour = "#5e3c99", alpha = .60) + 
-    theme_bw() + 
-    theme(title = element_text(size = 10)) +  
-    scale_x_continuous(breaks=c(seq(1989, 2013, 4))) +
-    ylab("Number of Pages") +
-    xlab("") +
-    labs(size = "SD = ") +
-     labs(colour = NULL) +   
-    scale_colour_manual(values = c("#b2abd2", "#5e3c99"))  +
-    theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75), 
-          legend.position = "bottom") +
-    theme(axis.text.x = element_text(size=8), 
-    title = element_text(size = 10), plot.title=element_text(size=10)) +
-    theme(legend.text = element_text(size = 8), legend.title = element_text(face="plain"))
-
-```
-
-
-
-```{r CAGR comparison, eval=FALSE}
+```{r Figure 4 CAGR Comparison, eval=FALSE}
 
 CAGR <- function(start, finish, periods){
   # Function to compute the CAGR given simple returns
@@ -500,83 +366,10 @@ CAGR <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + theme_bw() +
 
 
 
-```{r appendix_A_intersection, eval=FALSE}
-unique.swHistory <- filter(full.df, attributes == "journal") %>%
-    distinct(record)
-
-hodge.swHistory.intersect <- intersect(hodge, unique.swHistory$record)
-
-hodge.swHistory.diff <- setdiff(hodge, unique.swHistory$record)
-
-```
 
 
 
 
 
-\newpage
-
-```{r finalArticleListecho=FALSE, comment=NA, eval=FALSE}
-#print.data.frame(final.list, row.names=FALSE)
-```
-
-\newpage
 
 
-
-```{r, eval=FALSE}
-grid.arrange(plot.journal.count, plot.article.count, ncol=2)
-
-```
-\newpage
-```{r fig.height=10, fig.width=7.5, eval=FALSE}
-plotSmallMultiples.1
-
-```
-
-\newpage
-```{r fig.height=10, fig.width=7.5, eval=FALSE}
-plotSmallMultiples.2
-
-```
-
-
-
-
-\newpage
-
-
-```{r eval=FALSE}
-
-grid.arrange(plot.author.count, page.plot, ncol = 2)
-```
-
-\newpage
-
-```{r eval=FALSE}
-evidence.plot
-```
-\newpage
-
-```{r eval=FALSE}
-stacked.plot
-```
-
-
-\newpage
-```{r eval=FALSE}
-grid.arrange(journal.evidence.plot, propPlot, 
-        ncol=2, nrow=1, widths=c(2, 1), heights=c(1.4, 4))
-```
-
-
-\newpage
-
-# Appendix A
-
-Articles on Hodge and Lacasse (2011) but not in the current study.  
-
-```{r appendix_Print, eval=FALSE}
-print(sort(hodge.swHistory.diff))
-print(fewArticles)
-```
