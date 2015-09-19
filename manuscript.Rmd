@@ -88,24 +88,19 @@ sm.df <- left_join(n.so, n.yr) %>%
     arrange(desc(Overall.N), title) %>%
     rename(Year = year, Journal= title) 
 
-
-
+# Read Scopus data
 scopus.df$Year <- as.numeric(scopus.df$Year)
 scopus.df <- filter(scopus.df, Year <= 2013)
 
-# Join HD with Scopus and join abbreviation names
+# Join with historical database
 sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
     select(Year, Journal, N, Overall.N, Documents)
 
-
-
-
- sm.scopus.merged.table <- group_by(sm.scopus.merged, Journal) %>%
+sm.scopus.merged-counts <- group_by(sm.scopus.merged, Journal) %>%
      summarize(DataBase.N = sum(N, na.rm=TRUE), Scopus.N = sum(Documents, na.rm=TRUE)) %>%
      arrange(desc(DataBase.N))
 
 
- abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
  abb$ID <- 1:nrow(abb)
  sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal") %>% 
      select(-X) %>%
@@ -159,12 +154,15 @@ reduced.smallmult.df <- na.omit(reduced.smallmult.df)
 reduced.smallmult.df$Abbrev <- as.factor(reduced.smallmult.df$Abbrev)
 reduced.smallmult.df$Abbrev <- factor(reduced.smallmult.df$Abbrev, levels = c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work") )
 
- plotSmallMultiples.a <-  ggplot(reduced.smallmult.df[reduced.smallmult.df$Abbrev %in% titles.reduced.a, ],  aes(Year, N)) +
+new.data <- reduced.smallmult.df[reduced.smallmult.df$Abbrev %in% titles.reduced.a, ]
+new.data
+
+ plotSmallMultiples.a <-  ggplot(new.data,  aes(Year, N)) +
      geom_line(colour="#e66101") +
-     geom_line(data = reduced.smallmult.df[reduced.smallmult.df$Abbrev %in% titles.reduced.a, ], 
+     geom_line(data = reduced.smallmult.df[reduced.smallmult.df$Journal %in% titles.reduced.a, ], 
                aes(Year, Documents), colour = "#533c99", alpha = .80) + 
      facet_wrap(~ Abbrev) + 
-      geom_text(data = reduced.ldata, aes(x =xpos, y = ypos, label = lab), size = 5) +
+    geom_text(data = reduced.ldata, aes(x =xpos, y = ypos, label = lab), size = 5) +
      theme_bw() +
      theme(strip.text.x = element_text(size = 12)) + 
      theme(legend.position = "bottom", 
