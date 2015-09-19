@@ -112,9 +112,36 @@ sm.df.reduced <- na.omit(sm.df.reduced)
 combined <- rbind(scopus.df, sm.df.reduced)
 combined_reduced <- combined[combined$Journal %in% c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work", "Journal of Social Work Education"), ]
 
+combined_reduced$Journal <- factor(combined_reduced$Journal, levels = c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work", "Journal of Social Work Education") )
+
+
+# Create labels for the facets
+journalOutput <- distinct(sm.scopus.merged, Journal) 
+
+ann_scopus <- select(journalOutput, Journal, Overall.N)
+ann_scopus <- ann_scopus[1:9, ]
+ann_scopus$label <- paste0("N=", pretty(ann_scopus$Overall.N))
+
+ 
+   
+
+ 
+ 
+
 ggplot(combined_reduced,  aes(Year, Documents, colour = DataBase)) +
-     geom_line() + 
-     facet_wrap(~ Journal)
+     geom_line(size = 1, alpha = .80) + 
+     facet_wrap(~ Journal) +
+     theme(strip.text.x = element_text(size = 2.5)) +
+  theme_bw() + 
+  theme(legend.position = "bottom", legend.text = element_text(size = 12)) + 
+     scale_colour_discrete(guide = guide_legend(title = "Database"), breaks = c("HD", "Scopus"), labels = c("Historical Database", "Scopus")) + 
+  scale_colour_manual(values = c(cp[2], cp[4]), labels = c("Historical Database", "Scopus"), guide = guide_legend(title = "")) + 
+  ylab("Number of Articles") + 
+  xlab("\nYear") +
+     annotate("segment", x = 1992, xend = 1995, y = 190, yend = 190, colour = cp[2], size = 1, alpha = .80) + 
+     annotate("segment", x = 1992, xend = 1995, y = 170, yend = 170, colour = cp[4], size = 1, alpha = .80) +
+   geom_text(data = ann_scopus, aes(x = 1999, y =  170, label = label), colour = "black", size = 4)
+
 
 
 
@@ -155,8 +182,7 @@ sm.scopus.merged-counts <- group_by(sm.scopus.merged, Journal) %>%
  lab <- paste(lab1, lab2, sep="\n")
  xpos = rep(1999, 79)
  ypos = rep(180, 79)
- ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
-     rename(Abbrev = Overall.N.Abbrev) 
+ ldata <- data.frame(xpos, ypos, lab, Overall.N$Journal) 
  
  ldata <- na.omit(ldata)
  
@@ -190,7 +216,8 @@ new.data
  plotSmallMultiples.a <-  ggplot(new.data,  aes(Year, N)) +
      geom_line(colour="#e66101") +
      geom_line(data = reduced.smallmult.df[reduced.smallmult.df$Journal %in% titles.reduced.a, ], 
-               aes(Year, Documents), colour = "#533c99", alpha = .80) + 
+               aes(Year, Documents), colour = "#533c99", alpha = .80) +
+   
      facet_wrap(~ Abbrev) + 
     geom_text(data = reduced.ldata, aes(x =xpos, y = ypos, label = lab), size = 5) +
      theme_bw() +
