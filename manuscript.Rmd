@@ -88,9 +88,39 @@ sm.df <- left_join(n.so, n.yr) %>%
     arrange(desc(Overall.N), title) %>%
     rename(Year = year, Journal= title) 
 
+lab1 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.N), sep=""))
+lab2 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.Scopus), sep=""))
+
+
+sm.df.reduced <- sm.df %>% select(-Overall.N)
+
+
 # Read Scopus data
 scopus.df$Year <- as.numeric(scopus.df$Year)
 scopus.df <- filter(scopus.df, Year <= 2013)
+
+DataBase <- rep("Scopus", nrow(scopus.df))
+scopus.df$DataBase <- DataBase
+scopus.df$Documents <- ifelse(scopus.df$Documents == 0, NA, scopus.df$Documents)
+
+DataBase <- rep("HD", nrow(sm.df.reduced))
+sm.df.reduced$DataBase <- DataBase
+sm.df.reduced <- sm.df.reduced %>% rename(Documents = N) 
+sm.df.reduced$Documents <- ifelse(sm.df.reduced$Documents == 0, NA, sm.df.reduced$Documents)  
+sm.df.reduced <- na.omit(sm.df.reduced)
+
+combined <- rbind(scopus.df, sm.df.reduced)
+combined_reduced <- combined[combined$Journal %in% c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work", "Journal of Social Work Education"), ]
+
+ggplot(combined_reduced,  aes(Year, Documents, colour = DataBase)) +
+     geom_line() + 
+     facet_wrap(~ Journal)
+
+
+
+
+
+
 
 # Join with historical database
 sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
