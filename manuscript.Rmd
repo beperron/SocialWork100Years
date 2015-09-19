@@ -59,9 +59,176 @@ hodge.swHistory.diff <- setdiff(hodge.df, unique.swHistory$record)
 unique.titles <- filter(full.df, attributes == "journal") %>%
   group_by(record) %>%
   mutate(Hodge = ifelse(record %in% hodge.df == TRUE, "Y", "N")) %>%
-  summarise(N = n(), Hodge.list = max(Hodge)) 
+  summarise(N = n(), Hodge.list = max(Hodge))
+
+unique.year <- filter(full.df, attributes == "pubYear") %>%
+  group_by(record)
+  
+n.so <- filter(full.df, attributes == "journal") %>% mutate(title = record) %>% 
+    select(-attributes, -record)
+
+n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>% 
+    select(-attributes, -record)
+
+n.so.yr <- left_join(n.so, n.yr) %>%
+    group_by(title) %>%
+    summarise(first = min(year), last = max(year), n = n()) %>%
+    arrange(desc(n))
 
 ```
+
+```{r Figure 1 Small Multiples, cache=TRUE}
+
+# Create an initial data frame from HD
+sm.df <- left_join(n.so, n.yr) %>%
+    group_by(title, year) %>%
+    summarize(N = n()) %>%
+    mutate(Overall.N = sum(N), year = as.numeric(year)) %>%
+    ungroup() %>%
+    arrange(desc(Overall.N), title) %>%
+    rename(Year = year, Journal= title) 
+
+
+
+scopus.df$Year <- as.numeric(scopus.df$Year)
+scopus.df <- filter(scopus.df, Year <= 2013)
+
+# Join HD with Scopus and join abbreviation names
+sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
+    select(Year, Journal, N, Overall.N, Documents)
+
+
+
+
+ sm.scopus.merged.table <- group_by(sm.scopus.merged, Journal) %>%
+     summarize(DataBase.N = sum(N, na.rm=TRUE), Scopus.N = sum(Documents, na.rm=TRUE)) %>%
+     arrange(desc(DataBase.N))
+
+
+ abb <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/master.csv")
+ abb$ID <- 1:nrow(abb)
+ sm.scopus.merged <- full_join(sm.scopus.merged, abb, by = "Journal") %>% 
+     select(-X) %>%
+     mutate(Documents = ifelse(Documents == 0, NA, Documents))
+ 
+ 
+ # Re-order the factor by Overall.N
+ title <- sm.scopus.merged %>% arrange(desc(Overall.N)) %>% 
+     distinct(Abbrev) %>% filter(!is.na(Abbrev)) %>% distinct()
+ 
+ title.order = title$Abbrev
+ 
+ sm.scopus.merged$Abbrev <- factor(sm.scopus.merged$Abbrev, levels = (title.order))
+ sm.scopus.merged <- group_by(sm.scopus.merged, Journal) %>%
+     mutate(Overall.Scopus = sum(Documents, na.rm=TRUE)) %>%
+     ungroup()
+# 
+ # Create labels for the facets
+ Overall.N <- distinct(sm.scopus.merged, Abbrev) 
+ lab1 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.N), sep=""))
+ lab2 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.Scopus), sep=""))
+ lab <- paste(lab1, lab2, sep="\n")
+ xpos = rep(1999, 79)
+ ypos = rep(180, 79)
+ ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
+     rename(Abbrev = Overall.N.Abbrev) 
+ 
+ ldata <- na.omit(ldata)
+ 
+ 
+ titles.reduced <- unique(sm.scopus.merged$Journal)
+ titles.reduced.a <- titles.reduced[1:8]
+ 
+  titles.reduced.1 <- titles.reduced[1:40]
+ titles.reduced.2 <- titles.reduced[41:length(titles.reduced)] 
+ cp <- c("#fdb864", "#e66101", "#b2abd2", "#5e3c99" )
+ 
+ library(grid)
+ library(gridExtra)
+# Plotting function    
+# 
+reduced.ldata <- ldata[1:8, ]
+
+reduced.ldata$Abbrev <- factor(reduced.ldata$Abbrev, levels = c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work") )
+
+reduced.ldata$Abbrev = c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work")
+reduced.smallmult.df <- sm.scopus.merged
+reduced.smallmult.df$Abbrev <- reduced.smallmult.df$Journal
+reduced.smallmult.df <- na.omit(reduced.smallmult.df)
+
+reduced.smallmult.df$Abbrev <- as.factor(reduced.smallmult.df$Abbrev)
+reduced.smallmult.df$Abbrev <- factor(reduced.smallmult.df$Abbrev, levels = c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work") )
+
+ plotSmallMultiples.a <-  ggplot(reduced.smallmult.df[reduced.smallmult.df$Abbrev %in% titles.reduced.a, ],  aes(Year, N)) +
+     geom_line(colour="#e66101") +
+     geom_line(data = reduced.smallmult.df[reduced.smallmult.df$Abbrev %in% titles.reduced.a, ], 
+               aes(Year, Documents), colour = "#533c99", alpha = .80) + 
+     facet_wrap(~ Abbrev) + 
+      geom_text(data = reduced.ldata, aes(x =xpos, y = ypos, label = lab), size = 5) +
+     theme_bw() +
+     theme(strip.text.x = element_text(size = 12)) + 
+     theme(legend.position = "bottom", 
+     panel.grid.minor = element_blank(), 
+     axis.text.x = element_text(angle=45, hjust=1, size = 10)) +
+     ylim(c(0,225)) +
+     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+     annotate("segment", x = 1992, xend = 1995, y = 190, yend = 190, colour = "#e66101") + 
+     annotate("segment", x = 1992, xend = 1995, y = 170, yend = 170, colour = "#533c99") 
+     #ggtitle("Figure 1. Comparison of Historical Database with Scopus\n for Journals with Highest Output (1989 - 2013)") + 
+     # theme(plot.title = element_text(size = 19))
+     # 
+#ggsave(file = "scopusComparison.png", plotSmallMultiples.a)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ plotSmallMultiples.1 <-  ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.1, ],  aes(Year, N)) +
+     geom_line(colour="#e66101") +
+     geom_line(data = sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.1, ], aes(Year, Documents), colour = "#533c99", alpha = .80) + 
+     facet_wrap(~ Abbrev) + 
+     theme_bw() +
+     theme(strip.text.x = element_text(size = 12)) + 
+     theme(legend.position = "bottom", 
+     panel.grid.minor = element_blank(), 
+     axis.text.x = element_text(angle=45, hjust=1, size = 10)) + 
+     geom_text(data = ldata[1:40, ], aes(x =xpos, y = ypos, label = lab), size = 4) +
+     ylim(c(0,225)) +
+     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+     annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
+     annotate("segment", x = 1989, xend = 1992, y = 150, yend = 150, colour = "#533c99") +
+     ggtitle("Figure 1. Number of Article Records by Journal (1989 - 2013)")
+
+plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ],  
+     aes(Year, N)) +
+     geom_line(colour="#e66101") +
+     geom_line(data = sm.scopus.merged[sm.scopus.merged$Journal %in% titles.reduced.2, ], 
+     aes(Year, Documents), colour = "#533c99", alpha = .80) + 
+     facet_wrap(~ Abbrev) + 
+     theme_bw() +
+     theme(strip.text.x = element_text(size = 12)) +  
+     theme(legend.position = "bottom", 
+     panel.grid.minor = element_blank(), 
+     axis.text.x = element_text(angle=45, hjust=1, size =10)) + 
+     geom_text(data = ldata[41:79, ], aes(x =xpos, y = ypos, label = lab), size =4) +
+     ylim(c(0,225)) +
+     scale_x_continuous(breaks=seq(1989, 2015, 8)) +
+     annotate("segment", x = 1989, xend = 1992, y = 215, yend = 215, colour = "#e66101") + 
+     annotate("segment", x = 1989, xend = 1992, y = 190, yend = 190, colour = "#533c99") +
+     ggtitle("Figure 1 (cont.). Number of Article Records by Journal (1989 - 2013)")
+```
+
+
+
+
 
 ```{r Figure 2 Journal Growth, eval = TRUE}
 #=======================================

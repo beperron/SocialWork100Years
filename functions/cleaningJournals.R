@@ -76,7 +76,7 @@ cleaningJournals.f <- function(){
                              "Social Work With Groups",
                              full.df$record)
     full.df$record <- ifelse(full.df$record ==
-                                 "Maatskaplike Werk/Social Work",
+                                 "Maatskaplike Werk/Social Work" | full.df$record == "Social Work/Maatskaplike Werk",
                              "Maatskaplike Werk",
                              full.df$record)
 
@@ -179,7 +179,7 @@ cleaningJournals.f <- function(){
                 full.df$record == "Journal of Practice Teaching in Social Work and Health", #Old title
                "Journal of Practice Teaching in Social Work & Health",   #New title
                 full.df$record)
-    
+
     full.df$record <- ifelse(full.df$record==
                                "Human Services in the Rural Environment",
                                "Contemporary Rural Social Work",
@@ -203,6 +203,7 @@ cleaningJournals.f <- function(){
         "Brain & Cognition",
         "Canadian Journal of Community Mental Health",
         "Canadian Journal on Aging",
+        "Critical Social Work", # Problematic record in database - not formally indexed
         "Early Child Development and Care",
         "Early Child Development & Care",
         "Early Education and Development",
@@ -212,6 +213,8 @@ cleaningJournals.f <- function(){
         "Evaluation & Program Planning",
         "General Hospital Psychiatry",
         "International Review of Social Research",
+        "Issues in Social Work Education", #Problematic record in database - not formally indexed
+        "Iowa Journal of School Social Work", #Problematic record in database - not formally indexed
         "Journal of Applied Behavioral Science",
         "Journal of Applied Rehabilitation Counseling",
         "Journal of Community & Applied Social Psychology",
@@ -231,7 +234,8 @@ cleaningJournals.f <- function(){
         "The Scientific Review of Mental Health Practice",
         "The Clinical Supervisor",
         "Arete: Revista de Filosofia",
-        "Arete Revista de Filosofia")
+        "Arete Revista de Filosofia",
+        "Profile")
 
 
     ebsco.remove <- full.df[full.df$record %in% exclusions.1, ]
