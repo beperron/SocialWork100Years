@@ -22,6 +22,7 @@ hodge.df <- readLines("./Data/hodge.txt", n = -1)
 scopus.df <- read.csv("./Data/scopus.csv")
 abb.df <- read.csv("./Data/master.csv")
 sangam.df <- read.csv("./Data/sangam.csv")
+proquest_summary.df <- read.csv("./Data/proquest_summary.csv")
 
 # Create colour palette for consistent plotting
 # http://colorbrewer2.org/?type=diverging&scheme=PuOr&n=4
@@ -560,6 +561,25 @@ CAGR <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + theme_bw() +
 ```
 
 
+```{r}
+
+library(lubridate)
+head(proquest_summary.df)
+pq_summary <- proquest_summary.df
+
+pq_summaryas.character(pq_summary$Citation.First)
+  
+  
+  ifelse(proquest_summary.df$Citation.First == "Current", "9/19/15", proquest_summary.df$Citation.First)
+
+proquest_summary.df$Citation.Last <- ifelse(proquest_summary.df$Abstract.Last == "Current", "9/19/15", proquest_summary.df$Citation.Last)
+
+
+
+
+
+
+```
 
 
 
