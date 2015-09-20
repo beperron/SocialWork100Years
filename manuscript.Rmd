@@ -88,21 +88,11 @@ sm.df <- left_join(n.so, n.yr) %>%
     arrange(desc(Overall.N), title) %>%
     rename(Year = year, Journal= title) 
 
-lab1 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.N), sep=""))
-lab2 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.Scopus), sep=""))
-
 
 sm.df.reduced <- sm.df %>% select(-Overall.N)
 
 
-# Read Scopus data
-scopus.df$Year <- as.numeric(scopus.df$Year)
-scopus.df <- filter(scopus.df, Year <= 2013)
-
-DataBase <- rep("Scopus", nrow(scopus.df))
-scopus.df$DataBase <- DataBase
-scopus.df$Documents <- ifelse(scopus.df$Documents == 0, NA, scopus.df$Documents)
-
+scopus.df$DataBase <- rep("Scopus", nrow(scopus.df))
 DataBase <- rep("HD", nrow(sm.df.reduced))
 sm.df.reduced$DataBase <- DataBase
 sm.df.reduced <- sm.df.reduced %>% rename(Documents = N) 
@@ -115,14 +105,26 @@ combined_reduced <- combined[combined$Journal %in% c("Families in Society", "Soc
 combined_reduced$Journal <- factor(combined_reduced$Journal, levels = c("Families in Society", "Social Work", "British Journal of Social Work", "Journal of Gerontological Social Work", "Research on Social Work Practice", "Social Work in Health Care", "International Social Work", "Health & Social Work", "Journal of Social Work Education") )
 
 
-# Create labels for the facets
-journalOutput <- distinct(sm.scopus.merged, Journal) 
+# Create Scopus labels for the facets
 
-ann_scopus <- select(journalOutput, Journal, Overall.N)
-ann_scopus <- ann_scopus[1:9, ]
-ann_scopus$label <- paste0("N=", pretty(ann_scopus$Overall.N))
+scopus.df$Year <- as.numeric(scopus.df$Year)
+scopus.df <- filter(scopus.df, Year <= 2013)
+scopus.df$Year <- as.numeric(scopus.df$Year)
+scopus_annotate <- filter(scopus.df, Year <= 2013) %>%
+  group_by(Journal) %>%
+  summarize(N = pretty(sum(Documents))) 
 
- 
+scopus_annotate_paper <-scopus_annotate[scopus_annotate$Journal %in% combined_reduced$Journal, ]
+scopus_annotate_paper$label <- paste0("N=", pretty(scopus_annotate_paper$N))
+
+# Create HD Labels for the facets
+hd_annotate <- combined_reduced %>% 
+  filter(DataBase == "HD") %>%
+  group_by(Journal) %>%
+  summarize(N = sum(Documents))%>%
+  mutate(label = paste0("N=", pretty(N)))
+
+
    
 
  
@@ -138,9 +140,10 @@ ggplot(combined_reduced,  aes(Year, Documents, colour = DataBase)) +
   scale_colour_manual(values = c(cp[2], cp[4]), labels = c("Historical Database", "Scopus"), guide = guide_legend(title = "")) + 
   ylab("Number of Articles") + 
   xlab("\nYear") +
-     annotate("segment", x = 1992, xend = 1995, y = 190, yend = 190, colour = cp[2], size = 1, alpha = .80) + 
-     annotate("segment", x = 1992, xend = 1995, y = 170, yend = 170, colour = cp[4], size = 1, alpha = .80) +
-   geom_text(data = ann_scopus, aes(x = 1999, y =  170, label = label), colour = "black", size = 4)
+     annotate("segment", x = 1992, xend = 1995, y = 140, yend = 140, colour = cp[2], size = 1, alpha = .80) + 
+     annotate("segment", x = 1992, xend = 1995, y = 120, yend = 120, colour = cp[4], size = 1, alpha = .80) +
+   geom_text(data = scopus_annotate_paper, aes(x = 1999, y =  120, label = label), colour = "black", size = 4) +
+  geom_text(data = hd_annotate, aes(x = 1999, y =  140, label = label), colour = "black", size = 4)
 
 
 
