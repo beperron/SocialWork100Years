@@ -113,6 +113,7 @@ cleaningJournals.f <- function(){
                              full.df$record)
 
 
+
     #shortens Professional Development
     full.df$record <- ifelse(full.df$attributes == "journal",
                              gsub(":.+", "", full.df$record),
@@ -184,6 +185,12 @@ cleaningJournals.f <- function(){
                                "Human Services in the Rural Environment",
                                "Contemporary Rural Social Work",
                                 full.df$record)
+
+    full.df$record <- ifelse(full.df$record ==
+                               "The Social Worker/Le Travailleur social",          # Title Change
+                             "The Social Worker",
+                             full.df$record)
+
 
     # Journals were originally merged after suffixes were eliminated (after the
     # colon).  Thus, Practice: Social Work in Action  (new title) was shortened to

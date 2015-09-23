@@ -22,7 +22,6 @@ hodge.df <- readLines("./Data/hodge.txt", n = -1)
 scopus.df <- read.csv("./Data/scopus.csv")
 abb.df <- read.csv("./Data/master.csv")
 sangam.df <- read.csv("./Data/sangam.csv")
-proquest_summary.df <- read.csv("./Data/proquest_summary.csv")
 
 # Create colour palette for consistent plotting
 # http://colorbrewer2.org/?type=diverging&scheme=PuOr&n=4
@@ -161,9 +160,7 @@ sm.df <- left_join(n.so, n.yr) %>%
     arrange(desc(Overall.N), title) %>%
     rename(Year = year, Journal= title) 
 
-# Read Scopus database
-scopus.df <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus.csv")
-scopus.df2 <- read.csv("/Users/beperron/Git/SocialWorkResearch/Data/scopus_OldHarvest.csv")
+
 
 
 scopus.df$Year <- as.numeric(scopus.df$Year)
@@ -204,8 +201,8 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
  lab1 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.N), sep=""))
  lab2 <- gsub(" ", "", paste("N=", pretty(Overall.N$Overall.Scopus), sep=""))
  lab <- paste(lab1, lab2, sep="\n")
- xpos = rep(1999, 79)
- ypos = rep(200, 79)
+ xpos = rep(1999, 80)
+ ypos = rep(200, 80)
  ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
      rename(Abbrev = Overall.N.Abbrev) 
  
@@ -260,7 +257,7 @@ plotSmallMultiples.2 <- ggplot(sm.scopus.merged[sm.scopus.merged$Journal %in% ti
 
 
 
-```{r Figure 2 Journal Growth, eval = TRUE}
+```{r Figure 2 Journal Growth, eval = FALSE}
 #=======================================
 # Journals
 #=======================================
@@ -435,6 +432,9 @@ sm.scopus.merged <-full_join(sm.df, scopus.df, by = c("Journal", "Year")) %>%
  lab <- paste(lab1, lab2, sep="\n")
  xpos = rep(1999, 80)
  ypos = rep(200, 80)
+ 
+ Overall.N <- distinct(sm.df, Journal)  
+
  ldata <- data.frame(xpos, ypos, lab, Overall.N$Abbrev) %>% 
      rename(Abbrev = Overall.N.Abbrev) 
  
@@ -559,32 +559,6 @@ CAGR <- ggplot(cagr, aes(x=field, y=cagr, fill=field, group =1)) + theme_bw() +
 
     
 ```
-
-
-```{r}
-
-library(lubridate)
-head(proquest_summary.df)
-pq_summary <- proquest_summary.df
-
-pq_summaryas.character(pq_summary$Citation.First)
-  
-  
-  ifelse(proquest_summary.df$Citation.First == "Current", "9/19/15", proquest_summary.df$Citation.First)
-
-proquest_summary.df$Citation.Last <- ifelse(proquest_summary.df$Abstract.Last == "Current", "9/19/15", proquest_summary.df$Citation.Last)
-
-
-
-
-
-
-```
-
-
-
-
-
 
 
 
