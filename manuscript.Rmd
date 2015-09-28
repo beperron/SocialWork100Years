@@ -78,6 +78,8 @@ n.so.yr <- left_join(n.so, n.yr) %>%
 ```
 
 ```{r Figure 1 Small Multiples Paper}
+scopus.df < scopus.df %>% filter(Year <= 2013)
+
 
 # Create an initial data frame from HD
 sm.df <- left_join(n.so, n.yr) %>%
