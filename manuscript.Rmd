@@ -73,7 +73,17 @@ n.yr <- filter(full.df, attributes == "pubYear") %>% mutate(year = record ) %>%
 n.so.yr <- left_join(n.so, n.yr) %>%
     group_by(title) %>%
     summarise(first = min(year), last = max(year), n = n()) %>%
-    arrange(desc(n))
+    arrange(desc(n)) %>%
+    rename(Journal = title)
+
+table1 <- left_join(n.so.yr, abb.df) %>%
+  select(-X) %>%
+  select(Journal, Abbrev, n, first, last)
+
+sum_Articles <- sum(table1$n)
+median_Articles <- median(table1$n)
+mean_Articles <- mean(table1$n)
+sd_Articles <- sd(table1$n)
 
 ```
 
