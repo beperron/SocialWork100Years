@@ -286,25 +286,20 @@ n.journals.year <- left_join(n.journals.year, n.year, by = "articleID", copy=TRU
     mutate(record.y = as.numeric(record.y))
 
 
-exp.05 <- c(29, rep(NA, 24)) 
-for(i in 2:25){
-    exp.05[i] <- exp.05[i-1] + exp.05[i-1]*.05
-}
 
-exp.04 <- c(29, rep(NA, 24)) 
+exp.047 <- c(29, rep(NA, 24)) 
 for(i in 2:25){
-    exp.04[i] <- exp.04[i-1] + exp.04[i-1]*.04
+    exp.047[i] <- exp.047[i-1] + exp.047[i-1]*.047
 } 
 
-exp.03 <- c(29, rep(NA, 24)) 
+exp.0321 <- c(29, rep(NA, 24)) 
 for(i in 2:25){
-    exp.03[i] <- exp.03[i-1] + exp.03[i-1]*.03
+    exp.0321[i] <- exp.0321[i-1] + exp.0321[i-1]*.0321
 }
 
 
-n.journals.year$exp.05 <- exp.05
-n.journals.year$exp.04 <- exp.04
-n.journals.year$exp.03 <- exp.03
+n.journals.year$Price <- exp.047
+n.journals.year$SWHD <- exp.0321
 n.journals.year <- mutate(n.journals.year, Journal.count = as.numeric(Journal.count))
 n.journals.year <- as.data.frame(n.journals.year)
 
@@ -312,10 +307,10 @@ years <- c(1989, 2005, 2013, 2013)
 points <- c(29, n.journals.year$Journal.count[c(17,25)], max(n.journals.year$exp.05))
 annotate.df <- data.frame(years, points)
 
-cols = c("Observed Growth" = cp[1], "Estimated 3.2% CAGR" = cp[4], "Estimated 5% CAGR" = cp[3])
+cols = c("Observed Growth" = cp[1], "3.21% CAGR" = cp[4], "4.7% CAGR" = cp[3])
 
 
-figure2 <- ggplot(n.journals.year, aes(record.y, 
+(figure2 <- ggplot(n.journals.year, aes(record.y, 
     y = Journal.count)) + 
     theme_bw() + 
     theme(axis.text.x = element_text(size=8), 
@@ -324,25 +319,25 @@ figure2 <- ggplot(n.journals.year, aes(record.y,
     ylab("Journals") + 
     scale_y_continuous(breaks = c(seq(0, 100, 10)), limits = c(20, 95)) +
     theme(axis.title.x = element_text(vjust=-0.5), axis.title.y = element_text(vjust=.75)) + 
-    geom_line(aes(x = record.y, y = exp.05, colour = "Estimated 5% CAGR"),
+    geom_line(aes(x = record.y, y = Price, colour = "Estimated 5% CAGR"),
         data = n.journals.year,   colour = cp[2], alpha = .80) +
-    geom_line(aes(x = record.y, y = exp.04, colour = "Estimated 4% CAGR"), 
+    geom_line(aes(x = record.y, y = SWHD, colour = "Estimated 4% CAGR"), 
         data = n.journals.year,  colour = cp[2], alpha = .80) +
     geom_line(aes(colour = "Observed Growth"), colour = cp[4], size = 1.5) + 
     stat_smooth(method = "lm", se = FALSE, colour = cp[3]) +
-    annotate("text", x = 2016.5, y = 60, label = "Observed growth", size = 5) +
-    annotate("text", x = 2016.5, y = 70, label = "Linear growth\n (slope=1.9)", size = 5) + 
-    annotate("text", x = 2016, y = 76, label = "4% CAGR", size = 5) + 
-    annotate("text", x = 2015.5, y = 95, label = "5% CAGR", size = 5) +
+    annotate("text", x = 2016.5, y = 60, label = "3.2% CAGR", size = 5) +
+    annotate("text", x = 2016.5, y = 73, label = "Linear growth", size = 5) + 
+    annotate("text", x = 2016.5, y = 90, label = "4.7% CAGR", size = 5) + 
+    annotate("text", x = 2017.5, y = 65, label = "Observed growth", size = 5) +
     scale_x_continuous(limits = c(1989, 2020), breaks = c(1989, 1993, 1997, 2001, 2005, 2009, 2013)) +
-    ggtitle("Figure 2. Observed Versus Estimated Growth of Journals (1989-2013)") + 
+    #ggtitle("Figure 2. Observed Versus Estimated Growth of Journals (1989-2013)") + 
    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           panel.border = element_blank(), axis.line = element_line(), 
           axis.text.x = element_text(size = 16), 
           axis.text.y = element_text(size = 16), 
           axis.title.x = element_text(size = 16), 
           axis.title.y = element_text(size = 16)) +
-    theme(plot.title = element_text(size = 19))
+    theme(plot.title = element_text(size = 19)))
 ```
 
 
@@ -373,7 +368,7 @@ figure3 <- ggplot(annualChange.df, aes(year, annualChange.numeric, fill =annualC
           axis.title.x = element_text(size = 16), 
           axis.title.y = element_text(size = 16)) + 
     geom_hline(yintercept=0, col="gray", lwd=0.6, alpha =.8) +
-    ggtitle("Figure 3. Annual Percentage Change in the Number Journals (1989 - 2013)") +
+    #ggtitle("Figure 3. Annual Percentage Change in the Number Journals (1989 - 2013)") +
     theme(plot.title = element_text(size = 19))
 
 #ggsave("figure3.png", figure3, dpi=250)
