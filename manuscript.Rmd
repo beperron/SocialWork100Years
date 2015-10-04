@@ -89,10 +89,55 @@ sd_Articles <- sd(table1$n)
 ```
 
 ```{r Figure 1 Boxplot of Article Counts}
+library(gridExtra)
 
-ggplot(data=n.so.yr, aes(x=index, y=n)) +
-  stat_boxplot(geom="errorbar")+
-  geom_boxplot(outlier.size = 2)+
+set.seed(1237)
+boxplot_swhd <- n.so.yr %>% 
+  select(Journal, n)%>%
+  mutate(index = rep("SWHD")) %>%
+  group_by(Journal)
+
+boxplot_swhd <- data.frame(boxplot_swhd)
+top_3_swhd <- boxplot_swhd %>% slice(1:3)
+
+
+boxplot_scopus <- scopus.df %>%
+  select(Journal, Documents) %>%
+  filter(Documents > 0) %>%
+  rename(n = Documents) %>%
+  mutate(index = rep("Scopus"))
+boxplot_scopus <- data.frame(boxplot_scopus)  
+boxplot_scopus <- boxplot_scopus %>% group_by(Journal) %>%
+  summarize(n = sum(n)) %>%
+  mutate(index = rep("Scopus")) 
+
+boxplot_df <- rbind(boxplot_swhd, boxplot_scopus)
+
+swhd_bp <- ggplot(data=boxplot_swhd, aes(x = index, y=n)) +
+  stat_boxplot(geom="errorbar") +
+  geom_boxplot(outlier.size = 0) +
+  theme_bw() + 
+  geom_jitter(colour = cp[2], alpha = .60, size = 4) + 
+  ylab("Number of Articles") + 
+  #xlab("Database") + 
+  ylim(c(0, 1600)) + 
+  xlab("") + 
+  annotate("text", x = c(1.18, 1.15, .9), y = c(top_3_swhd$n[1], top_3_swhd$n[2], top_3_swhd$n[3]), label = top_3_swhd$Journal)
+
+scopus_bp <- ggplot(data=boxplot_scopus, aes(x = index, y=n)) +
+  stat_boxplot(geom="errorbar") +
+  geom_boxplot(outlier.size = 0) +
+  theme_bw() + 
+  geom_jitter(colour = cp[4], alpha = .60, size = 4) + 
+  ylab("") + 
+  #xlab("Database") + 
+  ylim(c(0, 1600)) + 
+  theme(axis.text.y = element_blank()) +
+  xlab("")
+
+
+grid.arrange(swhd_bp, scopus_bp, ncol=2)
+
   ylab("Cumulative article count") +
   annotate("text", x = 0.87, y = 1600, label = "Families in Society")+
   annotate("text", x = 0.91, y = 1400, label = "Social Work") +
@@ -328,6 +373,7 @@ n.journals.year <- as.data.frame(n.journals.year)
 years <- c(1989, 2005, 2013, 2013)
 points <- c(29, n.journals.year$Journal.count[c(17,25)], max(n.journals.year$exp.05))
 annotate.df <- data.frame(years, points)
+
 
 cols = c("Observed Growth" = cp[1], "3.21% CAGR" = cp[4], "4.7% CAGR" = cp[3])
 
