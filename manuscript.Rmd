@@ -97,6 +97,11 @@ sd_Articles <- sd(table1$n)
 print(table1)
 ```
 
+
+
+
+
+
 ### Figure 1 - Small Multiples
 
 This figure is for the manuscript.  Please note that the rendering is optimized for the manuscript, not an online rendering.  
@@ -304,14 +309,14 @@ for(i in 2:25){
     exp.047[i] <- exp.047[i-1] + exp.047[i-1]*.047
 } 
 
-exp.0321 <- c(29, rep(NA, 24)) 
+exp.0307 <- c(29, rep(NA, 24)) 
 for(i in 2:25){
-    exp.0321[i] <- exp.0321[i-1] + exp.0321[i-1]*.0321
+    exp.0307[i] <- exp.0307[i-1] + exp.0307[i-1]*.0307
 }
 
 
 n.journals.year$Price <- exp.047
-n.journals.year$SWHD <- exp.0321
+n.journals.year$SWHD <- exp.0307
 n.journals.year <- mutate(n.journals.year, Journal.count = as.numeric(Journal.count))
 n.journals.year <- as.data.frame(n.journals.year)
 
@@ -320,7 +325,7 @@ points <- c(29, n.journals.year$Journal.count[c(17,25)], max(n.journals.year$exp
 annotate.df <- data.frame(years, points)
 
 
-cols = c("Observed Growth" = cp[1], "3.21% CAGR" = cp[4], "4.7% CAGR" = cp[3])
+cols = c("Observed Growth" = cp[1], "3.07% CAGR" = cp[4], "4.7% CAGR" = cp[3])
 
 
 figure2 <- ggplot(n.journals.year, aes(record.y, 
@@ -338,7 +343,7 @@ figure2 <- ggplot(n.journals.year, aes(record.y,
         data = n.journals.year,  colour = cp[2], alpha = .80) +
     geom_line(aes(colour = "Observed Growth"), colour = cp[4], size = 1.5) + 
     stat_smooth(method = "lm", se = FALSE, colour = cp[3]) +
-    annotate("text", x = 2016.5, y = 60, label = "3.2% CAGR", size = 5) +
+    annotate("text", x = 2016.5, y = 60, label = "3.07% CAGR", size = 5) +
     annotate("text", x = 2016.5, y = 73, label = "Linear growth", size = 5) + 
     annotate("text", x = 2016.5, y = 90, label = "4.7% CAGR", size = 5) + 
     annotate("text", x = 2017.5, y = 65, label = "Observed growth", size = 5) +
@@ -352,9 +357,30 @@ figure2 <- ggplot(n.journals.year, aes(record.y,
           axis.title.y = element_text(size = 16)) +
     theme(plot.title = element_text(size = 19))
 
-#ggsave(figure2, file = "figure2.jpeg", width = 7, height = 7, units = "in", dpi = 1200)
+ggsave(figure2, file = "figure2.jpeg", width = 7, height = 7, units = "in", dpi = 1200)
 
 print(figure2)
+```
+
+
+
+```{r Linear Growth}
+
+n.journals.year <- filter(full.df, attributes == "journal") %>%
+    select(articleID, record)
+
+n.year <- filter(full.df, attributes == "pubYear") %>%
+    select(articleID, record)
+
+n.journals.year <- left_join(n.journals.year, n.year, by = "articleID", copy=TRUE) %>%
+    group_by(record.y) %>%
+    summarise(Journal.count = n_distinct(record.x)) %>%
+    mutate(record.y = as.numeric(record.y)) 
+
+n.journals.year$yearCount <-  c(1:nrow(n.journals.year))
+
+
+
 ```
 
 ### Figure 3 Annual Change

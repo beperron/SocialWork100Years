@@ -172,7 +172,10 @@ cleaningJournals.f <- function(){
                                  "Social work in public health",
                              "Social Work in Public Health",
                              full.df$record)
-
+    full.df$record <- ifelse(full.df$record ==
+                                 "Social Thought",
+                             "Journal of Religion & Spirituality in Social Work",
+                             full.df$record)
 
     full.df$record <- ifelse(full.df$record ==
               "Journal of Practice Teaching in Social Work and Practice" |
