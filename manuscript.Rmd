@@ -304,12 +304,12 @@ n.journals.year <- left_join(n.journals.year, n.year, by = "articleID", copy=TRU
 
 
 
-exp.047 <- c(29, rep(NA, 24)) 
+exp.047 <- c(31, rep(NA, 24)) 
 for(i in 2:25){
     exp.047[i] <- exp.047[i-1] + exp.047[i-1]*.047
 } 
 
-exp.0307 <- c(29, rep(NA, 24)) 
+exp.0307 <- c(31, rep(NA, 24)) 
 for(i in 2:25){
     exp.0307[i] <- exp.0307[i-1] + exp.0307[i-1]*.0307
 }
@@ -321,7 +321,7 @@ n.journals.year <- mutate(n.journals.year, Journal.count = as.numeric(Journal.co
 n.journals.year <- as.data.frame(n.journals.year)
 
 years <- c(1989, 2005, 2013, 2013)
-points <- c(29, n.journals.year$Journal.count[c(17,25)], max(n.journals.year$exp.05))
+points <- c(31, n.journals.year$Journal.count[c(17,25)], max(n.journals.year$exp.05))
 annotate.df <- data.frame(years, points)
 
 
@@ -343,10 +343,10 @@ figure2 <- ggplot(n.journals.year, aes(record.y,
         data = n.journals.year,  colour = cp[2], alpha = .80) +
     geom_line(aes(colour = "Observed Growth"), colour = cp[4], size = 1.5) + 
     stat_smooth(method = "lm", se = FALSE, colour = cp[3]) +
-    annotate("text", x = 2016.5, y = 60, label = "3.07% CAGR", size = 5) +
-    annotate("text", x = 2016.5, y = 73, label = "Linear growth", size = 5) + 
-    annotate("text", x = 2016.5, y = 90, label = "4.7% CAGR", size = 5) + 
-    annotate("text", x = 2017.5, y = 65, label = "Observed growth", size = 5) +
+    annotate("text", x = 2014.5, y = 60, label = "3.07% CAGR", size = 4) +
+    annotate("text", x = 2016, y = 74.5, label = "Linear growth", size = 4) + 
+    annotate("text", x = 2015.5, y = 95, label = "4.7% CAGR", size = 4) + 
+    annotate("text", x = 2016.5, y = 67, label = "Observed growth", size = 4) +
     scale_x_continuous(limits = c(1989, 2020), breaks = c(1989, 1993, 1997, 2001, 2005, 2009, 2013)) +
     #ggtitle("Figure 2. Observed Versus Estimated Growth of Journals (1989-2013)") + 
    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
