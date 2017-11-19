@@ -10,14 +10,14 @@ combineData.f <- function(){
     full.df <- rbind(ebscoBWR.df, proQuestBWR.df)
 
 
-    #year.25 <- as.character(c(1910:1988, 2014, 2015))
+    year.25 <- as.character(c(1910:1988))
 
-    #temp.df <- filter(full.df, attributes == "pubYear")
+    temp.df <- filter(full.df, attributes == "pubYear")
 
-    #year.remove <- temp.df[temp.df$record %in% year.25, ]
-    #year.removeID <- year.remove$articleID
+    year.remove <- temp.df[temp.df$record %in% year.25, ]
+    year.removeID <- year.remove$articleID
 
-    #full.df <- full.df[!(full.df$articleID %in% year.removeID), ]
+    full.df <- full.df[!(full.df$articleID %in% year.removeID), ]
     full.df <<- full.df
     #article.count.initial <<- filter(full.df, attributes == "article") 
     journal.count <- filter(full.df, attributes == "journal")
