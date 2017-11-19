@@ -7,10 +7,10 @@ combineData.f <- function(){
     #Recodes article ID in ProQuest database in advance of merger with ebscohost
     proQuestBWR.df<-mutate(proQuestBWR.df, articleID=articleID+ebscoIDmax)
 
-    full.df <- rbind(ebscoBWR.df, proQuestBWR.df)
+    full.df <- rbind(proQuestBWR.df, ebscoBWR.df)
 
 
-    year.25 <- as.character(c(1910:1988))
+    year.25 <- as.character(c(1910:1988, 2014, 2015))
 
     temp.df <- filter(full.df, attributes == "pubYear")
 
